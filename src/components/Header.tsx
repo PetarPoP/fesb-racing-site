@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, type ComponentProps } from 'react'
 import { Link } from '@tanstack/react-router'
 import { ArrowRight } from 'lucide-react'
 import { SECTION_IDS, type Content, type Lang } from '~/content'
@@ -6,6 +6,12 @@ import { toggleTheme } from '~/lib/theme'
 import { cx, tw } from './ui'
 
 const iconBtn = 'grid size-11 shrink-0 cursor-pointer place-items-center border border-line text-fg transition-colors hover:text-acc'
+
+// Na početnoj običan #sidro (skrola bez unosa u povijest), na podstranicama povratak na početnu na tu sekciju.
+function SectionLink({ id, lang, onHome, ...rest }: { id: string; lang: Lang; onHome: boolean } & ComponentProps<'a'>) {
+  if (onHome) return <a href={`#${id}`} {...rest} />
+  return <Link to="/$lang" params={{ lang }} hash={id} {...rest} />
+}
 
 // Sekcija čiji je vrh prešao 35 % visine prozora; #pridruzi-se nije u navigaciji pa tamo ništa nije istaknuto.
 function useActiveSection() {
@@ -44,7 +50,7 @@ function useActiveSection() {
   return active
 }
 
-export function Header({ lang, c }: { lang: Lang; c: Content }) {
+export function Header({ lang, c, onHome }: { lang: Lang; c: Content; onHome: boolean }) {
   const [menuOpen, setMenuOpen] = useState(false)
   const active = useActiveSection()
   const other: Lang = lang === 'hr' ? 'en' : 'hr'
@@ -59,9 +65,9 @@ export function Header({ lang, c }: { lang: Lang; c: Content }) {
   return (
     <header className="sticky top-0 z-50 border-b border-line bg-bg transition-colors duration-300 [view-transition-name:site-header]">
       <div className="wrap flex h-[60px] items-center gap-1.5 font-mono text-xs md:h-16 md:gap-6">
-        <a href="#top" className="font-display text-[21px] font-extrabold tracking-[.02em] text-fg md:text-2xl">
+        <SectionLink id="top" lang={lang} onHome={onHome} className="font-display text-[21px] font-extrabold tracking-[.02em] text-fg md:text-2xl">
           FESB<span className="text-acc">/</span>RACING
-        </a>
+        </SectionLink>
 
         <div className="hidden items-center gap-1.5 text-mute md:flex">
           <span className="size-[7px] animate-blink rounded-full bg-acc motion-reduce:animate-none" aria-hidden="true" />
@@ -72,9 +78,11 @@ export function Header({ lang, c }: { lang: Lang; c: Content }) {
 
         <nav className="hidden gap-5 tracking-[.06em] uppercase nav:ml-auto nav:flex" aria-label={c.menu}>
           {c.nav.map((label, i) => (
-            <a
+            <SectionLink
               key={SECTION_IDS[i]}
-              href={`#${SECTION_IDS[i]}`}
+              id={SECTION_IDS[i]}
+              lang={lang}
+              onHome={onHome}
               aria-current={active === SECTION_IDS[i] ? 'location' : undefined}
               className={cx(
                 'relative transition-colors hover:text-acc',
@@ -83,7 +91,7 @@ export function Header({ lang, c }: { lang: Lang; c: Content }) {
               )}
             >
               {label}
-            </a>
+            </SectionLink>
           ))}
         </nav>
 
@@ -92,8 +100,8 @@ export function Header({ lang, c }: { lang: Lang; c: Content }) {
           {(['hr', 'en'] as const).map((l) => (
             <Link
               key={l}
-              to="/$lang"
-              params={{ lang: l }}
+              to="."
+              params={(p) => ({ ...p, lang: l })}
               resetScroll={false}
               viewTransition
               hrefLang={l}
@@ -110,8 +118,8 @@ export function Header({ lang, c }: { lang: Lang; c: Content }) {
 
         {/* Mobilno: gumb prikazuje drugi jezik */}
         <Link
-          to="/$lang"
-          params={{ lang: other }}
+          to="."
+          params={(p) => ({ ...p, lang: other })}
           resetScroll={false}
           viewTransition
           hrefLang={other}
@@ -137,9 +145,9 @@ export function Header({ lang, c }: { lang: Lang; c: Content }) {
           </span>
         </button>
 
-        <a href="#pridruzi-se" className={cx(tw.btnRed, 'hidden px-4 py-2.5 tracking-[.06em] uppercase md:inline-block')}>
+        <SectionLink id="pridruzi-se" lang={lang} onHome={onHome} className={cx(tw.btnRed, 'hidden px-4 py-2.5 tracking-[.06em] uppercase md:inline-block')}>
           {c.cta}
-        </a>
+        </SectionLink>
 
         <button
           type="button"
@@ -160,9 +168,11 @@ export function Header({ lang, c }: { lang: Lang; c: Content }) {
       <nav id="mobile-nav" hidden={!menuOpen} aria-label={c.menu} className="border-t border-line bg-bg nav:hidden">
         <div className="wrap flex flex-col pt-1 pb-4 font-mono text-[13px] tracking-[.06em] uppercase">
           {c.nav.map((label, i) => (
-            <a
+            <SectionLink
               key={SECTION_IDS[i]}
-              href={`#${SECTION_IDS[i]}`}
+              id={SECTION_IDS[i]}
+              lang={lang}
+              onHome={onHome}
               onClick={() => setMenuOpen(false)}
               aria-current={active === SECTION_IDS[i] ? 'location' : undefined}
               className={cx(
@@ -172,16 +182,18 @@ export function Header({ lang, c }: { lang: Lang; c: Content }) {
             >
               <span className="text-acc">{String(i + 1).padStart(2, '0')}</span>
               {label}
-            </a>
+            </SectionLink>
           ))}
-          <a
-            href="#pridruzi-se"
+          <SectionLink
+            id="pridruzi-se"
+            lang={lang}
+            onHome={onHome}
             onClick={() => setMenuOpen(false)}
             className={cx(tw.btnRed, 'mt-4 flex items-center justify-center gap-2 p-4')}
           >
             {c.cta}
             <ArrowRight size={16} aria-hidden="true" />
-          </a>
+          </SectionLink>
         </div>
       </nav>
     </header>
