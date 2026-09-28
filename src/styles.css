@@ -1,0 +1,145 @@
+@import 'tailwindcss';
+
+/* Fontovi su self-hostani (@fontsource) — bez poziva prema Google Fonts */
+@import '@fontsource/barlow-condensed/latin-ext-600.css';
+@import '@fontsource/barlow-condensed/latin-ext-700.css';
+@import '@fontsource/barlow-condensed/latin-ext-800.css';
+@import '@fontsource/barlow-condensed/latin-600.css';
+@import '@fontsource/barlow-condensed/latin-700.css';
+@import '@fontsource/barlow-condensed/latin-800.css';
+@import '@fontsource/barlow/latin-ext-400.css';
+@import '@fontsource/barlow/latin-ext-500.css';
+@import '@fontsource/barlow/latin-400.css';
+@import '@fontsource/barlow/latin-500.css';
+@import '@fontsource/ibm-plex-mono/latin-ext-400.css';
+@import '@fontsource/ibm-plex-mono/latin-ext-500.css';
+@import '@fontsource/ibm-plex-mono/latin-ext-600.css';
+@import '@fontsource/ibm-plex-mono/latin-400.css';
+@import '@fontsource/ibm-plex-mono/latin-500.css';
+@import '@fontsource/ibm-plex-mono/latin-600.css';
+
+/* Tema se bira atributom data-theme na <html> (postavlja ga skripta u <head>). */
+@custom-variant dark (&:where([data-theme='dark'], [data-theme='dark'] *));
+@custom-variant light (&:where([data-theme='light'], [data-theme='light'] *));
+
+/* ── Design tokeni (README → Design Tokens) ─────────────────────────── */
+:root,
+[data-theme='dark'] {
+  --bg: #0e0b0c;
+  --fg: #ede8e6;
+  --mute: #a89a99;
+  --acc: #e8566c;
+  --mark: #e24a61;
+  --line: rgba(226, 74, 97, 0.3);
+  --ph: rgba(127, 22, 39, 0.16);
+  --phb: rgba(226, 74, 97, 0.55);
+  --pht: #eba7b2;
+  --grid: rgba(226, 74, 97, 0.07);
+  --sel: rgba(127, 22, 39, 0.32);
+}
+[data-theme='light'] {
+  --bg: #f2efee;
+  --fg: #1c1415;
+  --mute: #5b4f50;
+  --acc: #7f1627;
+  --mark: #7f1627;
+  --line: rgba(127, 22, 39, 0.26);
+  --ph: #f5e1e4;
+  --phb: rgba(127, 22, 39, 0.45);
+  --pht: #7f1627;
+  --grid: rgba(127, 22, 39, 0.06);
+  --sel: #f5e1e4;
+}
+
+@theme inline {
+  --color-bg: var(--bg);
+  --color-fg: var(--fg);
+  --color-mute: var(--mute);
+  --color-acc: var(--acc);
+  --color-mark: var(--mark);
+  --color-line: var(--line);
+  --color-ph: var(--ph);
+  --color-phb: var(--phb);
+  --color-pht: var(--pht);
+  --color-grid: var(--grid);
+  --color-sel: var(--sel);
+}
+
+@theme {
+  /* Ispune su uvijek brand crvena, neovisno o temi */
+  --color-brand: #7f1627;
+  --color-brand-hover: #9c2034;
+  --color-on-brand: #f4edec;
+
+  --font-sans: 'Barlow', ui-sans-serif, system-ui, sans-serif;
+  --font-display: 'Barlow Condensed', 'Arial Narrow', sans-serif;
+  --font-mono: 'IBM Plex Mono', ui-monospace, monospace;
+
+  /* Ispod ~900px prelazi se na mobilni layout */
+  --breakpoint-md: 56.25rem;
+  /* Širina na kojoj stane cijela navigacija u headeru */
+  --breakpoint-nav: 73.75rem;
+
+  --animate-ticker: ticker 40s linear infinite;
+  --animate-blink: blink 1.4s infinite;
+
+  @keyframes ticker {
+    from { transform: translateX(0); }
+    to { transform: translateX(-50%); }
+  }
+  @keyframes blink {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.2; }
+  }
+}
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+    -webkit-text-size-adjust: 100%;
+  }
+  body {
+    @apply bg-bg font-sans text-fg antialiased transition-[background-color,color] duration-300;
+  }
+  :focus-visible {
+    outline: 2px solid var(--acc);
+    outline-offset: 2px;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    html { scroll-behavior: auto; }
+  }
+}
+
+/* Sadržajni stupac: max 1280px, padding 16 (mobilno) / 40 (desktop) */
+@utility wrap {
+  @apply mx-auto w-full max-w-[1280px] px-4 md:px-10;
+}
+
+/* Mreža tehničkog nacrta */
+@utility grid-bg {
+  background-image:
+    linear-gradient(var(--grid) 1px, transparent 1px),
+    linear-gradient(90deg, var(--grid) 1px, transparent 1px);
+  background-size: 32px 32px;
+  background-position: -1px -1px;
+  @variant md {
+    background-size: 40px 40px;
+  }
+}
+
+/* Križići na kutovima: 4 × (1×13 + 13×1), centar točno na kutu roditelja */
+@utility corners {
+  position: absolute;
+  inset: -6px;
+  pointer-events: none;
+  --m: linear-gradient(var(--mark), var(--mark));
+  background:
+    var(--m) left 6px top 0 / 1px 13px no-repeat,
+    var(--m) left 0 top 6px / 13px 1px no-repeat,
+    var(--m) right 6px top 0 / 1px 13px no-repeat,
+    var(--m) right 0 top 6px / 13px 1px no-repeat,
+    var(--m) left 6px bottom 0 / 1px 13px no-repeat,
+    var(--m) left 0 bottom 6px / 13px 1px no-repeat,
+    var(--m) right 6px bottom 0 / 1px 13px no-repeat,
+    var(--m) right 0 bottom 6px / 13px 1px no-repeat;
+}
