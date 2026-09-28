@@ -1,4 +1,5 @@
 import { useEffect, useRef } from 'react'
+import { ArrowRight } from 'lucide-react'
 import type { Content } from '~/content'
 import { Corners, Photo, cx, tw } from './ui'
 
@@ -78,9 +79,6 @@ export function Hero({ c }: { c: Content }) {
       {/* Mobilno: jedan stupac (redoslijed preko `order`). Desktop: apsolutni raspored iz nacrta, visina 700px. */}
       <div className="wrap relative flex flex-col gap-[18px] pt-9 pb-7 md:block md:h-[700px] md:py-0">
         <div className="contents md:absolute md:top-[72px] md:left-10 md:flex md:w-[min(560px,46%)] md:flex-col md:gap-[26px]">
-          <div className="order-1 font-mono text-[10px] tracking-[.08em] text-acc uppercase md:text-xs md:tracking-[.1em]">
-            {c.kicker}
-          </div>
           <h1
             id="hero-title"
             className={cx(
@@ -96,8 +94,12 @@ export function Hero({ c }: { c: Content }) {
             {c.heroSub}
           </p>
           <div className={cx(tw.mono, 'order-6 flex gap-2.5 text-[13px]')}>
-            <a href="#pridruzi-se" className={cx(tw.btnRed, 'flex-1 px-[22px] py-4 text-center md:flex-none md:py-[15px]')}>
-              {c.cta} ▸
+            <a
+              href="#pridruzi-se"
+              className={cx(tw.btnRed, 'group flex flex-1 items-center justify-center gap-2 px-[22px] py-4 md:flex-none md:py-[15px]')}
+            >
+              {c.cta}
+              <ArrowRight size={16} aria-hidden="true" className="transition-transform group-hover:translate-x-0.5" />
             </a>
             <a
               href="#sponzori"

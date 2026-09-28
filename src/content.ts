@@ -17,7 +17,6 @@ export type Content = {
   metaDesc: string
   nav: string[]
   cta: string
-  kicker: string
   heroA: string
   heroB: string
   heroSub: string
@@ -25,26 +24,20 @@ export type Content = {
   heroImg: string
   heroImgShort: string
   stats: { v: string; l: string }[]
-  storyLabel: string
   storyTitle: string
   chapters: { y: string; t: string; d: string }[]
-  missionLabel: string
   mission: string
-  teamsLabel: string
   teamsTitle: string
   teams: Team[]
-  vehLabel: string
   vehTitle: string
   vehicles: Vehicle[]
   compLabel: string
   compTitle: string
   comps: Comp[]
   trackPlan: string
-  sponLabel: string
   sponTitle: string
   sponText: string
   sponCta: string
-  joinLabel: string
   joinTitle: string
   joinText: string
   formPath: string
@@ -64,7 +57,6 @@ export type Content = {
   gallery: string[]
   news: { date: string; tag: string; t: string; img: string }[]
   readMore: string
-  contactLabel: string
   contactTitle: string
   addr: string
   mail: string
@@ -82,7 +74,6 @@ const hr: Content = {
     'Studentski inženjerski tim FESB-a iz Splita. Projektiramo, gradimo i utrkujemo Formula Student bolide i MotoStudent motocikle.',
   nav: ['Priča', 'Timovi', 'Vozila', 'Natjecanja', 'Sponzori', 'Novosti', 'Kontakt'],
   cta: 'Pridruži se',
-  kicker: 'Formula Student · MotoStudent · Split, od 2010.',
   heroA: 'Od ploče',
   heroB: 'do staze.',
   heroSub:
@@ -96,7 +87,6 @@ const hr: Content = {
     { v: '5', l: 'Specijaliziranih timova' },
     { v: '18+', l: 'Europskih natjecanja' },
   ],
-  storyLabel: 'Priča',
   storyTitle: 'Startna linija',
   chapters: [
     {
@@ -115,9 +105,7 @@ const hr: Content = {
       d: 'Udruga specijaliziranih timova koja razvija Formula Student bolide i MotoStudent utrkačke motocikle.',
     },
   ],
-  missionLabel: 'Misija',
   mission: 'Most između akademske teorije i vrhunskog inženjerstva u stvarnom svijetu.',
-  teamsLabel: 'Timovi',
   teamsTitle: 'Pet timova, jedno vozilo.',
   teams: [
     { code: 'MEH', name: 'Mehanika', d: 'Šasija, ovjes, pogonski sklop i kočnice. Od CAD modela do zavarenog okvira.', tags: ['Šasija', 'Ovjes', 'Pogon'] },
@@ -126,7 +114,6 @@ const hr: Content = {
     { code: 'KAR', name: 'Aerodinamika & Karoserija', d: 'Kompozitna karoserija, kalupi i laminacija karbonskih vlakana.', tags: ['Kompoziti', 'Kalupi', 'Karbon'] },
     { code: 'M&B', name: 'Marketing & Biznis', d: 'Partnerstva, brend, mediji i poslovni plan koji branimo pred sucima na natjecanjima.', tags: ['Sponzori', 'Brend', 'Business plan'] },
   ],
-  vehLabel: 'Vozila',
   vehTitle: 'Dvije klase. Jedna radionica.',
   vehicles: [
     {
@@ -155,12 +142,10 @@ const hr: Content = {
     { cc: 'HR', name: 'Rimac FS Alpe Adria', place: 'Hrvatska — domaći teren', type: 'FS' },
   ],
   trackPlan: 'Tlocrt staze',
-  sponLabel: 'Sponzori',
   sponTitle: 'Partneri koji nas voze.',
   sponText:
     'Vaša tehnologija na stazi, vaš brend pred europskim inženjerskim talentima. Nudimo vidljivost, zapošljavanje i suradnju na stvarnom razvoju.',
   sponCta: 'Preuzmi sponzorski paket',
-  joinLabel: 'Pridruži se',
   joinTitle: 'Tu se ne spava prije natjecanja.',
   joinText:
     'Tražimo studente strojarstva, elektrotehnike, računarstva i ekonomije koji žele graditi, a ne samo učiti.',
@@ -185,7 +170,6 @@ const hr: Content = {
     { date: '07 / 2026', tag: 'Tim', t: 'Otvorene prijave za nove članove', img: 'grupna fotografija' },
   ],
   readMore: 'Pročitaj',
-  contactLabel: 'Kontakt',
   contactTitle: 'Svratite u radionicu.',
   addr: 'FESB, Ruđera Boškovića 32, 21000 Split',
   mail: 'info@fesbracing.hr',
@@ -203,7 +187,6 @@ const en: Content = {
     'The student engineering team of FESB in Split. We design, build and race Formula Student cars and MotoStudent motorcycles.',
   nav: ['Story', 'Teams', 'Vehicles', 'Competitions', 'Sponsors', 'News', 'Contact'],
   cta: 'Join us',
-  kicker: 'Formula Student · MotoStudent · Split, since 2010',
   heroA: 'From whiteboard',
   heroB: 'to track.',
   heroSub:
@@ -217,7 +200,6 @@ const en: Content = {
     { v: '5', l: 'Specialised teams' },
     { v: '18+', l: 'European competitions' },
   ],
-  storyLabel: 'Story',
   storyTitle: 'The starting line',
   chapters: [
     {
@@ -236,9 +218,7 @@ const en: Content = {
       d: 'An association of specialised teams developing Formula Student cars and MotoStudent race motorcycles.',
     },
   ],
-  missionLabel: 'Mission',
   mission: 'A bridge between academic theory and top-level real-world engineering.',
-  teamsLabel: 'Teams',
   teamsTitle: 'Five teams, one vehicle.',
   teams: [
     { code: 'MEH', name: 'Mechanics', d: 'Chassis, suspension, powertrain and brakes. From CAD model to welded frame.', tags: ['Chassis', 'Suspension', 'Powertrain'] },
@@ -247,7 +227,6 @@ const en: Content = {
     { code: 'KAR', name: 'Aerodynamics & Bodywork', d: 'Composite bodywork, moulds and carbon fibre lamination.', tags: ['Composites', 'Moulds', 'Carbon'] },
     { code: 'M&B', name: 'Marketing & Business', d: 'Partnerships, brand, media and the business plan we defend in front of judges.', tags: ['Sponsors', 'Brand', 'Business plan'] },
   ],
-  vehLabel: 'Vehicles',
   vehTitle: 'Two classes. One workshop.',
   vehicles: [
     {
@@ -276,12 +255,10 @@ const en: Content = {
     { cc: 'HR', name: 'Rimac FS Alpe Adria', place: 'Croatia — home ground', type: 'FS' },
   ],
   trackPlan: 'Track layout',
-  sponLabel: 'Sponsors',
   sponTitle: 'Partners who drive us.',
   sponText:
     'Your technology on track, your brand in front of Europe’s engineering talent. We offer visibility, recruiting and collaboration on real development.',
   sponCta: 'Download sponsor pack',
-  joinLabel: 'Join',
   joinTitle: 'Nobody sleeps before a competition.',
   joinText:
     'We are looking for mechanical, electrical, computing and economics students who want to build, not just study.',
@@ -306,7 +283,6 @@ const en: Content = {
     { date: '07 / 2026', tag: 'Team', t: 'Applications open for new members', img: 'group photo' },
   ],
   readMore: 'Read',
-  contactLabel: 'Contact',
   contactTitle: 'Drop by the workshop.',
   addr: 'FESB, Ruđera Boškovića 32, 21000 Split, Croatia',
   mail: 'info@fesbracing.hr',

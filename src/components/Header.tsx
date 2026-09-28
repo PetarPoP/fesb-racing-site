@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { Link } from '@tanstack/react-router'
+import { ArrowRight } from 'lucide-react'
 import { SECTION_IDS, type Content, type Lang } from '~/content'
 import { toggleTheme } from '~/lib/theme'
 import { cx, tw } from './ui'
@@ -18,7 +19,7 @@ export function Header({ lang, c }: { lang: Lang; c: Content }) {
   }, [menuOpen])
 
   return (
-    <header className="sticky top-0 z-50 border-b border-line bg-bg transition-colors duration-300">
+    <header className="sticky top-0 z-50 border-b border-line bg-bg transition-colors duration-300 [view-transition-name:site-header]">
       <div className="wrap flex h-[60px] items-center gap-1.5 font-mono text-xs md:h-16 md:gap-6">
         <a href="#top" className="font-display text-[21px] font-extrabold tracking-[.02em] text-fg md:text-2xl">
           FESB<span className="text-acc">/</span>RACING
@@ -47,11 +48,15 @@ export function Header({ lang, c }: { lang: Lang; c: Content }) {
               to="/$lang"
               params={{ lang: l }}
               resetScroll={false}
+              viewTransition
               hrefLang={l}
               aria-current={l === lang ? 'true' : undefined}
-              className={cx('px-[9px] py-[7px]', l === lang ? 'bg-fg text-bg' : 'text-fg hover:text-acc')}
+              className={cx('relative px-[9px] py-[7px]', l === lang ? 'text-bg' : 'text-fg hover:text-acc')}
             >
-              {l.toUpperCase()}
+              {l === lang && <span aria-hidden="true" className="absolute inset-0 bg-fg [view-transition-name:lang-pill]" />}
+              <span className={cx('relative', l === 'hr' ? '[view-transition-name:lang-hr]' : '[view-transition-name:lang-en]')}>
+                {l.toUpperCase()}
+              </span>
             </Link>
           ))}
         </div>
@@ -61,6 +66,7 @@ export function Header({ lang, c }: { lang: Lang; c: Content }) {
           to="/$lang"
           params={{ lang: other }}
           resetScroll={false}
+          viewTransition
           hrefLang={other}
           className={cx(iconBtn, 'md:hidden')}
           aria-label={c.langSwitch}
@@ -117,8 +123,13 @@ export function Header({ lang, c }: { lang: Lang; c: Content }) {
               {label}
             </a>
           ))}
-          <a href="#pridruzi-se" onClick={() => setMenuOpen(false)} className={cx(tw.btnRed, 'mt-4 p-4 text-center')}>
-            {c.cta} ▸
+          <a
+            href="#pridruzi-se"
+            onClick={() => setMenuOpen(false)}
+            className={cx(tw.btnRed, 'mt-4 flex items-center justify-center gap-2 p-4')}
+          >
+            {c.cta}
+            <ArrowRight size={16} aria-hidden="true" />
           </a>
         </div>
       </nav>

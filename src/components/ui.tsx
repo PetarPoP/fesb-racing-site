@@ -56,12 +56,3 @@ export function Photo({
     </figure>
   )
 }
-
-/** Oznaka sekcije „NN · NAZIV“. */
-export function SectionLabel({ n, children }: { n: string; children: ReactNode }) {
-  return (
-    <div className="border-b border-line pb-2.5 font-display text-sm font-bold tracking-[.12em] text-acc uppercase md:pb-3 md:text-[15px]">
-      {n} · {children}
-    </div>
-  )
-}
