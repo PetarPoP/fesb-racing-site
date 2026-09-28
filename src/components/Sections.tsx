@@ -1,6 +1,8 @@
 import { useState, type CSSProperties } from 'react'
-import type { Content } from '~/content'
+import { Link } from '@tanstack/react-router'
 import { ArrowDown, ArrowRight } from 'lucide-react'
+import type { Content, Lang } from '~/content'
+import { formatDate, pick, type NewsCard, type SponsorCard } from '~/lib/format'
 import { Corners, Photo, cx, tw } from './ui'
 
 /** Link na sponzorski paket — zamijeniti pravim PDF-om (npr. /sponzorski-paket.pdf). */
@@ -246,7 +248,7 @@ export function Competitions({ c }: { c: Content }) {
   )
 }
 
-export function Sponsors({ c }: { c: Content }) {
+export function Sponsors({ c, lang, sponsors }: { c: Content; lang: Lang; sponsors: SponsorCard[] }) {
   return (
     <section id="sponzori" className={tw.section}>
       <div className="grid items-start gap-8 md:grid-cols-[minmax(0,4fr)_minmax(0,8fr)] md:gap-12">
@@ -264,21 +266,40 @@ export function Sponsors({ c }: { c: Content }) {
           </a>
         </div>
         <ul className="m-0 grid list-none grid-cols-2 gap-4 p-0 sm:grid-cols-4">
-          {Array.from({ length: 8 }, (_, i) => (
-            <li
-              key={i}
-              className="grid h-24 place-items-center border border-dashed border-phb font-mono text-[11px] text-pht transition-colors hover:bg-ph"
-            >
-              LOGO {i + 1}
-            </li>
-          ))}
+          {sponsors.length
+            ? sponsors.map((s) => (
+                <li key={s.id}>
+                  <Link
+                    to="/$lang"
+                    params={{ lang }}
+                    search={{ sponzor: s.slug }}
+                    mask={{ to: '/$lang/sponzori/$slug', params: { lang, slug: s.slug }, unmaskOnReload: true }}
+                    resetScroll={false}
+                    className="grid h-24 place-items-center border border-line bg-bg p-3 transition-colors hover:border-acc hover:bg-ph"
+                  >
+                    {s.logoUrl ? (
+                      <img src={s.logoUrl} alt={s.name} className="max-h-full max-w-full object-contain" loading="lazy" />
+                    ) : (
+                      <span className="text-center font-display text-lg font-bold uppercase">{s.name}</span>
+                    )}
+                  </Link>
+                </li>
+              ))
+            : Array.from({ length: 8 }, (_, i) => (
+                <li
+                  key={i}
+                  className="grid h-24 place-items-center border border-dashed border-phb font-mono text-[11px] text-pht"
+                >
+                  LOGO {i + 1}
+                </li>
+              ))}
         </ul>
       </div>
     </section>
   )
 }
 
-export function News({ c }: { c: Content }) {
+export function News({ c, lang, news }: { c: Content; lang: Lang; news: NewsCard[] }) {
   return (
     <section id="novosti" className={tw.section}>
       <h2 className={tw.h2}>{c.newsTitle}</h2>
@@ -288,23 +309,55 @@ export function News({ c }: { c: Content }) {
         ))}
       </div>
       <div className="border-t border-line">
-        {c.news.map((n) => (
-          <a
-            key={n.t}
-            href="#novosti"
-            aria-label={`${c.readMore}: ${n.t}`}
-            className="group grid grid-cols-[auto_1fr_auto] items-center gap-x-5 gap-y-2 border-b border-line py-[18px] text-fg transition-colors hover:text-acc md:grid-cols-[120px_160px_minmax(0,1fr)_40px] md:py-[22px]"
-          >
-            <span className="font-mono text-xs text-mute">{n.date}</span>
-            <span className="font-mono text-xs text-acc uppercase">{n.tag}</span>
-            <span className="order-last col-span-3 font-display text-2xl leading-none font-bold uppercase md:order-none md:col-span-1 md:text-[32px]">
-              {n.t}
-            </span>
-            <ArrowRight size={22} aria-hidden="true" className="transition-transform group-hover:translate-x-1" />
-          </a>
+        {news.length === 0 && <p className={cx(tw.bodyMute, 'py-6')}>{c.noNews}</p>}
+        {news.map((n) => (
+          <NewsRow key={n.id} n={n} lang={lang} c={c} modal />
         ))}
       </div>
+      <Link
+        to="/$lang/novosti"
+        params={{ lang }}
+        className="group flex items-center gap-2 self-start font-mono text-xs tracking-[.06em] text-fg uppercase transition-colors hover:text-acc"
+      >
+        {c.allNews}
+        <ArrowRight size={16} aria-hidden="true" className="transition-transform group-hover:translate-x-1" />
+      </Link>
     </section>
+  )
+}
+
+const rowClass =
+  'group grid grid-cols-[auto_1fr_auto] items-center gap-x-5 gap-y-2 border-b border-line py-[18px] text-fg transition-colors hover:text-acc md:grid-cols-[150px_160px_minmax(0,1fr)_40px] md:py-[22px]'
+
+/** Red novosti: s `modal` otvara pregled iznad početne (URL je maskiran na stranicu novosti), inače vodi na stranicu. */
+export function NewsRow({ n, lang, c, modal = false }: { n: NewsCard; lang: Lang; c: Content; modal?: boolean }) {
+  const title = pick(n, 'title', lang)
+  const inner = (
+    <>
+      <span className="font-mono text-xs text-mute">{formatDate(n.date)}</span>
+      <span className="font-mono text-xs text-acc uppercase">{pick(n, 'tag', lang)}</span>
+      <span className="order-last col-span-3 font-display text-2xl leading-none font-bold uppercase md:order-none md:col-span-1 md:text-[32px]">
+        {title}
+      </span>
+      <ArrowRight size={22} aria-hidden="true" className="transition-transform group-hover:translate-x-1" />
+    </>
+  )
+  return modal ? (
+    <Link
+      to="/$lang"
+      params={{ lang }}
+      search={{ novost: n.slug }}
+      mask={{ to: '/$lang/novosti/$slug', params: { lang, slug: n.slug }, unmaskOnReload: true }}
+      resetScroll={false}
+      aria-label={`${c.readMore}: ${title}`}
+      className={rowClass}
+    >
+      {inner}
+    </Link>
+  ) : (
+    <Link to="/$lang/novosti/$slug" params={{ lang, slug: n.slug }} aria-label={`${c.readMore}: ${title}`} className={rowClass}>
+      {inner}
+    </Link>
   )
 }
 

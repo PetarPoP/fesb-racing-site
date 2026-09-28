@@ -4,3 +4,7 @@ dist
 .tanstack
 .vinxi
 .vercel
+.env
+.env*.local
+.data
+public/uploads

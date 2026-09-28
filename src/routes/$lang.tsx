@@ -1,6 +1,7 @@
-import { createFileRoute, redirect } from '@tanstack/react-router'
+import { Outlet, createFileRoute, redirect, useMatch } from '@tanstack/react-router'
 import { content, isLang, type Lang } from '~/content'
-import { Site } from '~/components/Site'
+import { NotFound } from '~/components/Cms'
+import { Shell } from '~/components/Site'
 
 export const Route = createFileRoute('/$lang')({
   beforeLoad: ({ params }) => {
@@ -15,16 +16,23 @@ export const Route = createFileRoute('/$lang')({
         { property: 'og:title', content: c.metaTitle },
         { property: 'og:description', content: c.metaDesc },
       ],
-      links: [
-        { rel: 'alternate', hrefLang: 'hr', href: '/hr' },
-        { rel: 'alternate', hrefLang: 'en', href: '/en' },
-      ],
     }
   },
-  component: LangPage,
+  component: LangLayout,
+  notFoundComponent: LangNotFound,
 })
 
-function LangPage() {
-  const { lang } = Route.useParams()
-  return <Site lang={lang as Lang} />
+function LangLayout() {
+  const lang = Route.useParams().lang as Lang
+  const onHome = Boolean(useMatch({ from: '/$lang/', shouldThrow: false }))
+  return (
+    <Shell lang={lang} onHome={onHome}>
+      <Outlet />
+    </Shell>
+  )
+}
+
+function LangNotFound() {
+  const lang = Route.useParams().lang as Lang
+  return <NotFound lang={lang} c={content[lang]} />
 }

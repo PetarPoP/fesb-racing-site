@@ -52,11 +52,31 @@ export type Content = {
   errMail: string
   errStudy: string
   errServer: string
+  modeLabel: string
+  modeStudent: string
+  modeCompany: string
+  companyTitle: string
+  companyText: string
+  companyPath: string
+  fCompany: string
+  fContact: string
+  fMessage: string
+  fSendCompany: string
+  fSentCompany: string
+  errCompany: string
+  errMessage: string
   newsLabel: string
   newsTitle: string
   gallery: string[]
-  news: { date: string; tag: string; t: string; img: string }[]
   readMore: string
+  readFull: string
+  allNews: string
+  noNews: string
+  sponsorMore: string
+  visitWebsite: string
+  close: string
+  notFound: string
+  backHome: string
   contactTitle: string
   addr: string
   mail: string
@@ -161,15 +181,32 @@ const hr: Content = {
   errMail: 'Upiši ispravnu e-mail adresu.',
   errStudy: 'Upiši studij i godinu.',
   errServer: 'Slanje nije uspjelo. Pokušaj ponovno.',
+  modeLabel: 'Javljam se kao',
+  modeStudent: 'Student',
+  modeCompany: 'Sponzor',
+  companyTitle: 'Vozimo zajedno.',
+  companyText:
+    'Tražite mlade inženjere, vidljivost na europskim stazama ili partnera za razvoj? Pošaljite nam par riječi o sebi i javit ćemo se sa sponzorskim paketom.',
+  companyPath: 'fesb-racing ~ /partneri',
+  fCompany: 'Tvrtka',
+  fContact: 'Kontakt osoba',
+  fMessage: 'Poruka',
+  fSendCompany: 'Pošalji upit',
+  fSentCompany: 'Hvala! Upit je zaprimljen, javit ćemo vam se u nekoliko radnih dana.',
+  errCompany: 'Upišite naziv tvrtke.',
+  errMessage: 'Napišite nam kratku poruku.',
   newsLabel: 'Novosti',
   newsTitle: 'Iz radionice',
   gallery: ['Bolid na stazi — široki kadar', 'Radionica, noć', 'PCB / elektronika — detalj', 'Timska fotografija', 'Pit lane'],
-  news: [
-    { date: '09 / 2026', tag: 'Radionica', t: 'Nova šasija izlazi iz kalupa', img: 'šasija u radionici' },
-    { date: '08 / 2026', tag: 'Natjecanja', t: 'Povratak s europskih staza', img: 'tim na stazi' },
-    { date: '07 / 2026', tag: 'Tim', t: 'Otvorene prijave za nove članove', img: 'grupna fotografija' },
-  ],
   readMore: 'Pročitaj',
+  readFull: 'Pročitaj cijelu novost',
+  allNews: 'Sve novosti',
+  noNews: 'Još nema objavljenih novosti.',
+  sponsorMore: 'Više o sponzoru',
+  visitWebsite: 'Web stranica',
+  close: 'Zatvori',
+  notFound: 'Ova stranica ne postoji.',
+  backHome: 'Natrag na početnu',
   contactTitle: 'Svratite u radionicu.',
   addr: 'FESB, Ruđera Boškovića 32, 21000 Split',
   mail: 'info@fesbracing.hr',
@@ -274,15 +311,32 @@ const en: Content = {
   errMail: 'Enter a valid e-mail address.',
   errStudy: 'Enter your study programme and year.',
   errServer: 'Sending failed. Please try again.',
+  modeLabel: 'I am a',
+  modeStudent: 'Student',
+  modeCompany: 'Sponsor',
+  companyTitle: 'Let’s race together.',
+  companyText:
+    'Looking for young engineers, visibility on European tracks or a development partner? Tell us a little about your company and we will get back to you with our sponsorship pack.',
+  companyPath: 'fesb-racing ~ /partners',
+  fCompany: 'Company',
+  fContact: 'Contact person',
+  fMessage: 'Message',
+  fSendCompany: 'Send inquiry',
+  fSentCompany: 'Thank you! Your inquiry has been received and we will get back to you within a few business days.',
+  errCompany: 'Enter your company name.',
+  errMessage: 'Write us a short message.',
   newsLabel: 'News',
   newsTitle: 'From the workshop',
   gallery: ['Wide shot — car on track', 'Workshop, night', 'PCB / electronics detail', 'Team photo', 'Pit lane'],
-  news: [
-    { date: '09 / 2026', tag: 'Workshop', t: 'New chassis out of the mould', img: 'chassis in workshop' },
-    { date: '08 / 2026', tag: 'Competitions', t: 'Back from the European tracks', img: 'team at the track' },
-    { date: '07 / 2026', tag: 'Team', t: 'Applications open for new members', img: 'group photo' },
-  ],
   readMore: 'Read',
+  readFull: 'Read the full story',
+  allNews: 'All news',
+  noNews: 'No news yet.',
+  sponsorMore: 'More about this sponsor',
+  visitWebsite: 'Website',
+  close: 'Close',
+  notFound: 'This page does not exist.',
+  backHome: 'Back to home',
   contactTitle: 'Drop by the workshop.',
   addr: 'FESB, Ruđera Boškovića 32, 21000 Split, Croatia',
   mail: 'info@fesbracing.hr',

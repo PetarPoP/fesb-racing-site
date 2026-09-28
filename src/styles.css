@@ -82,6 +82,11 @@
 
   --animate-ticker: ticker 40s linear infinite;
   --animate-blink: blink 1.4s infinite;
+  --animate-modal-in: modal-in 220ms cubic-bezier(0.2, 0.8, 0.2, 1);
+
+  @keyframes modal-in {
+    from { opacity: 0; transform: translateY(12px) scale(0.98); }
+  }
 
   @keyframes ticker {
     from { transform: translateX(0); }
@@ -133,6 +138,27 @@
   ::view-transition-new(*) {
     animation: none !important;
   }
+}
+
+/* Tekst novosti i sponzora iz vizualnog editora (i u adminu) */
+@utility rich {
+  @apply text-[17px] leading-[1.7] text-fg;
+  & > * + * { margin-top: 1em; }
+  & :where(h2, h3) { @apply font-display leading-none font-bold uppercase; margin-top: 1.4em; }
+  & h2 { font-size: 34px; }
+  & h3 { font-size: 26px; }
+  & a { @apply text-acc underline underline-offset-2; }
+  & :where(ul, ol) { padding-left: 1.3em; }
+  & ul { list-style: square; }
+  & ol { list-style: decimal; }
+  & li + li { margin-top: 0.35em; }
+  & li::marker { color: var(--acc); }
+  & blockquote { @apply border-l-2 border-acc pl-5 text-mute italic; }
+  & img { @apply block h-auto max-w-full border border-line; }
+  & hr { @apply border-0 border-t border-dashed border-line; }
+  & code { @apply bg-ph px-1 font-mono text-[0.9em]; }
+  & pre { @apply overflow-x-auto bg-ph p-4 font-mono text-sm; }
+  & :where(p, h2, h3):first-child { margin-top: 0; }
 }
 
 /* Sadržajni stupac: max 1280px, padding 16 (mobilno) / 40 (desktop) */
