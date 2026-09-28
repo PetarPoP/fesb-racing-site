@@ -1,7 +1,8 @@
 import { useState, type FormEvent } from 'react'
 import type { Content, Lang } from '~/content'
 import { submitApplication, validateApplication, type FieldErrors } from '~/lib/apply'
-import { Corners, SectionLabel, cx, tw } from './ui'
+import { ArrowRight, ChevronRight } from 'lucide-react'
+import { Corners, cx, tw } from './ui'
 
 type Status = 'idle' | 'sending' | 'sent' | 'error'
 
@@ -49,7 +50,6 @@ export function Join({ c, lang }: { c: Content; lang: Lang }) {
       className="wrap grid scroll-mt-16 gap-10 py-14 md:grid-cols-[minmax(0,1fr)_minmax(0,500px)] md:gap-14 md:py-24"
     >
       <div className="flex flex-col gap-5">
-        <SectionLabel n="08">{c.joinLabel}</SectionLabel>
         <h2 className="m-0 font-display text-[52px] leading-[.88] font-extrabold text-balance uppercase md:text-[clamp(56px,6.9vw,88px)]">
           {c.joinTitle}
         </h2>
@@ -75,9 +75,7 @@ export function Join({ c, lang }: { c: Content; lang: Lang }) {
                     errors[f.name] ? 'border-acc' : 'border-line',
                   )}
                 >
-                  <span className="text-acc" aria-hidden="true">
-                    ›
-                  </span>
+                  <ChevronRight size={14} aria-hidden="true" className="shrink-0 text-acc" />
                   <span className="w-[110px] shrink-0 text-mute md:w-[150px]">{f.label}</span>
                   <input
                     name={f.name}
@@ -128,9 +126,14 @@ export function Join({ c, lang }: { c: Content; lang: Lang }) {
             <button
               type="submit"
               disabled={status === 'sending'}
-              className={cx(tw.btnRed, tw.mono, 'mt-[18px] cursor-pointer p-[15px] text-left disabled:cursor-wait disabled:opacity-70')}
+              className={cx(
+                tw.btnRed,
+                tw.mono,
+                'mt-[18px] flex cursor-pointer items-center gap-2 p-[15px] text-left disabled:cursor-wait disabled:opacity-70',
+              )}
             >
-              ▸ {status === 'sending' ? c.fSending : c.fSend}
+              <ArrowRight size={16} aria-hidden="true" />
+              {status === 'sending' ? c.fSending : c.fSend}
             </button>
           </form>
         )}

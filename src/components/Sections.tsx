@@ -1,6 +1,7 @@
 import { useState, type CSSProperties } from 'react'
 import type { Content } from '~/content'
-import { Corners, Photo, SectionLabel, cx, tw } from './ui'
+import { ArrowDown, ArrowRight } from 'lucide-react'
+import { Corners, Photo, cx, tw } from './ui'
 
 /** Link na sponzorski paket — zamijeniti pravim PDF-om (npr. /sponzorski-paket.pdf). */
 const SPONSOR_PACK_URL = '#'
@@ -44,7 +45,6 @@ export function Stats({ c }: { c: Content }) {
 export function Story({ c }: { c: Content }) {
   return (
     <section id="prica" className={tw.section}>
-      <SectionLabel n="01">{c.storyLabel}</SectionLabel>
       <h2 className={tw.h2}>{c.storyTitle}</h2>
       <div className="grid gap-6 md:grid-cols-3">
         {c.chapters.map((ch, i) => (
@@ -59,9 +59,8 @@ export function Story({ c }: { c: Content }) {
           </article>
         ))}
       </div>
-      <div className="relative grid items-start gap-4 bg-brand p-6 text-on-brand md:grid-cols-[200px_minmax(0,1fr)] md:gap-8 md:p-10">
+      <div className="relative bg-brand p-6 text-on-brand md:p-10">
         <Corners />
-        <div className="font-display text-[15px] font-bold tracking-[.12em] uppercase md:pt-2.5">02 · {c.missionLabel}</div>
         <p className="m-0 font-display text-[32px] leading-[1.02] font-semibold uppercase md:text-[clamp(40px,4.1vw,52px)]">
           {c.mission}
         </p>
@@ -74,7 +73,6 @@ export function Teams({ c }: { c: Content }) {
   const [selected, setSelected] = useState(1)
   return (
     <section id="timovi" className={tw.section}>
-      <SectionLabel n="03">{c.teamsLabel}</SectionLabel>
       <h2 className={tw.h2}>{c.teamsTitle}</h2>
       <div className="flex flex-col gap-4 md:grid md:grid-cols-3 md:gap-7">
         {c.teams.map((t, i) => {
@@ -125,7 +123,6 @@ export function Teams({ c }: { c: Content }) {
 export function Vehicles({ c }: { c: Content }) {
   return (
     <section id="vozila" className={tw.section}>
-      <SectionLabel n="04">{c.vehLabel}</SectionLabel>
       <h2 className={tw.h2}>{c.vehTitle}</h2>
       <div className="grid gap-7 md:grid-cols-2">
         {c.vehicles.map((v) => (
@@ -159,7 +156,6 @@ export function Competitions({ c }: { c: Content }) {
   const comp = c.comps[sel]
   return (
     <section id="natjecanja" className={tw.section}>
-      <SectionLabel n="05">{c.compLabel}</SectionLabel>
       <h2 className={tw.h2}>{c.compTitle}</h2>
 
       {/* „Staza“: vodoravna na desktopu, okomita na mobitelu */}
@@ -222,15 +218,18 @@ export function Competitions({ c }: { c: Content }) {
 export function Sponsors({ c }: { c: Content }) {
   return (
     <section id="sponzori" className={tw.section}>
-      <SectionLabel n="06">{c.sponLabel}</SectionLabel>
       <div className="grid items-start gap-8 md:grid-cols-[minmax(0,4fr)_minmax(0,8fr)] md:gap-12">
         <div className="flex flex-col items-start gap-[18px]">
           <h2 className="m-0 font-display text-[44px] leading-[.92] font-extrabold uppercase md:text-[clamp(44px,4.7vw,60px)]">
             {c.sponTitle}
           </h2>
           <p className={tw.bodyMute}>{c.sponText}</p>
-          <a href={SPONSOR_PACK_URL} className={cx(tw.btnRed, 'px-[18px] py-[13px] font-mono text-xs uppercase')}>
-            ↓ {c.sponCta}
+          <a
+            href={SPONSOR_PACK_URL}
+            className={cx(tw.btnRed, 'flex items-center gap-2 px-[18px] py-[13px] font-mono text-xs uppercase')}
+          >
+            <ArrowDown size={14} aria-hidden="true" />
+            {c.sponCta}
           </a>
         </div>
         <ul className="m-0 grid list-none grid-cols-2 gap-4 p-0 sm:grid-cols-4">
@@ -251,7 +250,7 @@ export function Sponsors({ c }: { c: Content }) {
 export function News({ c }: { c: Content }) {
   return (
     <section id="novosti" className={tw.section}>
-      <SectionLabel n="07">{c.newsTitle}</SectionLabel>
+      <h2 className={tw.h2}>{c.newsTitle}</h2>
       <div className="grid auto-rows-[160px] grid-cols-2 gap-4 md:grid-cols-4 md:grid-rows-[380px_230px] md:gap-7">
         {c.gallery.map((g, i) => (
           <Photo key={g} label={g} className={i === 0 ? 'col-span-2 md:row-span-2' : ''} />
@@ -263,16 +262,14 @@ export function News({ c }: { c: Content }) {
             key={n.t}
             href="#novosti"
             aria-label={`${c.readMore}: ${n.t}`}
-            className="grid grid-cols-[auto_1fr_auto] items-center gap-x-5 gap-y-2 border-b border-line py-[18px] text-fg transition-colors hover:text-acc md:grid-cols-[120px_160px_minmax(0,1fr)_40px] md:py-[22px]"
+            className="group grid grid-cols-[auto_1fr_auto] items-center gap-x-5 gap-y-2 border-b border-line py-[18px] text-fg transition-colors hover:text-acc md:grid-cols-[120px_160px_minmax(0,1fr)_40px] md:py-[22px]"
           >
             <span className="font-mono text-xs text-mute">{n.date}</span>
             <span className="font-mono text-xs text-acc uppercase">{n.tag}</span>
             <span className="order-last col-span-3 font-display text-2xl leading-none font-bold uppercase md:order-none md:col-span-1 md:text-[32px]">
               {n.t}
             </span>
-            <span className="text-[22px]" aria-hidden="true">
-              →
-            </span>
+            <ArrowRight size={22} aria-hidden="true" className="transition-transform group-hover:translate-x-1" />
           </a>
         ))}
       </div>
@@ -285,7 +282,6 @@ export function Footer({ c }: { c: Content }) {
     <footer id="kontakt" className="scroll-mt-16 bg-brand text-on-brand">
       <div className="wrap grid items-end gap-8 py-14 md:grid-cols-[minmax(0,1fr)_auto]">
         <div className="flex flex-col gap-3">
-          <span className="font-display text-[15px] font-bold tracking-[.12em] uppercase">09 · {c.contactLabel}</span>
           <div className="font-display text-[44px] leading-[.9] font-extrabold uppercase md:text-[clamp(52px,5.6vw,72px)]">
             {c.contactTitle}
           </div>

@@ -110,6 +110,31 @@
   }
 }
 
+/* Promjena jezika (View Transitions): stranica se pretapa, istaknuti HR/EN klizi */
+::view-transition-old(root) {
+  animation: lang-out 160ms ease-in both;
+}
+::view-transition-new(root) {
+  animation: lang-in 320ms cubic-bezier(0.2, 0.8, 0.2, 1) 60ms both;
+}
+::view-transition-group(lang-pill) {
+  animation-duration: 320ms;
+  animation-timing-function: cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+@keyframes lang-out {
+  to { opacity: 0; filter: blur(4px); }
+}
+@keyframes lang-in {
+  from { opacity: 0; filter: blur(4px); transform: translateY(8px); }
+}
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-group(*),
+  ::view-transition-old(*),
+  ::view-transition-new(*) {
+    animation: none !important;
+  }
+}
+
 /* Sadržajni stupac: max 1280px, padding 16 (mobilno) / 40 (desktop) */
 @utility wrap {
   @apply mx-auto w-full max-w-[1280px] px-4 md:px-10;
