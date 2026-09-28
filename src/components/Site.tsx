@@ -5,7 +5,8 @@ import { Hero } from './Hero'
 import { Join } from './Join'
 import { Competitions, Footer, News, Sponsors, Stats, Story, Teams, Ticker, Vehicles } from './Sections'
 
-// Sidra unutar stranice skrolaju bez novog unosa u povijest, pa „Natrag“ ne prolazi kroz sekcije.
+// Klik na sidro samo skrola; hash se briše iz URL-a da „Natrag“ ni osvježavanje ne vraćaju na tu sekciju.
+// Podijeljeni link s #sekcijom i dalje otvara tu sekciju jer ga preglednik obradi pri učitavanju.
 function onAnchorClick(e: MouseEvent<HTMLElement>) {
   if (e.defaultPrevented || e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return
   const a = (e.target as HTMLElement).closest<HTMLAnchorElement>('a[href^="#"]')
@@ -13,7 +14,7 @@ function onAnchorClick(e: MouseEvent<HTMLElement>) {
   if (!target) return
   e.preventDefault()
   target.scrollIntoView()
-  history.replaceState(history.state, '', a.hash)
+  if (location.hash) history.replaceState(history.state, '', location.pathname + location.search)
 }
 
 export function Site({ lang }: { lang: Lang }) {
