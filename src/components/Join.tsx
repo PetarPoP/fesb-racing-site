@@ -7,7 +7,7 @@ import { Corners, cx, tw } from './ui'
 type Status = 'idle' | 'sending' | 'sent' | 'error'
 
 export function Join({ c, lang }: { c: Content; lang: Lang }) {
-  const [pick, setPick] = useState(1)
+  const [pick, setPick] = useState(0)
   const [status, setStatus] = useState<Status>('idle')
   const [errors, setErrors] = useState<FieldErrors>({})
 
