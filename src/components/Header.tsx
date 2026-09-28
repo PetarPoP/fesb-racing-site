@@ -7,8 +7,46 @@ import { cx, tw } from './ui'
 
 const iconBtn = 'grid size-11 shrink-0 cursor-pointer place-items-center border border-line text-fg transition-colors hover:text-acc'
 
+// Sekcija čiji je vrh prešao 35 % visine prozora; #pridruzi-se nije u navigaciji pa tamo ništa nije istaknuto.
+function useActiveSection() {
+  const [active, setActive] = useState<string | null>(null)
+  useEffect(() => {
+    const ids = [...SECTION_IDS, 'pridruzi-se']
+    let raf = 0
+    const update = () => {
+      raf = 0
+      const line = window.innerHeight * 0.35
+      let cur: string | null = null
+      let best = -Infinity
+      for (const id of ids) {
+        const top = document.getElementById(id)?.getBoundingClientRect().top
+        if (top !== undefined && top <= line && top > best) {
+          best = top
+          cur = id
+        }
+      }
+      const root = document.documentElement
+      if (root.scrollTop > 0 && window.innerHeight + root.scrollTop >= root.scrollHeight - 2) cur = 'kontakt'
+      setActive(cur)
+    }
+    const onScroll = () => {
+      if (!raf) raf = requestAnimationFrame(update)
+    }
+    update()
+    window.addEventListener('scroll', onScroll, { passive: true })
+    window.addEventListener('resize', onScroll)
+    return () => {
+      cancelAnimationFrame(raf)
+      window.removeEventListener('scroll', onScroll)
+      window.removeEventListener('resize', onScroll)
+    }
+  }, [])
+  return active
+}
+
 export function Header({ lang, c }: { lang: Lang; c: Content }) {
   const [menuOpen, setMenuOpen] = useState(false)
+  const active = useActiveSection()
   const other: Lang = lang === 'hr' ? 'en' : 'hr'
 
   useEffect(() => {
@@ -34,7 +72,16 @@ export function Header({ lang, c }: { lang: Lang; c: Content }) {
 
         <nav className="hidden gap-5 tracking-[.06em] uppercase nav:ml-auto nav:flex" aria-label={c.menu}>
           {c.nav.map((label, i) => (
-            <a key={SECTION_IDS[i]} href={`#${SECTION_IDS[i]}`} className="text-fg transition-colors hover:text-acc">
+            <a
+              key={SECTION_IDS[i]}
+              href={`#${SECTION_IDS[i]}`}
+              aria-current={active === SECTION_IDS[i] ? 'location' : undefined}
+              className={cx(
+                'relative transition-colors hover:text-acc',
+                'after:absolute after:inset-x-0 after:-bottom-1.5 after:h-px after:origin-left after:bg-acc after:transition-transform after:duration-300',
+                active === SECTION_IDS[i] ? 'text-acc after:scale-x-100' : 'text-fg after:scale-x-0',
+              )}
+            >
               {label}
             </a>
           ))}
@@ -117,7 +164,11 @@ export function Header({ lang, c }: { lang: Lang; c: Content }) {
               key={SECTION_IDS[i]}
               href={`#${SECTION_IDS[i]}`}
               onClick={() => setMenuOpen(false)}
-              className="flex min-h-11 items-center gap-4 border-b border-dashed border-line text-fg hover:text-acc"
+              aria-current={active === SECTION_IDS[i] ? 'location' : undefined}
+              className={cx(
+                'flex min-h-11 items-center gap-4 border-b border-dashed border-line hover:text-acc',
+                active === SECTION_IDS[i] ? 'text-acc' : 'text-fg',
+              )}
             >
               <span className="text-acc">{String(i + 1).padStart(2, '0')}</span>
               {label}
