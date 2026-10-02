@@ -69,6 +69,12 @@ export const explodeAt = (p: number, i = 0, n = 1) => {
   return out * (1 - back)
 }
 
-/** Okret bolida (stupnjevi): puni krug kroz rastav, lagani zanos uz timove, pa natrag u početni 3/4 pogled. */
+/**
+ * Okret bolida (stupnjevi): puni krug do početka timova, tako da su timovi u istom 3/4 pogledu
+ * kao na početku (vide se svi sklopovi), lagani zanos uz timove i još malo dok se sklapa.
+ */
 export const yawAt = (p: number) =>
-  -38 + 300 * smoothstep(0, PHASE.explodeTo + 0.02, p) + 30 * smoothstep(PHASE.teamsFrom, PHASE.teamsTo, p) + 30 * smoothstep(PHASE.assembleFrom, PHASE.assembleTo, p)
+  -38 +
+  360 * smoothstep(0, PHASE.teamsFrom, p) +
+  25 * smoothstep(PHASE.teamsFrom, PHASE.teamsTo, p) +
+  15 * smoothstep(PHASE.assembleFrom, PHASE.assembleTo, p)
