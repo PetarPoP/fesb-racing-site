@@ -101,6 +101,8 @@
 @layer base {
   html {
     scroll-behavior: smooth;
+    /* Hvatanje samo kad se zaustavi blizu točke (timovi u 3D sekciji) */
+    scroll-snap-type: y proximity;
     -webkit-text-size-adjust: 100%;
   }
   body {

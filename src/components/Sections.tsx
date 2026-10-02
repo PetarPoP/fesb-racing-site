@@ -102,57 +102,6 @@ export function Story({ c }: { c: Content }) {
   )
 }
 
-export function Teams({ c }: { c: Content }) {
-  const [selected, setSelected] = useState(0)
-  return (
-    <section id="timovi" className={tw.section}>
-      <h2 className={tw.h2}>{c.teamsTitle}</h2>
-      <div className="flex flex-col gap-4 md:grid md:grid-cols-3 md:gap-7">
-        {c.teams.map((t, i) => {
-          const open = selected === i
-          return (
-            <button
-              key={t.code}
-              type="button"
-              aria-pressed={open}
-              onClick={() => setSelected(i)}
-              className={cx(
-                'relative flex cursor-pointer flex-col gap-2 border p-[18px] text-left transition-colors duration-200 md:min-h-[220px] md:gap-3 md:p-[30px]',
-                open ? 'border-acc bg-sel' : 'border-line hover:bg-ph',
-              )}
-            >
-              <Corners />
-              <span className="flex justify-between font-mono text-[11px] font-semibold text-acc md:text-xs">
-                <span>{String(i + 1).padStart(2, '0')}</span>
-                <span>{t.code}</span>
-              </span>
-              <span className="font-display text-2xl leading-none font-bold uppercase md:text-[32px]">{t.name}</span>
-              {/* Mobilno: opis samo za odabrani tim */}
-              <span
-                className={cx(
-                  'text-sm leading-normal text-mute md:block md:text-base md:leading-[1.6]',
-                  open ? 'block' : 'hidden',
-                )}
-              >
-                {t.d}
-              </span>
-              {open && (
-                <span className="mt-auto flex flex-wrap gap-1.5 pt-1">
-                  {t.tags.map((g) => (
-                    <span key={g} className="border border-acc px-[7px] py-[3px] font-mono text-[11px] text-acc">
-                      {g}
-                    </span>
-                  ))}
-                </span>
-              )}
-            </button>
-          )
-        })}
-      </div>
-    </section>
-  )
-}
-
 export function Vehicles({ c }: { c: Content }) {
   return (
     <section id="vozila" className={tw.section}>
