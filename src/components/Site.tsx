@@ -4,7 +4,8 @@ import type { NewsCard, SponsorCard } from '~/lib/format'
 import { Header } from './Header'
 import { Hero } from './Hero'
 import { Join } from './Join'
-import { Competitions, Footer, News, Sponsors, Stats, Story, Teams, Ticker, Vehicles } from './Sections'
+import { Competitions, Footer, News, Sponsors, Stats, Story, Ticker, Vehicles } from './Sections'
+import { Teams } from './CarExplode'
 
 // Klik na sidro samo skrola; hash se briše iz URL-a da „Natrag“ ni osvježavanje ne vraćaju na tu sekciju.
 // Podijeljeni link s #sekcijom i dalje otvara tu sekciju jer ga preglednik obradi pri učitavanju.
@@ -37,7 +38,7 @@ export function Home({ lang, news, sponsors }: { lang: Lang; news: NewsCard[]; s
       <Ticker c={c} />
       <Stats c={c} />
       <Story c={c} />
-      <Teams c={c} />
+      <Teams c={c} lang={lang} />
       <Vehicles c={c} />
       <Competitions c={c} />
       <Sponsors c={c} lang={lang} sponsors={sponsors} />

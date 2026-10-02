@@ -29,6 +29,12 @@ export type Content = {
   mission: string
   teamsTitle: string
   teams: Team[]
+  carIntro: string
+  carAria: string
+  carModelNote: string
+  carScroll: string
+  carLoading: string
+  carFailed: string
   vehTitle: string
   vehicles: Vehicle[]
   compLabel: string
@@ -134,6 +140,12 @@ const hr: Content = {
     { code: 'KAR', name: 'Aerodinamika & Karoserija', d: 'Kompozitna karoserija, kalupi i laminacija karbonskih vlakana.', tags: ['Kompoziti', 'Kalupi', 'Karbon'] },
     { code: 'M&B', name: 'Marketing & Biznis', d: 'Partnerstva, brend, mediji i poslovni plan koji branimo pred sucima na natjecanjima.', tags: ['Sponzori', 'Brend', 'Business plan'] },
   ],
+  carIntro: 'Skrolaj kroz eFRT01: bolid se okreće, rastavlja na sklopove i pokazuje koji tim stoji iza kojeg dijela.',
+  carAria: '3D model bolida eFRT01 koji se pri skrolanju okreće i rastavlja na sklopove označene timovima',
+  carModelNote: 'CAD model · rastav po sklopovima',
+  carScroll: 'Skrolaj ↓',
+  carLoading: 'Učitavanje modela',
+  carFailed: '3D model se nije mogao učitati',
   vehTitle: 'Dvije klase. Jedna radionica.',
   vehicles: [
     {
@@ -264,6 +276,12 @@ const en: Content = {
     { code: 'KAR', name: 'Aerodynamics & Bodywork', d: 'Composite bodywork, moulds and carbon fibre lamination.', tags: ['Composites', 'Moulds', 'Carbon'] },
     { code: 'M&B', name: 'Marketing & Business', d: 'Partnerships, brand, media and the business plan we defend in front of judges.', tags: ['Sponsors', 'Brand', 'Business plan'] },
   ],
+  carIntro: 'Scroll through eFRT01: the car turns, comes apart into its assemblies and shows which team builds what.',
+  carAria: '3D model of the eFRT01 car that rotates and explodes into assemblies labelled by team as you scroll',
+  carModelNote: 'CAD model · exploded by assembly',
+  carScroll: 'Scroll ↓',
+  carLoading: 'Loading model',
+  carFailed: 'The 3D model could not be loaded',
   vehTitle: 'Two classes. One workshop.',
   vehicles: [
     {
