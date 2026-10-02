@@ -35,23 +35,40 @@ export const CAR_GROUPS: CarGroup[] = [
 ]
 
 /**
- * Dijelovi skrolanja kroz sekciju (0–1): okret, rastav, timovi redom, pa se bolid brzo opet sklopi.
+ * Dijelovi skrolanja kroz sekciju (0–1): okret i rastav, timovi redom (svaki jednako dugo),
+ * pa se bolid polako sklopi dio po dio i okrene natrag u početni pogled.
  * Ovdje (a ne u car3d.ts) da ih React komponenta može čitati bez učitavanja three.js.
  */
 export const PHASE = {
-  explodeFrom: 0.24,
-  explodeTo: 0.46,
-  teamsFrom: 0.48,
-  teamsTo: 0.88,
-  assembleFrom: 0.89,
-  assembleTo: 0.95,
+  explodeFrom: 0.1,
+  explodeTo: 0.24,
+  teamsFrom: 0.26,
+  teamsTo: 0.82,
+  assembleFrom: 0.84,
+  assembleTo: 0.97,
 }
 
+/** Razmak između sklopova dok se vraćaju na mjesto (udio skrola) — redom iz CAR_GROUPS, kotači zadnji. */
+const ASSEMBLE_STAGGER = 0.05
+
+const clamp01 = (x: number) => Math.min(1, Math.max(0, x))
 const smoothstep = (a: number, b: number, x: number) => {
-  const t = Math.min(1, Math.max(0, (x - a) / (b - a)))
+  const t = clamp01((x - a) / (b - a))
   return t * t * (3 - 2 * t)
 }
+const easeInOutCubic = (t: number) => (t < 0.5 ? 4 * t * t * t : 1 - (-2 * t + 2) ** 3 / 2)
 
-/** Koliko je bolid rastavljen (0 = složen, 1 = potpuno rastavljen) za dani napredak skrolanja. */
-export const explodeAt = (p: number) =>
-  smoothstep(PHASE.explodeFrom, PHASE.explodeTo, p) * (1 - smoothstep(PHASE.assembleFrom, PHASE.assembleTo, p))
+/**
+ * Koliko je sklop rastavljen (0 = na mjestu, 1 = potpuno odmaknut) za dani napredak skrolanja.
+ * `i` / `n` = redni broj sklopa i ukupan broj, za postupno sklapanje na kraju.
+ */
+export const explodeAt = (p: number, i = 0, n = 1) => {
+  const out = smoothstep(PHASE.explodeFrom, PHASE.explodeTo, p)
+  const start = PHASE.assembleFrom + (n > 1 ? (i / (n - 1)) * ASSEMBLE_STAGGER : 0)
+  const back = easeInOutCubic(clamp01((p - start) / (PHASE.assembleTo - ASSEMBLE_STAGGER - PHASE.assembleFrom)))
+  return out * (1 - back)
+}
+
+/** Okret bolida (stupnjevi): puni krug kroz rastav, lagani zanos uz timove, pa natrag u početni 3/4 pogled. */
+export const yawAt = (p: number) =>
+  -38 + 300 * smoothstep(0, PHASE.explodeTo + 0.02, p) + 30 * smoothstep(PHASE.teamsFrom, PHASE.teamsTo, p) + 30 * smoothstep(PHASE.assembleFrom, PHASE.assembleTo, p)

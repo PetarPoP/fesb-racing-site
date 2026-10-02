@@ -26,18 +26,13 @@ import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js'
 import { DRACOLoader } from 'three/examples/jsm/loaders/DRACOLoader.js'
 import { RoomEnvironment } from 'three/examples/jsm/environments/RoomEnvironment.js'
 import { toCreasedNormals } from 'three/examples/jsm/utils/BufferGeometryUtils.js'
-import { CAR_GROUPS, explodeAt, type CarGroup } from './carGroups'
+import { CAR_GROUPS, explodeAt, yawAt, type CarGroup } from './carGroups'
 
 export const MODEL_URL = '/models/efrt01.glb'
 
 export type LabelPos = { key: string; ax: number; ay: number; visible: boolean }
 
 type Part = { group: CarGroup; mesh: Mesh; home: Vector3; offset: Vector3; mat: MeshStandardMaterial }
-
-const smooth = (a: number, b: number, x: number) => {
-  const t = MathUtils.clamp((x - a) / (b - a), 0, 1)
-  return t * t * (3 - 2 * t)
-}
 
 function cssColor(name: string, fallback: string) {
   const v = getComputedStyle(document.documentElement).getPropertyValue(name).trim()
@@ -168,14 +163,16 @@ export async function createCarScene(
   const off = new Vector3()
   // Na uspravnom ekranu (mobitel) dijelovi se razmiču manje, da bolid ne izlazi iz kadra
   const squeeze = new Vector3(1, 1, 1)
+  const groupIndex = new Map(CAR_GROUPS.map((g, i) => [g, i]))
 
   const apply = (p: number) => {
-    const e = explodeAt(p)
-    // Okret: iz 3/4 pogleda sprijeda preko boka do 3/4 pogleda straga, pa lagano nastavlja
-    car.rotation.y = MathUtils.degToRad(-38 + 360 * smooth(0, 0.46, p) + 40 * smooth(0.46, 1, p))
+    const n = CAR_GROUPS.length
+    const e = explodeAt(p, n / 2, n) // za kameru: prosjek
+    car.rotation.y = MathUtils.degToRad(yawAt(p))
 
     for (const part of parts) {
-      part.mesh.position.copy(part.home).add(off.copy(part.offset).multiply(squeeze).multiplyScalar(e))
+      const k = explodeAt(p, groupIndex.get(part.group)!, n)
+      part.mesh.position.copy(part.home).add(off.copy(part.offset).multiply(squeeze).multiplyScalar(k))
     }
 
     // Kamera: odmakne se dok se bolid rastavlja, da sve stane u kadar
@@ -230,13 +227,13 @@ export async function createCarScene(
       dirty = false
     }
     car.updateMatrixWorld()
-    const e = explodeAt(shown)
     return anchors.map((a) => {
       let best: Vector3 | null = null
       let bestZ = Infinity
       for (const sp of a.spots) {
         // sidro prati pomak dijelova
-        tmp.copy(sp.local).add(off.copy(sp.part.offset).multiply(squeeze).multiplyScalar(e))
+        const k = explodeAt(shown, groupIndex.get(sp.part.group)!, CAR_GROUPS.length)
+        tmp.copy(sp.local).add(off.copy(sp.part.offset).multiply(squeeze).multiplyScalar(k))
         root.localToWorld(tmp)
         const z = tmp.distanceToSquared(camera.position)
         if (z < bestZ) {
