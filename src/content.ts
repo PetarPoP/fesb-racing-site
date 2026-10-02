@@ -35,6 +35,7 @@ export type Content = {
   carScroll: string
   carLoading: string
   carFailed: string
+  carAll: string
   vehTitle: string
   vehicles: Vehicle[]
   compLabel: string
@@ -146,6 +147,7 @@ const hr: Content = {
   carScroll: 'Skrolaj ↓',
   carLoading: 'Učitavanje modela',
   carFailed: '3D model se nije mogao učitati',
+  carAll: 'Cijeli bolid · brend i sponzori',
   vehTitle: 'Dvije klase. Jedna radionica.',
   vehicles: [
     {
@@ -282,6 +284,7 @@ const en: Content = {
   carScroll: 'Scroll ↓',
   carLoading: 'Loading model',
   carFailed: 'The 3D model could not be loaded',
+  carAll: 'The whole car · brand & sponsors',
   vehTitle: 'Two classes. One workshop.',
   vehicles: [
     {

@@ -4,6 +4,10 @@ import { CAR_GROUPS, PHASE } from '~/lib/carGroups'
 import type { CarScene, LabelPos } from '~/lib/car3d'
 import { Corners, cx, tw } from './ui'
 
+/** Nazivi sklopova uz točke: naslovni font (Barlow Condensed), mali i bijeli, s mekom sjenom za čitljivost. */
+const labelText =
+  'font-display text-[13px] font-bold tracking-[.04em] uppercase [filter:drop-shadow(0_0_2px_var(--bg))_drop-shadow(0_0_1px_var(--bg))] md:text-[15px]'
+
 const clamp01 = (x: number) => Math.min(1, Math.max(0, x))
 
 /** Koji je tim aktivan za dani napredak skrolanja (-1 = nijedan). */
@@ -118,9 +122,12 @@ export function Teams({ c, lang }: { c: Content; lang: Lang }) {
       const cy = cr ? cr.top - sr.top : 0
       const busY = cy - (stage.clientWidth < 900 ? 18 : 28)
       const code = idx >= 0 ? teams[idx].code : null
-      for (const a of pos) {
-        const group = CAR_GROUPS.find((g) => g.key === a.key)!
-        const goal = code === group.team && a.visible && cr ? 1 : 0
+      const partless = !!code && !CAR_GROUPS.some((g) => g.team === code)
+      const ctr = scene.center()
+      const all: LabelPos = { key: '__all', ax: ctr.x, ay: ctr.y, visible: true }
+      for (const a of [...pos, all]) {
+        const team = a.key === '__all' ? (partless ? code : null) : CAR_GROUPS.find((g) => g.key === a.key)!.team
+        const goal = team !== null && code === team && a.visible && cr ? 1 : 0
         const prev = shown.get(a.key) ?? 0
         const o = reduced ? goal : prev + (goal - prev) * Math.min(1, dt * 10)
         shown.set(a.key, o)
@@ -136,7 +143,10 @@ export function Teams({ c, lang }: { c: Content; lang: Lang }) {
           )
           dot?.setAttribute('cx', a.ax.toFixed(1))
           dot?.setAttribute('cy', ay.toFixed(1))
-          name?.setAttribute('x', (a.ax + 9).toFixed(1))
+          // uz desni rub natpis ide lijevo od točke, da ne izađe iz ekrana
+          const flip = a.ax > stage.clientWidth * 0.62
+          name?.setAttribute('text-anchor', flip ? 'end' : 'start')
+          name?.setAttribute('x', (a.ax + (flip ? -9 : 9)).toFixed(1))
           name?.setAttribute('y', (ay - 8).toFixed(1))
         }
         if (line) line.style.opacity = op
@@ -216,19 +226,19 @@ export function Teams({ c, lang }: { c: Content; lang: Lang }) {
                   style={{ opacity: 0 }}
                 />
                 <circle data-key={g.key} r="3" fill="var(--bg)" stroke="var(--acc)" strokeWidth="1.5" style={{ opacity: 0 }} />
-                <text
-                  data-key={g.key}
-                  className="font-mono text-[10px] font-semibold tracking-[.08em] uppercase"
-                  fill="var(--acc)"
-                  stroke="var(--bg)"
-                  strokeWidth="3"
-                  paintOrder="stroke"
-                  style={{ opacity: 0 }}
-                >
+                <text data-key={g.key} className={labelText} fill="var(--fg)" style={{ opacity: 0 }}>
                   {g.name[lang]}
                 </text>
               </g>
             ))}
+            {/* Tim bez vlastitih dijelova (marketing): jedna linija od cijelog bolida */}
+            <g>
+              <polyline data-key="__all" fill="none" stroke="var(--acc)" strokeWidth="1" strokeDasharray="3 4" style={{ opacity: 0 }} />
+              <circle data-key="__all" r="3" fill="var(--bg)" stroke="var(--acc)" strokeWidth="1.5" style={{ opacity: 0 }} />
+              <text data-key="__all" className={labelText} fill="var(--fg)" style={{ opacity: 0 }}>
+                {c.carAll}
+              </text>
+            </g>
           </svg>
 
           {/* Gornja traka nacrta */}
@@ -265,7 +275,7 @@ export function Teams({ c, lang }: { c: Content; lang: Lang }) {
                   <h3 className="m-0 mt-1 font-display text-2xl leading-none font-bold uppercase md:text-[32px]">
                     {activeTeam.name}
                   </h3>
-                  <p className="m-0 mt-2 hidden text-[15px] leading-normal text-mute md:block">{activeTeam.d}</p>
+                  <p className="m-0 mt-1.5 text-[13px] leading-snug text-mute md:mt-2 md:text-[15px] md:leading-normal">{activeTeam.d}</p>
                   <div className="mt-2.5 flex flex-wrap gap-1.5">
                     {activeTeam.tags.map((g) => (
                       <span key={g} className="border border-acc px-[7px] py-[3px] font-mono text-[11px] text-acc">

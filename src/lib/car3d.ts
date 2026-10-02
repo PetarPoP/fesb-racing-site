@@ -138,6 +138,8 @@ export async function createCarScene(
     height = Math.max(1, h)
     renderer.setSize(width, height, false)
     camera.aspect = width / height
+    const portrait = camera.aspect < 1
+    squeeze.set(portrait ? 0.62 : 1, portrait ? 0.85 : 1, portrait ? 0.75 : 1)
     camera.updateProjectionMatrix()
     dirty = true
   }
@@ -148,6 +150,9 @@ export async function createCarScene(
   let team: string | null = null
   const mix = new Map<CarGroup, number>() // 0 = neutralno, 1 = istaknuto, -1 = prigušeno
   const tmp = new Vector3()
+  const off = new Vector3()
+  // Na uspravnom ekranu (mobitel) dijelovi se razmiču manje, da bolid ne izlazi iz kadra
+  const squeeze = new Vector3(1, 1, 1)
 
   const apply = (p: number) => {
     const e = explodeAt(p)
@@ -155,24 +160,26 @@ export async function createCarScene(
     car.rotation.y = MathUtils.degToRad(-38 + 360 * smooth(0, 0.46, p) + 40 * smooth(0.46, 1, p))
 
     for (const part of parts) {
-      part.mesh.position.copy(part.home).addScaledVector(part.offset, e)
+      part.mesh.position.copy(part.home).add(off.copy(part.offset).multiply(squeeze).multiplyScalar(e))
     }
 
     // Kamera: odmakne se dok se bolid rastavlja, da sve stane u kadar
     const portrait = camera.aspect < 1
-    const radius = MathUtils.lerp(1.9, 3.1, e) * (portrait ? 0.92 : 1)
+    const radius = MathUtils.lerp(1.9, 3.1, e) * (portrait ? 0.96 : 1)
     const fovV = MathUtils.degToRad(camera.fov)
     const fit = Math.max(radius / Math.tan(fovV / 2), radius / (Math.tan(fovV / 2) * camera.aspect))
     const dist = fit * 0.92
     const elev = MathUtils.degToRad(MathUtils.lerp(15, 30, e))
     camera.position.set(0, Math.sin(elev) * dist + 0.35 * e, Math.cos(elev) * dist)
-    camera.lookAt(0, 0.25 + 0.35 * e, 0)
+    // na mobitelu je opis tima gore, pa se bolid spušta niže u kadru
+    camera.lookAt(0, 0.25 + 0.35 * e + (portrait ? 0.3 * e : 0), 0)
   }
 
   const paintColors = (dt: number) => {
     let moving = false
     for (const g of CAR_GROUPS) {
-      const goal = team === null || team === '*' ? 0 : g.team === team ? 1 : -1
+      // '*' = tim bez vlastitih dijelova (marketing): ističe se cijeli bolid
+      const goal = team === null ? 0 : team === '*' || g.team === team ? 1 : -1
       const cur = mix.get(g) ?? 0
       const next = MathUtils.damp(cur, goal, 9, dt)
       if (Math.abs(next - goal) > 0.002) moving = true
@@ -212,7 +219,7 @@ export async function createCarScene(
       if (!a.local) return { key: a.key, ax: 0, ay: 0, visible: false }
       // središte sidra prati pomak dijelova
       const p0 = a.parts[0]
-      tmp.copy(a.local).addScaledVector(p0.offset, explodeAt(shown))
+      tmp.copy(a.local).add(off.copy(p0.offset).multiply(squeeze).multiplyScalar(explodeAt(shown)))
       root.localToWorld(tmp)
       tmp.project(camera)
       return {
