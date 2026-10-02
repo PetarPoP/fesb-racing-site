@@ -112,6 +112,9 @@ export function Hero({ c }: { c: Content }) {
 
         <Photo
           label={c.heroImg}
+          src="/img/bolid-u-zavoju.jpg"
+          position="50% 68%"
+          eager
           className="order-4 h-[200px] md:absolute md:top-12 md:right-10 md:aspect-[10/7] md:h-auto md:w-[min(600px,47vw)]"
         />
         <div

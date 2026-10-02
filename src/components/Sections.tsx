@@ -110,8 +110,8 @@ export function Vehicles({ c }: { c: Content }) {
         {c.vehicles.map((v) => (
           <article key={v.id} className={cx(tw.card, 'flex flex-col')}>
             <Corners />
-            <Photo label={v.img} corners={false} className="m-3.5 h-[220px] md:h-[320px]">
-              <span className="absolute top-3 left-3 bg-brand px-2.5 py-[3px] font-display text-lg font-bold text-on-brand uppercase">
+            <Photo label={v.img} src={v.src} position={v.pos} corners={false} className="m-3.5 h-[220px] md:h-[320px]">
+              <span className="absolute top-3 left-3 z-10 bg-brand px-2.5 py-[3px] font-display text-lg font-bold text-on-brand uppercase">
                 {v.cls}
               </span>
             </Photo>

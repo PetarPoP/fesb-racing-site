@@ -28,12 +28,18 @@ export function Photo({
   src,
   className,
   corners = true,
+  position,
+  eager,
   children,
 }: {
   label: string
   src?: string
   className?: string
   corners?: boolean
+  /** object-position slike, npr. '50% 70%' da bolid ostane u kadru pri uskom izrezu */
+  position?: string
+  /** iznad pregiba (hero) — učitaj odmah */
+  eager?: boolean
   children?: ReactNode
 }) {
   return (
@@ -46,7 +52,14 @@ export function Photo({
       {corners && <Corners />}
       {children}
       {src ? (
-        <img src={src} alt={label} loading="lazy" className="absolute inset-0 size-full object-cover" />
+        <img
+          src={src}
+          alt={label}
+          loading={eager ? 'eager' : 'lazy'}
+          decoding="async"
+          className="absolute inset-0 size-full object-cover"
+          style={position ? { objectPosition: position } : undefined}
+        />
       ) : (
         <>
           <span className="h-[19px] w-6 rounded-[3px] border-[1.5px] border-current" aria-hidden="true" />

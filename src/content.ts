@@ -9,7 +9,7 @@ export const isLang = (v: unknown): v is Lang => v === 'hr' || v === 'en'
 export const SECTION_IDS = ['prica', 'timovi', 'vozila', 'natjecanja', 'sponzori', 'novosti', 'kontakt'] as const
 
 type Team = { code: string; name: string; d: string; tags: string[] }
-type Vehicle = { id: string; cls: string; name: string; d: string; sys: string[]; img: string }
+type Vehicle = { id: string; cls: string; name: string; d: string; sys: string[]; img: string; src?: string; pos?: string }
 type Comp = { cc: string; name: string; place: string; type: 'FS' | 'MS' }
 
 export type Content = {
@@ -156,7 +156,9 @@ const hr: Content = {
       name: 'Formula Student bolid',
       d: 'Jednosjed razvijen za statičke i dinamičke discipline: acceleration, skidpad, autocross i endurance.',
       sys: ['Šasija', 'Ovjes', 'Aero paket', 'VCU', 'Vlastite PCB'],
-      img: 'fotografija bolida — bočni profil',
+      img: 'Bolid eFRT01 na natjecanju',
+      src: '/img/foto-bolida.jpg',
+      pos: '50% 60%',
     },
     {
       id: 'ms',
@@ -164,7 +166,9 @@ const hr: Content = {
       name: 'MotoStudent motocikl',
       d: 'Utrkački prototip motocikla razvijen od okvira do elektronike za natjecanje MotoStudent u Španjolskoj.',
       sys: ['Okvir', 'Ovjes', 'Karoserija', 'Elektronika', 'Pogon'],
-      img: 'fotografija motocikla — 3/4 pogled',
+      img: 'MotoStudent motocikl na stazi',
+      src: '/img/foto-motora.jpg',
+      pos: '45% 55%',
     },
   ],
   compLabel: 'Natjecanja',
@@ -293,7 +297,9 @@ const en: Content = {
       name: 'Formula Student car',
       d: 'A single-seater built for static and dynamic events: acceleration, skidpad, autocross and endurance.',
       sys: ['Chassis', 'Suspension', 'Aero package', 'VCU', 'In-house PCBs'],
-      img: 'car photo — side profile',
+      img: 'The eFRT01 car at a competition',
+      src: '/img/foto-bolida.jpg',
+      pos: '50% 60%',
     },
     {
       id: 'ms',
@@ -301,7 +307,9 @@ const en: Content = {
       name: 'MotoStudent motorcycle',
       d: 'A race motorcycle prototype developed from frame to electronics for MotoStudent in Spain.',
       sys: ['Frame', 'Suspension', 'Bodywork', 'Electronics', 'Powertrain'],
-      img: 'motorcycle photo — 3/4 view',
+      img: 'The MotoStudent motorcycle on track',
+      src: '/img/foto-motora.jpg',
+      pos: '45% 55%',
     },
   ],
   compLabel: 'Competitions',
