@@ -238,7 +238,21 @@ export function Teams({ c, lang }: { c: Content; lang: Lang }) {
         <p className={cx(tw.bodyMute, 'max-w-[620px] md:text-lg')}>{c.carIntro}</p>
       </div>
 
-      <div ref={trackRef} className="relative h-[720vh]">
+      <div
+        ref={trackRef}
+        className="relative h-[460vh] [--stage-h:calc(100svh_-_60px)] md:[--stage-h:calc(100svh_-_4rem)]"
+      >
+        {/* Točke hvatanja: skrol se kratko „zalijepi“ na svakom timu prije nego prijeđe na sljedeći */}
+        {teams.map((t, i) => (
+          <div
+            key={t.code}
+            aria-hidden="true"
+            className="pointer-events-none absolute left-0 h-px w-px snap-start"
+            style={{
+              top: `calc(${PHASE.teamsFrom + ((i + 0.5) / teams.length) * (PHASE.teamsTo - PHASE.teamsFrom)} * (100% - var(--stage-h)))`,
+            }}
+          />
+        ))}
         <div
           ref={stageRef}
           className="sticky top-[60px] h-[calc(100svh-60px)] overflow-hidden md:top-16 md:h-[calc(100svh-4rem)]"
