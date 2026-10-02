@@ -263,7 +263,7 @@ export function Teams({ c, lang }: { c: Content; lang: Lang }) {
                   strokeDasharray="3 4"
                   style={{ opacity: 0 }}
                 />
-                <circle data-key={g.key} r="3" fill="var(--bg)" stroke="var(--acc)" strokeWidth="1.5" style={{ opacity: 0 }} />
+                <circle data-key={g.key} r="3.5" fill="var(--fg)" stroke="var(--bg)" strokeWidth="1.5" style={{ opacity: 0 }} />
                 <text data-key={g.key} className={labelText} fill="var(--fg)" style={{ opacity: 0 }}>
                   {g.name[lang]}
                 </text>
@@ -272,7 +272,7 @@ export function Teams({ c, lang }: { c: Content; lang: Lang }) {
             {/* Tim bez vlastitih dijelova (marketing): jedna linija od cijelog bolida */}
             <g>
               <polyline data-key="__all" fill="none" stroke="var(--acc)" strokeWidth="1" strokeDasharray="3 4" style={{ opacity: 0 }} />
-              <circle data-key="__all" r="3" fill="var(--bg)" stroke="var(--acc)" strokeWidth="1.5" style={{ opacity: 0 }} />
+              <circle data-key="__all" r="3.5" fill="var(--fg)" stroke="var(--bg)" strokeWidth="1.5" style={{ opacity: 0 }} />
               <text data-key="__all" className={labelText} fill="var(--fg)" style={{ opacity: 0 }}>
                 {c.carAll}
               </text>

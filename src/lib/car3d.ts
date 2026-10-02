@@ -101,14 +101,29 @@ export async function createCarScene(
   scene.add(grid)
 
   // Sidra za oznake: središte sklopa (za L/R sklopove lijeva polovica, da linija ne ide u bolid)
-  const anchors = CAR_GROUPS.map((g) => {
-    const own = parts.filter((p) => p.group === g)
-    const pick = own.filter((p) => p.offset.z > 0.01 || p.group.spread === undefined)
-    const list = pick.length ? pick : own
-    const b = new Box3()
-    list.forEach((p) => b.expandByObject(p.mesh))
-    return { key: g.key, parts: list, local: b.isEmpty() ? null : b.getCenter(new Vector3()) }
-  })
+  // Sidra za linije: stvarna točka na površini dijela (vrh mreže najbliži središtu dijela),
+  // a ne središte okvira, koje kod npr. kotača pada u prazno između dva kotača.
+  // Sklopovi s lijevom i desnom polovicom imaju sidro na obje, a koristi se ono bliže kameri.
+  const v = new Vector3()
+  const surfacePoint = (p: Part) => {
+    const pos = p.mesh.geometry.attributes.position
+    const mid = new Box3().setFromObject(p.mesh).getCenter(new Vector3())
+    const best = new Vector3()
+    let bestD = Infinity
+    for (let i = 0; i < pos.count; i += 3) {
+      p.mesh.localToWorld(v.fromBufferAttribute(pos, i))
+      const d = v.distanceToSquared(mid)
+      if (d < bestD) {
+        bestD = d
+        best.copy(v)
+      }
+    }
+    return best
+  }
+  const anchors = CAR_GROUPS.map((g) => ({
+    key: g.key,
+    spots: parts.filter((p) => p.group === g).map((p) => ({ part: p, local: surfacePoint(p) })),
+  }))
 
   let theme = { base: new Color(), livery: new Color(), acc: new Color(), line: new Color() }
   const readTheme = () => {
@@ -215,18 +230,27 @@ export async function createCarScene(
       dirty = false
     }
     car.updateMatrixWorld()
+    const e = explodeAt(shown)
     return anchors.map((a) => {
-      if (!a.local) return { key: a.key, ax: 0, ay: 0, visible: false }
-      // središte sidra prati pomak dijelova
-      const p0 = a.parts[0]
-      tmp.copy(a.local).add(off.copy(p0.offset).multiply(squeeze).multiplyScalar(explodeAt(shown)))
-      root.localToWorld(tmp)
-      tmp.project(camera)
+      let best: Vector3 | null = null
+      let bestZ = Infinity
+      for (const sp of a.spots) {
+        // sidro prati pomak dijelova
+        tmp.copy(sp.local).add(off.copy(sp.part.offset).multiply(squeeze).multiplyScalar(e))
+        root.localToWorld(tmp)
+        const z = tmp.distanceToSquared(camera.position)
+        if (z < bestZ) {
+          bestZ = z
+          best = (best ?? new Vector3()).copy(tmp)
+        }
+      }
+      if (!best) return { key: a.key, ax: 0, ay: 0, visible: false }
+      best.project(camera)
       return {
         key: a.key,
-        ax: (tmp.x * 0.5 + 0.5) * width,
-        ay: (-tmp.y * 0.5 + 0.5) * height,
-        visible: tmp.z < 1,
+        ax: (best.x * 0.5 + 0.5) * width,
+        ay: (-best.y * 0.5 + 0.5) * height,
+        visible: best.z < 1,
       }
     })
   }
