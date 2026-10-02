@@ -240,7 +240,7 @@ export function Teams({ c, lang }: { c: Content; lang: Lang }) {
 
       <div
         ref={trackRef}
-        className="relative h-[460vh] [--stage-h:calc(100svh_-_60px)] md:[--stage-h:calc(100svh_-_4rem)]"
+        className="relative h-[520vh] [--stage-h:calc(100svh_-_60px)] md:[--stage-h:calc(100svh_-_4rem)]"
       >
         {/* Točke hvatanja: skrol se kratko „zalijepi“ na svakom timu prije nego prijeđe na sljedeći */}
         {teams.map((t, i) => (

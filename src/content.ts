@@ -147,7 +147,7 @@ const hr: Content = {
   carScroll: 'Skrolaj ↓',
   carLoading: 'Učitavanje modela',
   carFailed: '3D model se nije mogao učitati',
-  carAll: 'Cijeli bolid · brend i sponzori',
+  carAll: 'Cijeli bolid',
   vehTitle: 'Dvije klase. Jedna radionica.',
   vehicles: [
     {
@@ -284,7 +284,7 @@ const en: Content = {
   carScroll: 'Scroll ↓',
   carLoading: 'Loading model',
   carFailed: 'The 3D model could not be loaded',
-  carAll: 'The whole car · brand & sponsors',
+  carAll: 'Whole car',
   vehTitle: 'Two classes. One workshop.',
   vehicles: [
     {

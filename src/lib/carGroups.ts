@@ -40,16 +40,16 @@ export const CAR_GROUPS: CarGroup[] = [
  * Ovdje (a ne u car3d.ts) da ih React komponenta može čitati bez učitavanja three.js.
  */
 export const PHASE = {
-  explodeFrom: 0.1,
-  explodeTo: 0.24,
-  teamsFrom: 0.26,
-  teamsTo: 0.82,
-  assembleFrom: 0.84,
-  assembleTo: 0.97,
+  explodeFrom: 0.086,
+  explodeTo: 0.206,
+  teamsFrom: 0.223,
+  teamsTo: 0.703,
+  assembleFrom: 0.72,
+  assembleTo: 0.975,
 }
 
 /** Razmak između sklopova dok se vraćaju na mjesto (udio skrola) — redom iz CAR_GROUPS, kotači zadnji. */
-const ASSEMBLE_STAGGER = 0.05
+const ASSEMBLE_STAGGER = 0.08
 
 const clamp01 = (x: number) => Math.min(1, Math.max(0, x))
 const smoothstep = (a: number, b: number, x: number) => {
