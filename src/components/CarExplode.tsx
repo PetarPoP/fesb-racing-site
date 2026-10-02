@@ -125,6 +125,7 @@ export function Teams({ c, lang }: { c: Content; lang: Lang }) {
       const partless = !!code && !CAR_GROUPS.some((g) => g.team === code)
       const ctr = scene.center()
       const all: LabelPos = { key: '__all', ax: ctr.x, ay: ctr.y, visible: true }
+      const toPlace: { name: SVGTextElement; key: string; ax: number; ay: number }[] = []
       for (const a of [...pos, all]) {
         const team = a.key === '__all' ? (partless ? code : null) : CAR_GROUPS.find((g) => g.key === a.key)!.team
         const goal = team !== null && code === team && a.visible && cr ? 1 : 0
@@ -143,15 +144,52 @@ export function Teams({ c, lang }: { c: Content; lang: Lang }) {
           )
           dot?.setAttribute('cx', a.ax.toFixed(1))
           dot?.setAttribute('cy', ay.toFixed(1))
-          // uz desni rub natpis ide lijevo od točke, da ne izađe iz ekrana
-          const flip = a.ax > stage.clientWidth * 0.62
-          name?.setAttribute('text-anchor', flip ? 'end' : 'start')
-          name?.setAttribute('x', (a.ax + (flip ? -9 : 9)).toFixed(1))
-          name?.setAttribute('y', (ay - 8).toFixed(1))
+          if (name) toPlace.push({ name, key: a.key, ax: a.ax, ay })
         }
         if (line) line.style.opacity = op
         if (dot) dot.style.opacity = op
         if (name) name.style.opacity = op
+      }
+      placeNames(toPlace)
+    }
+
+    // Natpisi se ne smiju preklapati: za svaki se probaju mjesta oko točke (desno/lijevo, iznad/ispod),
+    // a ako su sva zauzeta, natpis se pomiče dolje/gore dok ne nađe slobodan red
+    const lastSpot = new Map<string, number>()
+    const placeNames = (list: { name: SVGTextElement; key: string; ax: number; ay: number }[]) => {
+      const W = stage.clientWidth
+      const lh = W < 900 ? 14 : 16
+      const taken: { x0: number; x1: number; y0: number; y1: number }[] = []
+      const free = (b: (typeof taken)[number]) =>
+        b.x0 >= 4 && b.x1 <= W - 4 && taken.every((t) => b.x1 + 4 < t.x0 || b.x0 - 4 > t.x1 || b.y1 + 2 < t.y0 || b.y0 - 2 > t.y1)
+      for (const l of list.sort((m, n) => m.ay - n.ay)) {
+        const w = l.name.getComputedTextLength()
+        // [pomak x, bazna linija y, desno poravnanje]
+        const spots: [number, number, boolean][] = [
+          [9, -8, false],
+          [-9, -8, true],
+          [9, lh + 6, false],
+          [-9, lh + 6, true],
+        ]
+        for (let k = 1; k <= 8; k++) {
+          const dy = Math.ceil(k / 2) * (lh + 3) * (k % 2 ? 1 : -1)
+          spots.push([9, -8 + dy, false], [-9, -8 + dy, true])
+        }
+        const pref = lastSpot.get(l.key)
+        const order = pref !== undefined ? [pref, ...spots.keys()] : [...spots.keys()]
+        let pick = order.find((i) => {
+          const [dx, by, end] = spots[i]
+          const x0 = end ? l.ax + dx - w : l.ax + dx
+          return free({ x0, x1: x0 + w, y0: l.ay + by - lh + 3, y1: l.ay + by + 3 })
+        })
+        pick ??= 0
+        lastSpot.set(l.key, pick)
+        const [dx, by, end] = spots[pick]
+        const x0 = end ? l.ax + dx - w : l.ax + dx
+        taken.push({ x0, x1: x0 + w, y0: l.ay + by - lh + 3, y1: l.ay + by + 3 })
+        l.name.setAttribute('text-anchor', end ? 'end' : 'start')
+        l.name.setAttribute('x', (l.ax + dx).toFixed(1))
+        l.name.setAttribute('y', (l.ay + by).toFixed(1))
       }
     }
 
