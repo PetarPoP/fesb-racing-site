@@ -6,7 +6,7 @@ import { pick } from '~/lib/format'
 
 export const Route = createFileRoute('/$lang/novosti/$slug')({
   loader: async ({ params }) => {
-    const n = await getNews({ data: params.slug })
+    const n = await getNews({ data: { slug: params.slug, lang: params.lang } })
     if (!n) throw notFound()
     return n
   },

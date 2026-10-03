@@ -1,10 +1,12 @@
 import type { MouseEvent, ReactNode } from 'react'
-import { content, type Lang } from '~/content'
-import type { NewsCard, SponsorCard } from '~/lib/format'
+import type { Content, Lang } from '~/content'
+import type { Partner } from '~/lib/partners'
+import type { NewsCard } from '~/lib/format'
 import { Header } from './Header'
 import { Hero } from './Hero'
 import { Join } from './Join'
 import { Competitions, Footer, News, Sponsors, Stats, Story, Ticker, Vehicles } from './Sections'
+import { DitherCanvas, DitherProvider } from './Dither'
 import { Teams } from './CarExplode'
 
 // Klik na sidro samo skrola; hash se briše iz URL-a da „Natrag“ ni osvježavanje ne vraćaju na tu sekciju.
@@ -15,23 +17,24 @@ function onAnchorClick(e: MouseEvent<HTMLElement>) {
   const target = a && document.getElementById(decodeURIComponent(a.hash.slice(1)))
   if (!target) return
   e.preventDefault()
-  target.scrollIntoView()
+  target.scrollIntoView({ behavior: 'instant' })
   if (location.hash) history.replaceState(history.state, '', location.pathname + location.search)
 }
 
-export function Shell({ lang, onHome, children }: { lang: Lang; onHome: boolean; children: ReactNode }) {
-  const c = content[lang]
+export function Shell({ lang, c, onHome, children }: { lang: Lang; c: Content; onHome: boolean; children: ReactNode }) {
   return (
-    <div className="contents" onClick={onAnchorClick}>
-      <Header lang={lang} c={c} onHome={onHome} />
-      {children}
-      <Footer c={c} />
-    </div>
+    <DitherProvider className="contents">
+      <div className="contents" onClick={onAnchorClick}>
+        {onHome && <DitherCanvas mode="edges" className="fixed inset-0 -z-10 size-full max-[767px]:hidden" />}
+        <Header lang={lang} c={c} onHome={onHome} />
+        {children}
+        <Footer c={c} lang={lang} onHome={onHome} />
+      </div>
+    </DitherProvider>
   )
 }
 
-export function Home({ lang, news, sponsors }: { lang: Lang; news: NewsCard[]; sponsors: SponsorCard[] }) {
-  const c = content[lang]
+export function Home({ lang, c, news, partners }: { lang: Lang; c: Content; news: NewsCard[]; partners: Partner[] }) {
   return (
     <main id="top" className="overflow-x-clip">
       <Hero c={c} />
@@ -41,7 +44,7 @@ export function Home({ lang, news, sponsors }: { lang: Lang; news: NewsCard[]; s
       <Teams c={c} lang={lang} />
       <Vehicles c={c} />
       <Competitions c={c} />
-      <Sponsors c={c} lang={lang} sponsors={sponsors} />
+      <Sponsors c={c} partners={partners} />
       <News c={c} lang={lang} news={news} />
       <Join c={c} lang={lang} />
     </main>

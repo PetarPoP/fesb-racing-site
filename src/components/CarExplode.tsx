@@ -1,12 +1,14 @@
-import { useEffect, useRef, useState } from 'react'
+import { ArrowDown, ArrowRight } from 'lucide-react'
+import { useEffect, useLayoutEffect, useRef, useState, type CSSProperties } from 'react'
 import type { Content, Lang } from '~/content'
-import { CAR_GROUPS, PHASE } from '~/lib/carGroups'
-import type { CarScene, LabelPos } from '~/lib/car3d'
-import { Corners, cx, tw } from './ui'
+import { CAR_GROUPS, PHASE, teamColor } from '~/lib/carGroups'
+import { fetchModel, warmDecoder } from '~/lib/carModel'
+import type { CarScene, DimLine, LabelPos } from '~/lib/car3d'
+import { cx, tw } from './ui'
 
-/** Nazivi sklopova uz točke: naslovni font (Barlow Condensed), mali i bijeli, s mekom sjenom za čitljivost. */
+/** Names of the assemblies at the dots: small and white, with a soft shadow so they stay readable. */
 const labelText =
-  'font-display text-[13px] font-bold tracking-[.04em] uppercase [filter:drop-shadow(0_0_2px_var(--bg))_drop-shadow(0_0_1px_var(--bg))] md:text-[15px]'
+  'text-[13px] font-semibold [filter:drop-shadow(0_0_2px_var(--bg))_drop-shadow(0_0_1px_var(--bg))] md:text-[15px]'
 
 const clamp01 = (x: number) => Math.min(1, Math.max(0, x))
 
@@ -27,6 +29,8 @@ export function Teams({ c, lang }: { c: Content; lang: Lang }) {
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const svgRef = useRef<SVGSVGElement>(null)
   const chipRefs = useRef<(HTMLButtonElement | null)[]>([])
+  const barRef = useRef<HTMLDivElement>(null)
+  const lastTeam = useRef<(typeof c.teams)[number] | null>(null)
   const sceneRef = useRef<CarScene | null>(null)
   const [loaded, setLoaded] = useState<number | null>(null) // null = još ne učitava
   const [ready, setReady] = useState(false)
@@ -36,8 +40,44 @@ export function Teams({ c, lang }: { c: Content; lang: Lang }) {
 
   const teams = c.teams
   const activeTeam = active >= 0 ? teams[active] : null
+  // Position and width of the sliding pill behind the active chip
+  const [pill, setPill] = useState({ x: 0, w: 0 })
+  if (activeTeam) lastTeam.current = activeTeam
+  // Measure the active chip. Measure again when the window size changes.
+  useLayoutEffect(() => {
+    const measure = () => {
+      const chip = active >= 0 ? chipRefs.current[active] : null
+      if (chip) setPill((p) => (p.x === chip.offsetLeft && p.w === chip.offsetWidth ? p : { x: chip.offsetLeft, w: chip.offsetWidth }))
+    }
+    measure()
+    window.addEventListener('resize', measure)
+    return () => window.removeEventListener('resize', measure)
+  }, [active])
+  const ghostTeam = activeTeam ?? lastTeam.current // the big code stays while it fades out
 
-  // Učitaj three.js i model tek kad se sekcija približi ekranu
+  // Rano, u praznom hodu nakon učitavanja stranice: model, dekoder i kod scene (bez blokiranja prvog prikaza)
+  useEffect(() => {
+    let cancelled = false
+    const warm = () => {
+      if (cancelled) return
+      fetchModel().catch(() => {})
+      warmDecoder()
+      void import('~/lib/car3d')
+    }
+    const idle = () => {
+      const ric = window.requestIdleCallback
+      if (ric) ric(warm, { timeout: 5000 })
+      else setTimeout(warm, 2000)
+    }
+    if (document.readyState === 'complete') idle()
+    else window.addEventListener('load', idle, { once: true })
+    return () => {
+      cancelled = true
+      window.removeEventListener('load', idle)
+    }
+  }, [])
+
+  // Napravi scenu tek kad se sekcija približi ekranu
   useEffect(() => {
     const track = trackRef.current
     const canvas = canvasRef.current
@@ -92,13 +132,11 @@ export function Teams({ c, lang }: { c: Content; lang: Lang }) {
     ro.observe(stage)
     scene.resize(stage.clientWidth, stage.clientHeight)
 
-    const themeObs = new MutationObserver(() => scene.readTheme())
-    themeObs.observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] })
-
     const vis = new IntersectionObserver(([e]) => {
       visible = e.isIntersecting
       if (visible) {
         last = performance.now()
+        cancelAnimationFrame(raf)
         raf = requestAnimationFrame(tick)
       }
     })
@@ -110,6 +148,48 @@ export function Teams({ c, lang }: { c: Content; lang: Lang }) {
     svg.querySelectorAll<SVGPolylineElement>('polyline[data-key]').forEach((l) => lines.set(l.dataset.key!, l))
     svg.querySelectorAll<SVGCircleElement>('circle[data-key]').forEach((d) => dots.set(d.dataset.key!, d))
     svg.querySelectorAll<SVGTextElement>('text[data-key]').forEach((t) => names.set(t.dataset.key!, t))
+    const dimEls = new Map<string, { g: SVGGElement; main: SVGLineElement; ta: SVGLineElement; tb: SVGLineElement; text: SVGTextElement }>()
+    svg.querySelectorAll<SVGGElement>('g[data-dim]').forEach((g) => {
+      const l = g.querySelectorAll('line')
+      dimEls.set(g.dataset.dim!, { g, main: l[0], ta: l[1], tb: l[2], text: g.querySelector('text')! })
+    })
+    const dimText: Record<string, string> = {
+      length: c.carDimLength,
+      wheelbase: c.carDimWheelbase,
+      width: c.carDimWidth,
+    }
+    // Dimension lines: thin lines on the floor with an approximate size in mm (whole-car phases only)
+    const layoutDims = (list: DimLine[]) => {
+      for (const d of list) {
+        const el = dimEls.get(d.key)
+        if (!el) continue
+        el.g.style.opacity = d.o < 0.01 ? '0' : String(d.o * 0.9)
+        if (d.o < 0.01) continue
+        const dx = d.bx - d.ax
+        const dy = d.by - d.ay
+        const len = Math.hypot(dx, dy) || 1
+        const nx = (-dy / len) * 5
+        const ny = (dx / len) * 5
+        el.main.setAttribute('x1', d.ax.toFixed(1))
+        el.main.setAttribute('y1', d.ay.toFixed(1))
+        el.main.setAttribute('x2', d.bx.toFixed(1))
+        el.main.setAttribute('y2', d.by.toFixed(1))
+        el.ta.setAttribute('x1', (d.ax - nx).toFixed(1))
+        el.ta.setAttribute('y1', (d.ay - ny).toFixed(1))
+        el.ta.setAttribute('x2', (d.ax + nx).toFixed(1))
+        el.ta.setAttribute('y2', (d.ay + ny).toFixed(1))
+        el.tb.setAttribute('x1', (d.bx - nx).toFixed(1))
+        el.tb.setAttribute('y1', (d.by - ny).toFixed(1))
+        el.tb.setAttribute('x2', (d.bx + nx).toFixed(1))
+        el.tb.setAttribute('y2', (d.by + ny).toFixed(1))
+        // the labels sit at different points along their lines, so they do not meet
+        const t = d.key === 'wheelbase' ? 0.7 : d.key === 'length' ? 0.3 : 0.5
+        const W = stage.clientWidth
+        el.text.setAttribute('x', Math.min(W - 80, Math.max(80, d.ax + dx * t)).toFixed(1))
+        el.text.setAttribute('y', (d.ay + dy * t + 17).toFixed(1))
+        el.text.textContent = `${dimText[d.key]} ≈ ${d.mm} mm`
+      }
+    }
     const shown = new Map<string, number>() // glatko pretapanje linija između timova
 
     // Linije: od sredine sklopa ravno dolje do zajedničke „sabirnice“, pa do kartice tima na dnu
@@ -193,21 +273,41 @@ export function Teams({ c, lang }: { c: Content; lang: Lang }) {
       }
     }
 
+    // Full screen amount: 0 = inset card, 1 = full screen. It grows as the track reaches the top
+    // and shrinks again before the stage unpins. With reduced motion the stage stays at full size.
+    const ease = (x: number) => x * x * (3 - 2 * x)
+    const fullness = () => {
+      if (mq.matches) return 1
+      const r = track.getBoundingClientRect()
+      const vh = window.innerHeight
+      const grow = clamp01((vh * 0.7 - r.top) / (vh * 0.7))
+      const shrink = clamp01((r.bottom - vh) / (vh * 0.7))
+      return ease(Math.min(grow, shrink))
+    }
+
     const tick = (now: number) => {
       if (!visible) return
+      stage.style.setProperty('--e', fullness().toFixed(4))
       const dt = Math.min(0.1, (now - last) / 1000)
       last = now
-      scene.setProgress(progress())
+      const prog = progress()
+      scene.setProgress(prog)
+      if (barRef.current) {
+        barRef.current.style.transform = `scaleX(${prog.toFixed(4)})`
+        barRef.current.setAttribute('aria-valuenow', String(Math.round(prog * 100)))
+      }
       const idx = teamAt(scene.getProgress(), teams.length)
       if (idx !== activeRef.current) {
         activeRef.current = idx
         setActive(idx)
+        stage.style.setProperty('--team', teamColor(idx >= 0 ? teams[idx].code : null))
         const code = idx >= 0 ? teams[idx].code : null
         // tim bez fizičkih dijelova (npr. marketing) — cijeli bolid ostaje neutralan
         scene.setTeam(code && CAR_GROUPS.some((g) => g.team === code) ? code : code ? '*' : null)
       }
       const pos = scene.frame(dt, mq.matches)
       layout(pos, dt, mq.matches)
+      layoutDims(scene.dims())
       raf = requestAnimationFrame(tick)
     }
     raf = requestAnimationFrame(tick)
@@ -216,9 +316,15 @@ export function Teams({ c, lang }: { c: Content; lang: Lang }) {
       cancelAnimationFrame(raf)
       ro.disconnect()
       vis.disconnect()
-      themeObs.disconnect()
     }
-  }, [ready, teams])
+  }, [ready, teams, c])
+
+  const countLine = (code: string) => {
+    const a = CAR_GROUPS.filter((g) => g.team === code).length
+    if (!a) return c.carNoParts
+    const m = sceneRef.current?.counts[code] ?? a
+    return c.carCount.replace('{a}', String(a)).replace('{m}', String(m))
+  }
 
   // Klik na tim: skrolaj do njegovog dijela sekcije
   const goToTeam = (i: number) => {
@@ -232,17 +338,17 @@ export function Teams({ c, lang }: { c: Content; lang: Lang }) {
   }
 
   return (
-    <section id="timovi" className="scroll-mt-16 pt-14 md:pt-24">
-      <div className="wrap flex flex-col gap-6 md:gap-8">
+    <section id="timovi" className="scroll-mt-16 pt-[clamp(96px,14vw,160px)]">
+      <div className="mx-auto flex w-full max-w-[1344px] flex-wrap items-end justify-between gap-6 px-[clamp(20px,3.4vw,48px)]">
         <h2 className={tw.h2}>{c.teamsTitle}</h2>
-        <p className={cx(tw.bodyMute, 'max-w-[620px] md:text-lg')}>{c.carIntro}</p>
+        <p className="m-0 max-w-[380px] text-[17px] leading-[1.55] text-[#b8aca8]">{c.carIntro}</p>
       </div>
 
       <div
         ref={trackRef}
-        className="relative h-[520vh] [--stage-h:calc(100svh_-_60px)] md:[--stage-h:calc(100svh_-_4rem)]"
+        className="relative mt-10 h-[520vh] w-full [--stage-h:100svh]"
       >
-        {/* Točke hvatanja: skrol se kratko „zalijepi“ na svakom timu prije nego prijeđe na sljedeći */}
+        {/* Snap points: the scroll settles for a moment on each team before it moves to the next */}
         {teams.map((t, i) => (
           <div
             key={t.code}
@@ -255,9 +361,32 @@ export function Teams({ c, lang }: { c: Content; lang: Lang }) {
         ))}
         <div
           ref={stageRef}
-          className="sticky top-[60px] h-[calc(100svh-60px)] overflow-hidden md:top-16 md:h-[calc(100svh-4rem)]"
+          data-edge-hide
+          style={{ '--e': 0, '--team': '#e2475b' } as CSSProperties}
+          className={cx(
+            // --e is 0 for the inset card and 1 for the full screen. The clip path follows it.
+            'sticky top-0 h-svh w-full bg-bg',
+            '[--ct:72px] [--cb:12px] [--cs:clamp(20px,3.4vw,48px)] [--cr:clamp(18px,4vw,24px)] md:[--ct:80px] md:[--cb:16px]',
+            '[clip-path:inset(calc(var(--ct)*(1-var(--e)))_calc(var(--cs)*(1-var(--e)))_calc(var(--cb)*(1-var(--e)))_calc(var(--cs)*(1-var(--e)))_round_calc(var(--cr)*(1-var(--e))))]',
+          )}
         >
-          <div className="grid-bg absolute inset-0" aria-hidden="true" />
+          {/* Thin ring around the card. It fades out while the stage grows to full screen. */}
+          <div
+            aria-hidden="true"
+            className="pointer-events-none absolute inset-[var(--ct)_var(--cs)_var(--cb)] rounded-[var(--cr)] border border-fg/10 opacity-[calc(1-var(--e))]"
+          />
+          {/* Large faint outlined code of the active team, behind the car */}
+          <div aria-hidden="true" className="pointer-events-none absolute inset-0 grid select-none place-items-center overflow-hidden">
+            <span
+              className={cx(
+                'display text-[clamp(150px,32vw,460px)] leading-none font-black tracking-[-.04em] whitespace-nowrap transition-opacity duration-500',
+                activeTeam ? 'opacity-100' : 'opacity-0',
+              )}
+              style={{ color: 'transparent', WebkitTextStroke: `1.5px ${teamColor(ghostTeam?.code)}`, opacity: undefined }}
+            >
+              <span className="opacity-[.2]">{ghostTeam?.code}</span>
+            </span>
+          </div>
           <canvas
             ref={canvasRef}
             className={cx('absolute inset-0 size-full transition-opacity duration-700', ready ? 'opacity-100' : 'opacity-0')}
@@ -265,106 +394,164 @@ export function Teams({ c, lang }: { c: Content; lang: Lang }) {
             role="img"
           />
 
-          {/* Iscrtkane linije od sklopova aktivnog tima do njegove kartice na dnu */}
+          {/* Dashed lines from the parts of the active team to its chip at the bottom */}
           <svg ref={svgRef} className="pointer-events-none absolute inset-0 size-full" aria-hidden="true">
             {CAR_GROUPS.map((g) => (
               <g key={g.key}>
                 <polyline
                   data-key={g.key}
                   fill="none"
-                  stroke="var(--acc)"
+                  stroke="var(--team)"
                   strokeWidth="1"
                   strokeDasharray="3 4"
                   style={{ opacity: 0 }}
                 />
-                <circle data-key={g.key} r="3.5" fill="var(--fg)" stroke="var(--bg)" strokeWidth="1.5" style={{ opacity: 0 }} />
+                <circle data-key={g.key} r="3.5" fill="var(--team)" stroke="var(--bg)" strokeWidth="1.5" style={{ opacity: 0 }} />
                 <text data-key={g.key} className={labelText} fill="var(--fg)" style={{ opacity: 0 }}>
                   {g.name[lang]}
                 </text>
               </g>
             ))}
-            {/* Tim bez vlastitih dijelova (marketing): jedna linija od cijelog bolida */}
+            {/* A team without own parts (marketing): one line from the whole car */}
             <g>
-              <polyline data-key="__all" fill="none" stroke="var(--acc)" strokeWidth="1" strokeDasharray="3 4" style={{ opacity: 0 }} />
-              <circle data-key="__all" r="3.5" fill="var(--fg)" stroke="var(--bg)" strokeWidth="1.5" style={{ opacity: 0 }} />
+              <polyline data-key="__all" fill="none" stroke="var(--team)" strokeWidth="1" strokeDasharray="3 4" style={{ opacity: 0 }} />
+              <circle data-key="__all" r="3.5" fill="var(--team)" stroke="var(--bg)" strokeWidth="1.5" style={{ opacity: 0 }} />
               <text data-key="__all" className={labelText} fill="var(--fg)" style={{ opacity: 0 }}>
                 {c.carAll}
               </text>
             </g>
+            {/* Dimension lines (whole-car phases) */}
+            {(['length', 'wheelbase', 'width'] as const).map((k) => (
+              <g key={k} data-dim={k} style={{ opacity: 0 }} stroke="var(--fg)" strokeWidth="1">
+                <line />
+                <line />
+                <line />
+                <text fill="var(--fg)" stroke="var(--bg)" strokeWidth="3" paintOrder="stroke" textAnchor="middle" className="text-[11px] font-medium [font-variant-numeric:tabular-nums] md:text-xs" />
+              </g>
+            ))}
           </svg>
 
-          {/* Gornja traka nacrta */}
-          <div className="wrap pointer-events-none absolute inset-x-0 top-0 flex justify-between pt-4 font-mono text-[10px] tracking-[.12em] text-mute uppercase md:pt-6 md:text-[11px]">
-            <span>
-              <span className="text-acc">eFRT01</span> · {c.carModelNote}
+          {/* Top bar */}
+          <div className="pointer-events-none absolute inset-x-[calc(var(--cs)+16px)] top-[calc(var(--ct)+14px)] flex justify-between text-[13px] text-mute md:text-sm">
+            <span className="min-w-0 pr-3">
+              <span className="font-semibold text-acc">eFRT01</span> · {c.carModelNote}
             </span>
-            <span className="hidden md:inline">{c.carScroll}</span>
+            <span className="flex items-center gap-4">
+              <span className="hidden items-center gap-1 md:inline-flex">
+                {c.carScroll}
+                <ArrowDown aria-hidden size={14} />
+              </span>
+              <a
+                href="#timovi-kraj"
+                className="press pointer-events-auto inline-flex items-center gap-1.5 rounded-full border border-fg/25 bg-bg/60 px-3 py-1 whitespace-nowrap text-fg backdrop-blur-sm hover:border-fg/60 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--team)]"
+              >
+                {c.carSkip}
+                <ArrowRight aria-hidden size={14} />
+              </a>
+            </span>
           </div>
 
           {!ready && (
-            <div className="absolute inset-0 grid place-items-center font-mono text-xs tracking-[.12em] text-mute uppercase">
+            <div className="absolute inset-0 grid place-items-center text-sm text-mute">
               {failed ? c.carFailed : `${c.carLoading} ${loaded === null ? '' : `${Math.round(loaded * 100)}%`}`}
             </div>
           )}
 
-          {/* Opis aktivnog tima (gore desno, da ne zaklanja bolid ni linije prema karticama) */}
-          <div className="wrap pointer-events-none absolute inset-x-0 top-10 flex md:top-14 md:justify-end">
+          {/* Text of the active team (top right, so it does not cover the car or the lines) */}
+          <div className="pointer-events-none absolute inset-x-[calc(var(--cs)+12px)] top-[calc(var(--ct)+46px)] flex md:justify-end">
             <div
               className={cx(
-                tw.card,
-                'max-w-[420px] bg-bg/90 p-3.5 backdrop-blur-sm transition-[opacity,transform] duration-300 md:p-5',
+                'glass max-w-[420px] rounded-2xl p-3.5 transition-[opacity,translate] duration-300 md:p-5',
                 activeTeam ? 'translate-y-0 opacity-100' : 'translate-y-2 opacity-0',
               )}
               aria-live="polite"
             >
-              <Corners />
               {activeTeam && (
-                <>
-                  <div className="flex justify-between font-mono text-[11px] font-semibold text-acc">
-                    <span>{String(active + 1).padStart(2, '0')}</span>
+                <div key={activeTeam.code} className="animate-fade-up">
+                  <div className="flex justify-between text-sm text-mute">
+                    <span className="font-semibold" style={{ color: teamColor(activeTeam.code) }}>
+                      {String(active + 1).padStart(2, '0')}
+                    </span>
                     <span>{activeTeam.code}</span>
                   </div>
-                  <h3 className="m-0 mt-1 font-display text-2xl leading-none font-bold uppercase md:text-[32px]">
+                  <h3 className="display m-0 mt-1 text-2xl leading-none [font-stretch:115%] tracking-[-.02em] md:text-[32px]">
                     {activeTeam.name}
                   </h3>
-                  <p className="m-0 mt-1.5 text-[13px] leading-snug text-mute md:mt-2 md:text-[15px] md:leading-normal">{activeTeam.d}</p>
+                  <p className="m-0 mt-1.5 text-[13px] leading-snug text-[#c9bdb9] md:mt-2 md:text-[15px] md:leading-normal">{activeTeam.d}</p>
+                  <p className="m-0 mt-2 text-xs text-mute md:text-[13px]">{countLine(activeTeam.code)}</p>
                   <div className="mt-2.5 flex flex-wrap gap-1.5">
                     {activeTeam.tags.map((g) => (
-                      <span key={g} className="border border-acc px-[7px] py-[3px] font-mono text-[11px] text-acc">
+                      <span
+                        key={g}
+                        className="rounded-full border px-2.5 py-0.5 text-xs"
+                        style={{ borderColor: `${teamColor(activeTeam.code)}99`, color: teamColor(activeTeam.code) }}
+                      >
                         {g}
                       </span>
                     ))}
                   </div>
-                </>
+                </div>
               )}
             </div>
           </div>
 
-          {/* Kartice timova na dnu — linije sklopova završavaju na njima */}
-          <div className="wrap absolute inset-x-0 bottom-0 pb-4 md:pb-8">
-            <nav aria-label={c.teamsTitle} className="flex gap-1.5 md:justify-end md:gap-2">
-              {teams.map((t, i) => (
-                <button
-                  key={t.code}
-                  ref={(el) => {
-                    chipRefs.current[i] = el
-                  }}
-                  type="button"
-                  onClick={() => goToTeam(i)}
-                  aria-pressed={active === i}
-                  className={cx(
-                    'flex min-h-11 flex-1 cursor-pointer flex-col justify-between border px-2 py-1.5 text-left font-mono text-[10px] font-semibold transition-colors md:min-w-[110px] md:flex-none md:text-[11px]',
-                    active === i ? 'border-brand bg-brand text-on-brand' : 'border-line bg-bg/80 text-acc hover:bg-ph',
-                  )}
-                >
-                  <span className="opacity-70">{String(i + 1).padStart(2, '0')}</span>
-                  <span>{t.code}</span>
-                </button>
-              ))}
-            </nav>
-          </div>
+          {/* Team selector: glass pill. The lines end on the chips. */}
+          <nav
+            aria-label={c.teamsTitle}
+            className="absolute bottom-[calc(var(--cb)+clamp(12px,3vw,24px))] left-1/2 flex max-w-[calc(100%-24px)] -translate-x-1/2 gap-0.5 rounded-full border border-fg/[.14] bg-[rgba(20,17,18,.55)] p-1 text-sm whitespace-nowrap backdrop-blur-[14px]"
+          >
+            {/* Sliding pill behind the active chip */}
+            <span
+              aria-hidden
+              className="pointer-events-none absolute top-1 bottom-1 left-0 rounded-full [transition:translate_420ms_cubic-bezier(.2,.8,.2,1),width_420ms_cubic-bezier(.2,.8,.2,1),opacity_200ms,background-color_300ms] motion-reduce:transition-none"
+              style={{
+                width: pill.w,
+                translate: `${pill.x}px 0`,
+                backgroundColor: teamColor(activeTeam?.code ?? null),
+                opacity: active < 0 ? 0 : 1,
+              }}
+            />
+            {teams.map((t, i) => (
+              <button
+                key={t.code}
+                ref={(el) => {
+                  chipRefs.current[i] = el
+                }}
+                type="button"
+                onClick={() => goToTeam(i)}
+                aria-pressed={active === i}
+                title={t.name}
+                className={cx(
+                  'press relative z-10 min-h-11 cursor-pointer rounded-full px-[clamp(10px,2.6vw,16px)] py-[9px] font-semibold',
+                  active === i ? 'text-[#141112]' : 'text-fg hover:bg-fg/10',
+                )}
+              >
+                {t.code}
+              </button>
+            ))}
+          </nav>
+
+          <p
+            className={cx(
+              'pointer-events-none absolute bottom-[calc(var(--cb)+clamp(72px,12vw,96px))] left-1/2 m-0 w-max max-w-[calc(100%-32px)] -translate-x-1/2 text-center text-[11px] text-mute transition-opacity duration-300 md:text-xs',
+              active < 0 ? 'opacity-70' : 'opacity-0',
+            )}
+          >
+            {c.carDimNote}
+          </p>
+
+          {/* Thin scroll progress bar at the bottom edge of the stage */}
+          <div
+            ref={barRef}
+            role="progressbar"
+            aria-label={c.carProgress}
+            aria-valuemin={0}
+            aria-valuemax={100}
+            className="pointer-events-none absolute inset-x-0 bottom-0 h-[3px] origin-left scale-x-0 bg-[var(--team)] transition-colors duration-300"
+          />
         </div>
       </div>
+      <div id="timovi-kraj" tabIndex={-1} className="outline-none" />
     </section>
   )
 }
