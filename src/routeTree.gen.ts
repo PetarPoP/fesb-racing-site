@@ -11,11 +11,10 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as LangRouteImport } from './routes/$lang'
-import { Route as AdminRouteImport } from './routes/admin'
+import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
 import { Route as LangIndexRouteImport } from './routes/$lang/index'
 import { Route as LangNovostiIndexRouteImport } from './routes/$lang/novosti/index'
 import { Route as LangNovostiSlugRouteImport } from './routes/$lang/novosti/$slug'
-import { Route as LangSponzoriSlugRouteImport } from './routes/$lang/sponzori/$slug'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -27,9 +26,9 @@ const LangRoute = LangRouteImport.update({
   path: '/$lang',
   getParentRoute: () => rootRouteImport,
 } as any)
-const AdminRoute = AdminRouteImport.update({
-  id: '/admin',
-  path: '/admin',
+const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
+  id: '/sitemap.xml',
+  path: '/sitemap.xml',
   getParentRoute: () => rootRouteImport,
 } as any)
 const LangIndexRoute = LangIndexRouteImport.update({
@@ -47,37 +46,29 @@ const LangNovostiSlugRoute = LangNovostiSlugRouteImport.update({
   path: '/novosti/$slug',
   getParentRoute: () => LangRoute,
 } as any)
-const LangSponzoriSlugRoute = LangSponzoriSlugRouteImport.update({
-  id: '/sponzori/$slug',
-  path: '/sponzori/$slug',
-  getParentRoute: () => LangRoute,
-} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/$lang': typeof LangRouteWithChildren
-  '/admin': typeof AdminRoute
+  '/sitemap.xml': typeof SitemapDotxmlRoute
   '/$lang/': typeof LangIndexRoute
   '/$lang/novosti/$slug': typeof LangNovostiSlugRoute
-  '/$lang/sponzori/$slug': typeof LangSponzoriSlugRoute
   '/$lang/novosti/': typeof LangNovostiIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
-  '/admin': typeof AdminRoute
+  '/sitemap.xml': typeof SitemapDotxmlRoute
   '/$lang': typeof LangIndexRoute
   '/$lang/novosti/$slug': typeof LangNovostiSlugRoute
-  '/$lang/sponzori/$slug': typeof LangSponzoriSlugRoute
   '/$lang/novosti': typeof LangNovostiIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/$lang': typeof LangRouteWithChildren
-  '/admin': typeof AdminRoute
+  '/sitemap.xml': typeof SitemapDotxmlRoute
   '/$lang/': typeof LangIndexRoute
   '/$lang/novosti/$slug': typeof LangNovostiSlugRoute
-  '/$lang/sponzori/$slug': typeof LangSponzoriSlugRoute
   '/$lang/novosti/': typeof LangNovostiIndexRoute
 }
 export interface FileRouteTypes {
@@ -85,34 +76,27 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/$lang'
-    | '/admin'
+    | '/sitemap.xml'
     | '/$lang/'
     | '/$lang/novosti/$slug'
-    | '/$lang/sponzori/$slug'
     | '/$lang/novosti/'
   fileRoutesByTo: FileRoutesByTo
   to:
-    | '/'
-    | '/admin'
-    | '/$lang'
-    | '/$lang/novosti/$slug'
-    | '/$lang/sponzori/$slug'
-    | '/$lang/novosti'
+    '/' | '/sitemap.xml' | '/$lang' | '/$lang/novosti/$slug' | '/$lang/novosti'
   id:
     | '__root__'
     | '/'
     | '/$lang'
-    | '/admin'
+    | '/sitemap.xml'
     | '/$lang/'
     | '/$lang/novosti/$slug'
-    | '/$lang/sponzori/$slug'
     | '/$lang/novosti/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   LangRoute: typeof LangRouteWithChildren
-  AdminRoute: typeof AdminRoute
+  SitemapDotxmlRoute: typeof SitemapDotxmlRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -131,11 +115,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LangRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/admin': {
-      id: '/admin'
-      path: '/admin'
-      fullPath: '/admin'
-      preLoaderRoute: typeof AdminRouteImport
+    '/sitemap.xml': {
+      id: '/sitemap.xml'
+      path: '/sitemap.xml'
+      fullPath: '/sitemap.xml'
+      preLoaderRoute: typeof SitemapDotxmlRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/$lang/': {
@@ -159,27 +143,18 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LangNovostiSlugRouteImport
       parentRoute: typeof LangRoute
     }
-    '/$lang/sponzori/$slug': {
-      id: '/$lang/sponzori/$slug'
-      path: '/sponzori/$slug'
-      fullPath: '/$lang/sponzori/$slug'
-      preLoaderRoute: typeof LangSponzoriSlugRouteImport
-      parentRoute: typeof LangRoute
-    }
   }
 }
 
 interface LangRouteChildren {
   LangIndexRoute: typeof LangIndexRoute
   LangNovostiSlugRoute: typeof LangNovostiSlugRoute
-  LangSponzoriSlugRoute: typeof LangSponzoriSlugRoute
   LangNovostiIndexRoute: typeof LangNovostiIndexRoute
 }
 
 const LangRouteChildren: LangRouteChildren = {
   LangIndexRoute: LangIndexRoute,
   LangNovostiSlugRoute: LangNovostiSlugRoute,
-  LangSponzoriSlugRoute: LangSponzoriSlugRoute,
   LangNovostiIndexRoute: LangNovostiIndexRoute,
 }
 
@@ -188,7 +163,7 @@ const LangRouteWithChildren = LangRoute._addFileChildren(LangRouteChildren)
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   LangRoute: LangRouteWithChildren,
-  AdminRoute: AdminRoute,
+  SitemapDotxmlRoute: SitemapDotxmlRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

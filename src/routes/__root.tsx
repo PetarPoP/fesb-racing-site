@@ -1,8 +1,7 @@
 /// <reference types="vite/client" />
 import type { ReactNode } from 'react'
-import { HeadContent, Outlet, Scripts, ScriptOnce, createRootRoute, useParams } from '@tanstack/react-router'
+import { HeadContent, Outlet, Scripts, createRootRoute, useParams } from '@tanstack/react-router'
 import { isLang } from '~/content'
-import { themeInitScript } from '~/lib/theme'
 import css from '~/styles.css?url'
 
 export const Route = createRootRoute({
@@ -10,7 +9,7 @@ export const Route = createRootRoute({
     meta: [
       { charSet: 'utf-8' },
       { name: 'viewport', content: 'width=device-width, initial-scale=1' },
-      { name: 'theme-color', content: '#7F1627' },
+      { name: 'theme-color', content: '#0b0a0b' },
     ],
     links: [
       { rel: 'icon', href: '/favicon.svg', type: 'image/svg+xml' },
@@ -25,9 +24,8 @@ function RootShell({ children }: { children: ReactNode }) {
   const params = useParams({ strict: false }) as { lang?: string }
   const lang = isLang(params.lang) ? params.lang : 'hr'
   return (
-    <html lang={lang} data-theme="dark" suppressHydrationWarning>
+    <html lang={lang} data-theme="dark" style={{ colorScheme: 'dark' }}>
       <head>
-        <ScriptOnce>{themeInitScript}</ScriptOnce>
         <HeadContent />
       </head>
       <body>

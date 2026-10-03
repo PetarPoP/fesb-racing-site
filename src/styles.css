@@ -1,54 +1,23 @@
 @import 'tailwindcss';
 
-/* Fontovi su self-hostani (@fontsource) — bez poziva prema Google Fonts */
-@import '@fontsource/barlow-condensed/latin-ext-600.css';
-@import '@fontsource/barlow-condensed/latin-ext-700.css';
-@import '@fontsource/barlow-condensed/latin-ext-800.css';
-@import '@fontsource/barlow-condensed/latin-600.css';
-@import '@fontsource/barlow-condensed/latin-700.css';
-@import '@fontsource/barlow-condensed/latin-800.css';
-@import '@fontsource/barlow/latin-ext-400.css';
-@import '@fontsource/barlow/latin-ext-500.css';
-@import '@fontsource/barlow/latin-400.css';
-@import '@fontsource/barlow/latin-500.css';
-@import '@fontsource/ibm-plex-mono/latin-ext-400.css';
-@import '@fontsource/ibm-plex-mono/latin-ext-500.css';
-@import '@fontsource/ibm-plex-mono/latin-ext-600.css';
-@import '@fontsource/ibm-plex-mono/latin-400.css';
-@import '@fontsource/ibm-plex-mono/latin-500.css';
-@import '@fontsource/ibm-plex-mono/latin-600.css';
+/* Fonts are self-hosted (@fontsource). No call goes to Google Fonts. */
+@import '@fontsource-variable/archivo/wdth.css';
 
-/* Tema se bira atributom data-theme na <html> (postavlja ga skripta u <head>). */
+/* The site has one dark theme. The variant stays so that old classes still compile. */
 @custom-variant dark (&:where([data-theme='dark'], [data-theme='dark'] *));
-@custom-variant light (&:where([data-theme='light'], [data-theme='light'] *));
 
-/* ── Design tokeni (README → Design Tokens) ─────────────────────────── */
+/* Colour tokens, v3 palette */
 :root,
 [data-theme='dark'] {
-  --bg: #0e0b0c;
-  --fg: #ede8e6;
-  --mute: #a89a99;
-  --acc: #e8566c;
-  --mark: #e24a61;
-  --line: rgba(226, 74, 97, 0.3);
-  --ph: rgba(127, 22, 39, 0.16);
-  --phb: rgba(226, 74, 97, 0.55);
-  --pht: #eba7b2;
-  --grid: rgba(226, 74, 97, 0.07);
-  --sel: rgba(127, 22, 39, 0.32);
-}
-[data-theme='light'] {
-  --bg: #f2efee;
-  --fg: #1c1415;
-  --mute: #5b4f50;
-  --acc: #7f1627;
-  --mark: #7f1627;
-  --line: rgba(127, 22, 39, 0.26);
-  --ph: #f5e1e4;
-  --phb: rgba(127, 22, 39, 0.45);
-  --pht: #7f1627;
-  --grid: rgba(127, 22, 39, 0.06);
-  --sel: #f5e1e4;
+  --bg: #0b0a0b;
+  --fg: #f1e9e5;
+  --mute: #9b8f8c;
+  --acc: #e2475b;
+  --mark: #e2475b;
+  --line: rgba(241, 233, 229, 0.14);
+  --ph: rgba(226, 71, 91, 0.1);
+  --sel: rgba(226, 71, 91, 0.32);
+  --panel: #141112;
 }
 
 @theme inline {
@@ -59,21 +28,18 @@
   --color-mark: var(--mark);
   --color-line: var(--line);
   --color-ph: var(--ph);
-  --color-phb: var(--phb);
-  --color-pht: var(--pht);
-  --color-grid: var(--grid);
   --color-sel: var(--sel);
+  --color-panel: var(--panel);
 }
 
 @theme {
-  /* Ispune su uvijek brand crvena, neovisno o temi */
-  --color-brand: #7f1627;
-  --color-brand-hover: #9c2034;
-  --color-on-brand: #f4edec;
+  --color-brand: #7d1c2c;
+  --color-brand-hover: #9c2538;
+  --color-on-brand: #f1e9e5;
 
-  --font-sans: 'Barlow', ui-sans-serif, system-ui, sans-serif;
-  --font-display: 'Barlow Condensed', 'Arial Narrow', sans-serif;
-  --font-mono: 'IBM Plex Mono', ui-monospace, monospace;
+  --font-sans: 'Archivo Variable', ui-sans-serif, system-ui, sans-serif;
+  --font-display: 'Archivo Variable', ui-sans-serif, system-ui, sans-serif;
+  --font-mono: ui-monospace, 'SFMono-Regular', Menlo, Consolas, monospace;
 
   /* Ispod ~900px prelazi se na mobilni layout */
   --breakpoint-md: 56.25rem;
@@ -83,14 +49,23 @@
   --animate-ticker: ticker 40s linear infinite;
   --animate-blink: blink 1.4s infinite;
   --animate-modal-in: modal-in 220ms cubic-bezier(0.2, 0.8, 0.2, 1);
+  /* A new surface or text block arrives like a material: blur, scale and opacity move together. */
+  --animate-pop-in: pop-in 280ms cubic-bezier(0.2, 0.8, 0.2, 1) both;
+  --animate-fade-up: fade-up 260ms cubic-bezier(0.2, 0.8, 0.2, 1) both;
 
   @keyframes modal-in {
     from { opacity: 0; transform: translateY(12px) scale(0.98); }
   }
+  @keyframes pop-in {
+    from { opacity: 0; filter: blur(6px); transform: scale(0.97) translateY(-6px); }
+  }
+  @keyframes fade-up {
+    from { opacity: 0; transform: translateY(6px); }
+  }
 
   @keyframes ticker {
     from { transform: translateX(0); }
-    to { transform: translateX(-50%); }
+    to { transform: translateX(-33.3333%); }
   }
   @keyframes blink {
     0%, 100% { opacity: 1; }
@@ -103,17 +78,60 @@
     scroll-behavior: smooth;
     /* Hvatanje samo kad se zaustavi blizu točke (timovi u 3D sekciji) */
     scroll-snap-type: y proximity;
+    /* The scrollbar space stays reserved, so the page does not shift when the lightbox locks the scroll. */
+    scrollbar-gutter: stable;
     -webkit-text-size-adjust: 100%;
   }
   body {
-    @apply bg-bg font-sans text-fg antialiased transition-[background-color,color] duration-300;
+    @apply bg-bg font-sans text-fg antialiased;
+  }
+  /* Old sections use font-display. A wider cut keeps them close to the v3 look. */
+  .font-display {
+    font-stretch: 112%;
   }
   :focus-visible {
     outline: 2px solid var(--acc);
     outline-offset: 2px;
   }
+  /* A link changes colour smoothly. A utility such as transition-colors on the element overrides this. */
+  a {
+    transition: color 150ms ease;
+  }
   @media (prefers-reduced-motion: reduce) {
     html { scroll-behavior: auto; }
+  }
+}
+
+@keyframes fade-only {
+  from { opacity: 0; }
+}
+
+/* Outside any layer, so it beats the animate-* utilities. Reduced motion keeps the fade and removes the movement and the blur. */
+@media (prefers-reduced-motion: reduce) {
+  .animate-pop-in,
+  .animate-fade-up,
+  .animate-modal-in {
+    animation-name: fade-only;
+  }
+}
+
+/* Press feedback: the control reacts on pointer-down, not on release. Do not combine it with a transition-* utility. */
+@utility press {
+  transition:
+    transform 160ms cubic-bezier(0.2, 0.8, 0.2, 1),
+    color 150ms ease,
+    background-color 150ms ease,
+    border-color 150ms ease,
+    opacity 150ms ease;
+  &:active:not(:disabled, [aria-disabled='true']) {
+    transform: scale(0.97);
+    transition-duration: 70ms, 150ms, 150ms, 150ms, 150ms;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    &:active:not(:disabled, [aria-disabled='true']) {
+      transform: none;
+      opacity: 0.8;
+    }
   }
 }
 
@@ -142,25 +160,86 @@
   }
 }
 
-/* Tekst novosti i sponzora iz vizualnog editora (i u adminu) */
+/* Tekst novosti iz vizualnog editora. Isti HTML dolazi iz src/server/lexical.ts */
 @utility rich {
   @apply text-[17px] leading-[1.7] text-fg;
+  overflow-wrap: anywhere;
   & > * + * { margin-top: 1em; }
-  & :where(h2, h3) { @apply font-display leading-none font-bold uppercase; margin-top: 1.4em; }
+  & :where(h1, h2, h3, h4) { @apply display leading-none; font-stretch: 115%; letter-spacing: -0.02em; margin-top: 1.6em; text-wrap: balance; }
+  & h1 { font-size: 42px; }
   & h2 { font-size: 34px; }
   & h3 { font-size: 26px; }
+  & h4 { font-size: 21px; }
   & a { @apply text-acc underline underline-offset-2; }
-  & :where(ul, ol) { padding-left: 1.3em; }
+  & a:hover { @apply text-fg; }
+  & :where(ul, ol) { padding-left: 1.4em; }
   & ul { list-style: square; }
   & ol { list-style: decimal; }
   & li + li { margin-top: 0.35em; }
   & li::marker { color: var(--acc); }
-  & blockquote { @apply border-l-2 border-acc pl-5 text-mute italic; }
-  & img { @apply block h-auto max-w-full border border-line; }
-  & hr { @apply border-0 border-t border-dashed border-line; }
-  & code { @apply bg-ph px-1 font-mono text-[0.9em]; }
-  & pre { @apply overflow-x-auto bg-ph p-4 font-mono text-sm; }
-  & :where(p, h2, h3):first-child { margin-top: 0; }
+  & :where(ul, ol) :where(ul, ol) { margin-top: 0.35em; }
+  & ul.checklist { list-style: none; padding-left: 0; }
+  & ul.checklist li { position: relative; padding-left: 1.9em; }
+  & ul.checklist li[data-checked]::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0.32em;
+    width: 1.1em;
+    height: 1.1em;
+    border: 1.5px solid var(--acc);
+    border-radius: 0.25em;
+  }
+  & ul.checklist li[data-checked='true']::before {
+    background: var(--acc) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='none' stroke='%230b0a0b' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M3.5 8.5l3 3 6-7'/%3E%3C/svg%3E") center / 80% no-repeat;
+  }
+  & ul.checklist li[data-checked='true'] { @apply text-mute; text-decoration: line-through; text-decoration-color: rgba(241, 233, 229, 0.3); }
+  & blockquote { @apply border-l-2 border-acc pl-5 text-[#c9bdb9] italic; }
+  & hr { @apply border-0 border-t border-line; margin-block: 2em; }
+  & :where(code) { @apply rounded bg-ph px-1.5 py-0.5 font-mono text-[0.88em]; }
+  & pre { @apply overflow-x-auto rounded-2xl border border-fg/10 bg-panel p-4 font-mono text-sm leading-[1.6]; position: relative; }
+  & pre[data-language]::before {
+    content: attr(data-language);
+    @apply absolute top-2 right-3 text-[11px] tracking-wider text-mute uppercase;
+  }
+  & pre code { @apply bg-transparent p-0 text-[1em]; }
+  & :where(p, h1, h2, h3, h4):first-child { margin-top: 0; }
+  & sub, & sup { font-size: 0.75em; }
+
+  /* Tablica */
+  & .table-wrap { @apply overflow-x-auto rounded-2xl border border-fg/10; }
+  & table { @apply w-full border-collapse text-[15px]; min-width: 28rem; }
+  & :where(th, td) { @apply border-b border-line px-4 py-2.5 text-left align-top; }
+  & th { @apply bg-panel font-semibold; }
+  & tr:last-child :where(th, td) { @apply border-b-0; }
+
+  /* Slika i opis. Atributi width/height drže omjer prije učitavanja. */
+  & figure { margin-inline: 0; }
+  & img { @apply block h-auto max-w-full rounded-2xl border border-fg/10; }
+  & figure.media img { @apply mx-auto; }
+  & img[data-lb] { cursor: zoom-in; }
+  & img[data-lb]:focus-visible { outline: 2px solid var(--acc); outline-offset: 3px; }
+  & figcaption { @apply mt-2 text-center text-sm leading-snug text-mute; }
+
+  /* Galerija: mreza, zidna ili vrtuljak */
+  & .gallery { margin-block: 1.6em; }
+  & .gallery-title { font-size: 22px; margin: 0 0 0.6em; }
+  & .gallery-items { display: grid; gap: 14px; grid-template-columns: repeat(auto-fill, minmax(min(100%, 220px), 1fr)); }
+  & .gallery-item { margin: 0; }
+  & .gallery-grid .gallery-item img { @apply w-full object-cover; aspect-ratio: 4 / 3; }
+  & .gallery-masonry .gallery-items { display: block; column-width: 220px; column-gap: 14px; }
+  & .gallery-masonry .gallery-item { break-inside: avoid; margin-bottom: 14px; }
+  & .gallery-masonry .gallery-item img { @apply w-full; }
+  & .gallery-carousel .gallery-items {
+    display: flex;
+    gap: 14px;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    padding-bottom: 10px;
+  }
+  & .gallery-carousel .gallery-item { flex: 0 0 min(86%, 420px); scroll-snap-align: start; }
+  & .gallery-carousel .gallery-item img { @apply w-full object-cover; aspect-ratio: 4 / 3; }
+  & .gallery-item figcaption { text-align: left; }
 }
 
 /* Sadržajni stupac: max 1280px, padding 16 (mobilno) / 40 (desktop) */
@@ -168,31 +247,52 @@
   @apply mx-auto w-full max-w-[1280px] px-4 md:px-10;
 }
 
-/* Mreža tehničkog nacrta */
-@utility grid-bg {
-  background-image:
-    linear-gradient(var(--grid) 1px, transparent 1px),
-    linear-gradient(90deg, var(--grid) 1px, transparent 1px);
-  background-size: 32px 32px;
-  background-position: -1px -1px;
-  @variant md {
-    background-size: 40px 40px;
+/* Glass panel: used by the nav pill, the hero card and similar surfaces */
+@utility glass {
+  background: linear-gradient(180deg, rgba(52, 44, 46, 0.62), rgba(20, 17, 18, 0.66));
+  backdrop-filter: blur(18px) saturate(160%);
+  -webkit-backdrop-filter: blur(18px) saturate(160%);
+  border: 1px solid rgba(241, 233, 229, 0.16);
+  box-shadow:
+    inset 0 1px 0 rgba(241, 233, 229, 0.18),
+    inset 0 -1px 0 rgba(0, 0, 0, 0.35),
+    0 10px 30px -8px rgba(0, 0, 0, 0.6),
+    0 2px 6px rgba(0, 0, 0, 0.35);
+}
+
+/* Frosted glass of the header pill and the mobile menu. The fill must stay translucent, or the blur is not visible. */
+@utility glass-nav {
+  background: rgba(20, 17, 18, 0.45);
+  backdrop-filter: blur(20px) saturate(160%);
+  -webkit-backdrop-filter: blur(20px) saturate(160%);
+  border: 1px solid rgba(241, 233, 229, 0.16);
+  box-shadow:
+    inset 0 1px 0 rgba(241, 233, 229, 0.2),
+    0 10px 30px -8px rgba(0, 0, 0, 0.55),
+    0 2px 6px rgba(0, 0, 0, 0.3);
+}
+
+/* Translucent surfaces turn solid when the user asks for less transparency or more contrast. */
+@media (prefers-reduced-transparency: reduce) {
+  .glass,
+  .glass-nav {
+    background: #141112;
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+  }
+}
+@media (prefers-contrast: more) {
+  .glass,
+  .glass-nav {
+    background: #141112;
+    border-color: rgba(241, 233, 229, 0.7);
   }
 }
 
-/* Križići na kutovima: 4 × (1×13 + 13×1), centar točno na kutu roditelja */
-@utility corners {
-  position: absolute;
-  inset: -6px;
-  pointer-events: none;
-  --m: linear-gradient(var(--mark), var(--mark));
-  background:
-    var(--m) left 6px top 0 / 1px 13px no-repeat,
-    var(--m) left 0 top 6px / 13px 1px no-repeat,
-    var(--m) right 6px top 0 / 1px 13px no-repeat,
-    var(--m) right 0 top 6px / 13px 1px no-repeat,
-    var(--m) left 6px bottom 0 / 1px 13px no-repeat,
-    var(--m) left 0 bottom 6px / 13px 1px no-repeat,
-    var(--m) right 6px bottom 0 / 1px 13px no-repeat,
-    var(--m) right 0 bottom 6px / 13px 1px no-repeat;
+/* Huge uppercase display text of the v3 design */
+@utility display {
+  font-weight: 900;
+  font-stretch: 125%;
+  text-transform: uppercase;
+  letter-spacing: -0.035em;
 }
