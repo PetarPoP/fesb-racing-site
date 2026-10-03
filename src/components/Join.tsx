@@ -1,12 +1,24 @@
-import { useState, type FormEvent } from 'react'
-import { ArrowRight, ChevronRight } from 'lucide-react'
+import { useEffect, useState, type FormEvent, type KeyboardEvent } from 'react'
+import { Check } from 'lucide-react'
 import type { Content, Lang } from '~/content'
 import { submitApplication, validateApplication, type Application, type Field, type FieldErrors } from '~/lib/apply'
-import { Corners, cx, tw } from './ui'
+import { cx, tw } from './ui'
 
 type Status = 'idle' | 'sending' | 'sent' | 'error'
 type Mode = 'student' | 'company'
 type FieldDef = { name: Field; label: string; type: string; auto: string; err: string; multiline?: boolean }
+
+const MODES = ['student', 'company'] as const
+
+// Arrow keys move the choice in a radiogroup. The new radio is selected and focused.
+function arrowNav(e: KeyboardEvent<HTMLElement>, current: number, count: number, select: (i: number) => void) {
+  const step = e.key === 'ArrowRight' || e.key === 'ArrowDown' ? 1 : e.key === 'ArrowLeft' || e.key === 'ArrowUp' ? -1 : 0
+  if (!step) return
+  e.preventDefault()
+  const next = (current + step + count) % count
+  select(next)
+  e.currentTarget.parentElement?.querySelectorAll<HTMLElement>('[role="radio"]')[next]?.focus()
+}
 
 export function Join({ c, lang }: { c: Content; lang: Lang }) {
   const [mode, setMode] = useState<Mode>('student')
@@ -20,6 +32,16 @@ export function Join({ c, lang }: { c: Content; lang: Lang }) {
     setErrors({})
     setStatus('idle')
   }
+
+  // A link with data-join-mode (the sponsor button) also switches the form to that mode.
+  useEffect(() => {
+    const onClick = (e: MouseEvent) => {
+      const a = e.target instanceof Element ? e.target.closest<HTMLElement>('[data-join-mode]') : null
+      if (a?.dataset.joinMode === 'company') switchMode('company')
+    }
+    document.addEventListener('click', onClick)
+    return () => document.removeEventListener('click', onClick)
+  }, [])
 
   async function onSubmit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault()
@@ -68,83 +90,65 @@ export function Join({ c, lang }: { c: Content; lang: Lang }) {
     onChange: () => clearError(f.name),
   })
 
+  const inputClass =
+    'block w-full rounded-[14px] border border-fg/10 bg-bg px-[18px] py-4 text-base text-fg caret-acc outline-none transition-colors placeholder:text-mute focus:border-acc aria-[invalid=true]:border-acc'
+
   return (
     <section
       id="pridruzi-se"
-      className="wrap grid scroll-mt-16 gap-10 py-14 md:grid-cols-[minmax(0,1fr)_minmax(0,500px)] md:gap-14 md:py-24"
+      className="mx-auto grid w-full max-w-[1344px] scroll-mt-16 grid-cols-[repeat(auto-fit,minmax(min(100%,420px),1fr))] items-start gap-[clamp(28px,5vw,56px)] px-[clamp(20px,3.4vw,48px)] pt-[clamp(96px,14vw,160px)] pb-20"
     >
       <div className="flex flex-col gap-5">
-        <h2 className="m-0 font-display text-[52px] leading-[.88] font-extrabold text-balance uppercase md:text-[clamp(56px,6.9vw,88px)]">
-          {company ? c.companyTitle : c.joinTitle}
-        </h2>
-        <p className="m-0 max-w-[460px] text-[17px] leading-[1.6] text-mute">{company ? c.companyText : c.joinText}</p>
+        <h2 key={`t-${mode}`} className={cx(tw.h2, 'animate-fade-up text-[clamp(32px,4.2vw,60px)] [overflow-wrap:anywhere]')}>{company ? c.companyTitle : c.joinTitle}</h2>
+        <p key={`p-${mode}`} className="m-0 max-w-[460px] animate-fade-up text-[17px] leading-[1.55] text-[#b8aca8]">{company ? c.companyText : c.joinText}</p>
       </div>
 
-      <div className={cx(tw.card, 'self-start font-mono text-sm')}>
-        <Corners />
-        <div className="flex flex-wrap items-center justify-between gap-3 border-b border-line px-4 py-3">
-          <span className="text-[11px] text-mute">{company ? c.companyPath : c.formPath}</span>
-          <div role="radiogroup" aria-label={c.modeLabel} className="flex border border-line text-xs uppercase">
-            {(
-              [
-                ['student', c.modeStudent],
-                ['company', c.modeCompany],
-              ] as const
-            ).map(([m, label]) => (
-              <button
-                key={m}
-                type="button"
-                role="radio"
-                aria-checked={mode === m}
-                onClick={() => switchMode(m)}
-                className={cx(
-                  'min-h-11 cursor-pointer px-3 py-1.5 tracking-[.06em] transition-colors md:min-h-0',
-                  mode === m ? 'bg-fg text-bg' : 'text-fg hover:text-acc',
-                )}
-              >
-                {label}
-              </button>
-            ))}
-          </div>
+      <div className="flex flex-col gap-3 rounded-3xl border border-fg/10 bg-[#141112] p-[clamp(18px,5vw,28px)]">
+        <div role="radiogroup" aria-label={c.modeLabel} className="flex gap-1 self-start rounded-full bg-bg p-1">
+          {(
+            [
+              ['student', c.modeStudent],
+              ['company', c.modeCompany],
+            ] as const
+          ).map(([m, label], i) => (
+            <button
+              key={m}
+              type="button"
+              role="radio"
+              aria-checked={mode === m}
+              tabIndex={mode === m ? 0 : -1}
+              onClick={() => switchMode(m)}
+              onKeyDown={(e) => arrowNav(e, MODES.indexOf(mode), MODES.length, (n) => switchMode(MODES[n]))}
+              className={cx(
+                'press min-h-11 cursor-pointer rounded-full px-4 py-2 text-sm font-semibold',
+                mode === m ? 'bg-fg text-[#141112]' : 'text-fg hover:text-acc',
+              )}
+            >
+              {label}
+            </button>
+          ))}
         </div>
 
         {status === 'sent' ? (
-          <div role="status" className="flex flex-col gap-2.5 px-4 py-6 leading-[1.6]">
-            <span className="text-acc">[OK] 200</span>
+          <div key="sent" role="status" className="animate-pop-in flex items-start gap-3 py-4 leading-[1.6]">
+            <Check size={20} aria-hidden="true" className="mt-0.5 shrink-0 text-acc" />
             <span>{company ? c.fSentCompany : c.fSent}</span>
           </div>
         ) : (
-          <form onSubmit={onSubmit} noValidate className="flex flex-col gap-1 p-4">
+          <form onSubmit={onSubmit} noValidate className="flex flex-col gap-3">
             {fields.map((f) => (
               <div key={f.name}>
-                <label
-                  className={cx(
-                    'flex gap-2.5 border-b border-dashed py-2.5 focus-within:border-acc',
-                    f.multiline ? 'flex-col' : 'items-center',
-                    errors[f.name] ? 'border-acc' : 'border-line',
-                  )}
-                >
-                  <span className="flex items-center gap-2.5">
-                    <ChevronRight size={14} aria-hidden="true" className="shrink-0 text-acc" />
-                    <span className="w-[110px] shrink-0 text-mute md:w-[150px]">{f.label}</span>
-                  </span>
+                <label className="block">
+                  <span className="sr-only">{f.label}</span>
                   {f.multiline ? (
-                    <textarea
-                      {...fieldProps(f)}
-                      rows={4}
-                      className="min-h-24 w-full resize-y border-0 bg-transparent pl-6 text-fg caret-acc outline-none"
-                    />
+                    <textarea {...fieldProps(f)} rows={4} placeholder={f.label} className={cx(inputClass, 'min-h-28 resize-y')} />
                   ) : (
-                    <input
-                      {...fieldProps(f)}
-                      type={f.type}
-                      className="min-h-7 min-w-0 flex-1 border-0 bg-transparent text-fg caret-acc outline-none"
-                    />
+                    <input {...fieldProps(f)} type={f.type} placeholder={f.label} className={inputClass} />
                   )}
                 </label>
                 {errors[f.name] && (
-                  <div id={`err-${f.name}`} className="pt-1.5 text-xs text-acc">
-                    [ERR] {f.err}
+                  <div id={`err-${f.name}`} className="animate-fade-up pt-1.5 pl-1 text-sm text-acc">
+                    {f.err}
                   </div>
                 )}
               </div>
@@ -152,7 +156,7 @@ export function Join({ c, lang }: { c: Content; lang: Lang }) {
 
             {!company && (
               <>
-                <div id="pick-label" className="pt-3.5 pb-1.5 text-mute">
+                <div id="pick-label" className="mt-2 text-sm text-mute">
                   {c.fTeam}
                 </div>
                 <div role="radiogroup" aria-labelledby="pick-label" className="flex flex-wrap gap-1.5">
@@ -162,11 +166,13 @@ export function Join({ c, lang }: { c: Content; lang: Lang }) {
                       type="button"
                       role="radio"
                       aria-checked={pick === i}
+                      tabIndex={pick === i ? 0 : -1}
                       title={t.name}
                       onClick={() => setPick(i)}
+                      onKeyDown={(e) => arrowNav(e, pick, c.teams.length, setPick)}
                       className={cx(
-                        'min-h-11 cursor-pointer border border-line px-2.5 py-[7px] text-xs transition-colors md:min-h-0',
-                        pick === i ? 'bg-brand text-on-brand' : 'text-fg hover:bg-ph',
+                        'press min-h-11 cursor-pointer rounded-full border px-4 py-2.5 text-sm font-semibold',
+                        pick === i ? 'border-fg bg-fg text-[#141112]' : 'border-fg/20 text-fg hover:border-acc hover:text-acc',
                       )}
                     >
                       {t.code}
@@ -177,21 +183,18 @@ export function Join({ c, lang }: { c: Content; lang: Lang }) {
             )}
 
             {status === 'error' && (
-              <div role="alert" className="pt-3 text-xs text-acc">
-                [ERR] {c.errServer}
+              <div role="alert" className="animate-fade-up text-sm text-acc">
+                {c.errServer}
               </div>
             )}
 
             <button
               type="submit"
               disabled={status === 'sending'}
-              className={cx(
-                tw.btnRed,
-                tw.mono,
-                'mt-[18px] flex cursor-pointer items-center gap-2 p-[15px] text-left disabled:cursor-wait disabled:opacity-70',
-              )}
+              data-dh="wipe"
+              data-dh-c="#f1e9e5"
+              className="press mt-3 cursor-pointer rounded-full bg-acc px-5 py-4 text-center text-[15px] font-semibold text-[#141112] hover:text-[#141112] disabled:cursor-wait disabled:opacity-70"
             >
-              <ArrowRight size={16} aria-hidden="true" />
               {status === 'sending' ? c.fSending : company ? c.fSendCompany : c.fSend}
             </button>
           </form>

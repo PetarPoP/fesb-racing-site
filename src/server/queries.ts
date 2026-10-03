@@ -1,8 +1,11 @@
 import { asc, desc, eq } from 'drizzle-orm'
-import type { NewsCard, SponsorCard } from '~/lib/format'
 import { getDb, schema } from './db'
 
 const { news, sponsors } = schema
+
+// This file is now unused. The site reads news from the CMS.
+type NewsCard = Omit<typeof news.$inferSelect, 'bodyHr' | 'bodyEn' | 'createdAt'>
+type SponsorCard = Omit<typeof sponsors.$inferSelect, 'bodyHr' | 'bodyEn' | 'createdAt'>
 
 const newsCardCols = {
   id: news.id,

@@ -8,3 +8,7 @@ dist
 .env*.local
 .data
 public/uploads
+.wrangler/
+.cloudflare/
+.cloudflare.env
+cms/.secrets.env

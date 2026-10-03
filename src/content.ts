@@ -9,8 +9,21 @@ export const isLang = (v: unknown): v is Lang => v === 'hr' || v === 'en'
 export const SECTION_IDS = ['prica', 'timovi', 'vozila', 'natjecanja', 'sponzori', 'novosti', 'kontakt'] as const
 
 type Team = { code: string; name: string; d: string; tags: string[] }
-type Vehicle = { id: string; cls: string; name: string; d: string; sys: string[]; img: string }
-type Comp = { cc: string; name: string; place: string; type: 'FS' | 'MS' }
+type Vehicle = { id: string; cls: string; name: string; d: string; sys: string[]; img: string; src?: string; pos?: string }
+type Comp = {
+  cc: string
+  name: string
+  place: string
+  type: 'FS' | 'MS'
+  /** Circuit and town, shown under the name in the list. */
+  sub: string
+  /** Venue line in the map bar. */
+  venue: string
+  /** Map centre: [latitude, longitude]. */
+  c: [number, number]
+  /** Half size of the map view: [latitude span, longitude span], in degrees. */
+  z: [number, number]
+}
 
 export type Content = {
   metaTitle: string
@@ -21,26 +34,44 @@ export type Content = {
   heroB: string
   heroSub: string
   heroCta2: string
-  heroImg: string
-  heroImgShort: string
   stats: { v: string; l: string }[]
   storyTitle: string
   chapters: { y: string; t: string; d: string }[]
   mission: string
+  /** Part of `mission` that gets the accent colour. */
+  missionAccent: string
   teamsTitle: string
   teams: Team[]
+  carIntro: string
+  carAria: string
+  carModelNote: string
+  carScroll: string
+  carLoading: string
+  carFailed: string
+  carAll: string
+  /** Count line of the active team. {a} = assemblies, {m} = CAD parts. */
+  carCount: string
+  carNoParts: string
+  carDimLength: string
+  carDimWheelbase: string
+  carDimWidth: string
+  carDimNote: string
+  carSkip: string
+  carProgress: string
   vehTitle: string
   vehicles: Vehicle[]
   compLabel: string
   compTitle: string
   comps: Comp[]
   trackPlan: string
+  compMapOpen: string
   sponTitle: string
   sponText: string
   sponCta: string
+  sponCount: string
+  sponTiers: [string, string, string, string]
   joinTitle: string
   joinText: string
-  formPath: string
   fName: string
   fMail: string
   fStudy: string
@@ -57,7 +88,6 @@ export type Content = {
   modeCompany: string
   companyTitle: string
   companyText: string
-  companyPath: string
   fCompany: string
   fContact: string
   fMessage: string
@@ -67,13 +97,10 @@ export type Content = {
   errMessage: string
   newsLabel: string
   newsTitle: string
-  gallery: string[]
   readMore: string
   readFull: string
   allNews: string
   noNews: string
-  sponsorMore: string
-  visitWebsite: string
   close: string
   notFound: string
   backHome: string
@@ -82,10 +109,14 @@ export type Content = {
   mail: string
   foot: string
   menu: string
-  themeLight: string
-  themeDark: string
-  themeToggle: string
+  footTeam: string
+  footProgram: string
+  footFollow: string
   langSwitch: string
+  /** Ticker words from the CMS. When empty, the ticker uses the competition names. */
+  ticker?: string[]
+  /** Social link URLs from the CMS, by platform (instagram, facebook, linkedin). */
+  socials?: Record<string, string>
 }
 
 const hr: Content = {
@@ -99,8 +130,6 @@ const hr: Content = {
   heroSub:
     'Studentski inženjerski tim FESB-a. Projektiramo, gradimo i utrkujemo Formula Student bolide i MotoStudent motocikle.',
   heroCta2: 'Postani partner',
-  heroImg: 'Bolid u zavoju — bočni profil',
-  heroImgShort: 'Bolid u zavoju',
   stats: [
     { v: '2010', l: 'Godina osnutka' },
     { v: '65+', l: 'Aktivnih članova' },
@@ -126,6 +155,7 @@ const hr: Content = {
     },
   ],
   mission: 'Most između akademske teorije i vrhunskog inženjerstva u stvarnom svijetu.',
+  missionAccent: 'vrhunskog inženjerstva',
   teamsTitle: 'Pet timova, jedno vozilo.',
   teams: [
     { code: 'MEH', name: 'Mehanika', d: 'Šasija, ovjes, pogonski sklop i kočnice. Od CAD modela do zavarenog okvira.', tags: ['Šasija', 'Ovjes', 'Pogon'] },
@@ -134,6 +164,21 @@ const hr: Content = {
     { code: 'KAR', name: 'Aerodinamika & Karoserija', d: 'Kompozitna karoserija, kalupi i laminacija karbonskih vlakana.', tags: ['Kompoziti', 'Kalupi', 'Karbon'] },
     { code: 'M&B', name: 'Marketing & Biznis', d: 'Partnerstva, brend, mediji i poslovni plan koji branimo pred sucima na natjecanjima.', tags: ['Sponzori', 'Brend', 'Business plan'] },
   ],
+  carIntro: 'Skrolaj kroz eFRT01: bolid se okreće, rastavlja na sklopove i pokazuje koji tim stoji iza kojeg dijela.',
+  carAria: '3D model bolida eFRT01 koji se pri skrolanju okreće i rastavlja na sklopove označene timovima',
+  carModelNote: 'CAD model · rastav po sklopovima',
+  carScroll: 'Skrolaj',
+  carLoading: 'Učitavanje modela',
+  carFailed: '3D model se nije mogao učitati',
+  carAll: 'Cijeli bolid',
+  carCount: '{a} sklopova · {m} CAD dijelova',
+  carNoParts: 'Bez fizičkih dijelova na bolidu',
+  carDimLength: 'Duljina',
+  carDimWheelbase: 'Međuosovinski razmak',
+  carDimWidth: 'Širina',
+  carDimNote: 'Mjere su okvirne (očitane iz CAD modela)',
+  carSkip: 'Preskoči animaciju',
+  carProgress: 'Napredak animacije',
   vehTitle: 'Dvije klase. Jedna radionica.',
   vehicles: [
     {
@@ -142,7 +187,9 @@ const hr: Content = {
       name: 'Formula Student bolid',
       d: 'Jednosjed razvijen za statičke i dinamičke discipline: acceleration, skidpad, autocross i endurance.',
       sys: ['Šasija', 'Ovjes', 'Aero paket', 'VCU', 'Vlastite PCB'],
-      img: 'fotografija bolida — bočni profil',
+      img: 'Bolid eFRT01 na natjecanju',
+      src: '/img/foto-bolida.jpg',
+      pos: '50% 60%',
     },
     {
       id: 'ms',
@@ -150,26 +197,66 @@ const hr: Content = {
       name: 'MotoStudent motocikl',
       d: 'Utrkački prototip motocikla razvijen od okvira do elektronike za natjecanje MotoStudent u Španjolskoj.',
       sys: ['Okvir', 'Ovjes', 'Karoserija', 'Elektronika', 'Pogon'],
-      img: 'fotografija motocikla — 3/4 pogled',
+      img: 'MotoStudent motocikl na stazi',
+      src: '/img/foto-motora.jpg',
+      pos: '45% 55%',
     },
   ],
   compLabel: 'Natjecanja',
   compTitle: '18+ natjecanja diljem Europe.',
   comps: [
-    { cc: 'IT', name: 'Formula Student Italy', place: 'Italija', type: 'FS' },
-    { cc: 'CZ', name: 'Formula Student Czech', place: 'Češka', type: 'FS' },
-    { cc: 'ES', name: 'MotoStudent', place: 'Španjolska', type: 'MS' },
-    { cc: 'HR', name: 'Rimac FS Alpe Adria', place: 'Hrvatska — domaći teren', type: 'FS' },
+    {
+      cc: 'IT',
+      name: 'Formula Student Italy',
+      place: 'Italija',
+      type: 'FS',
+      sub: "Autodromo Riccardo Paletti, Varano de' Melegari",
+      venue: 'Autodromo Riccardo Paletti · 2,35 km',
+      c: [44.6811, 10.0225],
+      z: [0.0065, 0.0105],
+    },
+    {
+      cc: 'CZ',
+      name: 'Formula Student Czech',
+      place: 'Češka',
+      type: 'FS',
+      sub: 'Autodrom Most, Češka',
+      venue: 'Autodrom Most · 4,21 km',
+      c: [50.5225, 13.6006],
+      z: [0.009, 0.016],
+    },
+    {
+      cc: 'ES',
+      name: 'MotoStudent',
+      place: 'Španjolska',
+      type: 'MS',
+      sub: 'MotorLand Aragón, Alcañiz',
+      venue: 'MotorLand Aragón · 5,35 km',
+      c: [41.0783, -0.2075],
+      z: [0.011, 0.016],
+    },
+    {
+      cc: 'HR',
+      name: 'Rimac FS Alpe Adria',
+      place: 'Hrvatska — domaći teren',
+      type: 'FS',
+      sub: 'Bugatti Rimac Test Track, Velika Gorica',
+      venue: 'Bugatti Rimac Test Track · Mičevec',
+      c: [45.7515, 16.0545],
+      z: [0.012, 0.019],
+    },
   ],
   trackPlan: 'Tlocrt staze',
-  sponTitle: 'Partneri koji nas voze.',
+  compMapOpen: 'Otvori kartu',
+  sponTitle: 'Partneri',
   sponText:
     'Vaša tehnologija na stazi, vaš brend pred europskim inženjerskim talentima. Nudimo vidljivost, zapošljavanje i suradnju na stvarnom razvoju.',
-  sponCta: 'Preuzmi sponzorski paket',
+  sponCta: 'Postani partner',
+  sponCount: 'Partnera: {n}',
+  sponTiers: ['Sveučilište', 'Glavni partneri', 'Partneri', 'Podržavaju nas'],
   joinTitle: 'Tu se ne spava prije natjecanja.',
   joinText:
     'Tražimo studente strojarstva, elektrotehnike, računarstva i ekonomije koji žele graditi, a ne samo učiti.',
-  formPath: 'fesb-racing ~ /prijava',
   fName: 'Ime i prezime',
   fMail: 'E-mail',
   fStudy: 'Studij i godina',
@@ -187,7 +274,6 @@ const hr: Content = {
   companyTitle: 'Vozimo zajedno.',
   companyText:
     'Tražite mlade inženjere, vidljivost na europskim stazama ili partnera za razvoj? Pošaljite nam par riječi o sebi i javit ćemo se sa sponzorskim paketom.',
-  companyPath: 'fesb-racing ~ /partneri',
   fCompany: 'Tvrtka',
   fContact: 'Kontakt osoba',
   fMessage: 'Poruka',
@@ -197,13 +283,10 @@ const hr: Content = {
   errMessage: 'Napišite nam kratku poruku.',
   newsLabel: 'Novosti',
   newsTitle: 'Iz radionice',
-  gallery: ['Bolid na stazi — široki kadar', 'Radionica, noć', 'PCB / elektronika — detalj', 'Timska fotografija', 'Pit lane'],
   readMore: 'Pročitaj',
   readFull: 'Pročitaj cijelu novost',
   allNews: 'Sve novosti',
-  noNews: 'Još nema objavljenih novosti.',
-  sponsorMore: 'Više o sponzoru',
-  visitWebsite: 'Web stranica',
+  noNews: 'Nema objava',
   close: 'Zatvori',
   notFound: 'Ova stranica ne postoji.',
   backHome: 'Natrag na početnu',
@@ -212,9 +295,9 @@ const hr: Content = {
   mail: 'info@fesbracing.hr',
   foot: '© FESB Racing — udruga studenata FESB-a',
   menu: 'Izbornik',
-  themeLight: 'Svijetlo',
-  themeDark: 'Tamno',
-  themeToggle: 'Promijeni temu',
+  footTeam: 'Tim',
+  footProgram: 'Program',
+  footFollow: 'Pratite',
   langSwitch: 'Promijeni jezik',
 }
 
@@ -229,8 +312,6 @@ const en: Content = {
   heroSub:
     'The student engineering team of FESB. We design, build and race Formula Student cars and MotoStudent motorcycles.',
   heroCta2: 'Become a partner',
-  heroImg: 'Car in a corner — side profile',
-  heroImgShort: 'Car in a corner',
   stats: [
     { v: '2010', l: 'Founded' },
     { v: '65+', l: 'Active members' },
@@ -256,6 +337,7 @@ const en: Content = {
     },
   ],
   mission: 'A bridge between academic theory and top-level real-world engineering.',
+  missionAccent: 'top-level real-world engineering',
   teamsTitle: 'Five teams, one vehicle.',
   teams: [
     { code: 'MEH', name: 'Mechanics', d: 'Chassis, suspension, powertrain and brakes. From CAD model to welded frame.', tags: ['Chassis', 'Suspension', 'Powertrain'] },
@@ -264,6 +346,21 @@ const en: Content = {
     { code: 'KAR', name: 'Aerodynamics & Bodywork', d: 'Composite bodywork, moulds and carbon fibre lamination.', tags: ['Composites', 'Moulds', 'Carbon'] },
     { code: 'M&B', name: 'Marketing & Business', d: 'Partnerships, brand, media and the business plan we defend in front of judges.', tags: ['Sponsors', 'Brand', 'Business plan'] },
   ],
+  carIntro: 'Scroll through eFRT01: the car turns, comes apart into its assemblies and shows which team builds what.',
+  carAria: '3D model of the eFRT01 car that rotates and explodes into assemblies labelled by team as you scroll',
+  carModelNote: 'CAD model · exploded by assembly',
+  carScroll: 'Scroll',
+  carLoading: 'Loading model',
+  carFailed: 'The 3D model could not be loaded',
+  carAll: 'Whole car',
+  carCount: '{a} assemblies · {m} CAD parts',
+  carNoParts: 'No physical parts on the car',
+  carDimLength: 'Length',
+  carDimWheelbase: 'Wheelbase',
+  carDimWidth: 'Width',
+  carDimNote: 'Sizes are approximate (read from the CAD model)',
+  carSkip: 'Skip the animation',
+  carProgress: 'Animation progress',
   vehTitle: 'Two classes. One workshop.',
   vehicles: [
     {
@@ -272,7 +369,9 @@ const en: Content = {
       name: 'Formula Student car',
       d: 'A single-seater built for static and dynamic events: acceleration, skidpad, autocross and endurance.',
       sys: ['Chassis', 'Suspension', 'Aero package', 'VCU', 'In-house PCBs'],
-      img: 'car photo — side profile',
+      img: 'The eFRT01 car at a competition',
+      src: '/img/foto-bolida.jpg',
+      pos: '50% 60%',
     },
     {
       id: 'ms',
@@ -280,26 +379,66 @@ const en: Content = {
       name: 'MotoStudent motorcycle',
       d: 'A race motorcycle prototype developed from frame to electronics for MotoStudent in Spain.',
       sys: ['Frame', 'Suspension', 'Bodywork', 'Electronics', 'Powertrain'],
-      img: 'motorcycle photo — 3/4 view',
+      img: 'The MotoStudent motorcycle on track',
+      src: '/img/foto-motora.jpg',
+      pos: '45% 55%',
     },
   ],
   compLabel: 'Competitions',
   compTitle: '18+ competitions across Europe.',
   comps: [
-    { cc: 'IT', name: 'Formula Student Italy', place: 'Italy', type: 'FS' },
-    { cc: 'CZ', name: 'Formula Student Czech', place: 'Czech Republic', type: 'FS' },
-    { cc: 'ES', name: 'MotoStudent', place: 'Spain', type: 'MS' },
-    { cc: 'HR', name: 'Rimac FS Alpe Adria', place: 'Croatia — home ground', type: 'FS' },
+    {
+      cc: 'IT',
+      name: 'Formula Student Italy',
+      place: 'Italy',
+      type: 'FS',
+      sub: "Autodromo Riccardo Paletti, Varano de' Melegari",
+      venue: 'Autodromo Riccardo Paletti · 2.35 km',
+      c: [44.6811, 10.0225],
+      z: [0.0065, 0.0105],
+    },
+    {
+      cc: 'CZ',
+      name: 'Formula Student Czech',
+      place: 'Czech Republic',
+      type: 'FS',
+      sub: 'Autodrom Most, Czech Republic',
+      venue: 'Autodrom Most · 4.21 km',
+      c: [50.5225, 13.6006],
+      z: [0.009, 0.016],
+    },
+    {
+      cc: 'ES',
+      name: 'MotoStudent',
+      place: 'Spain',
+      type: 'MS',
+      sub: 'MotorLand Aragón, Alcañiz',
+      venue: 'MotorLand Aragón · 5.35 km',
+      c: [41.0783, -0.2075],
+      z: [0.011, 0.016],
+    },
+    {
+      cc: 'HR',
+      name: 'Rimac FS Alpe Adria',
+      place: 'Croatia — home ground',
+      type: 'FS',
+      sub: 'Bugatti Rimac Test Track, Velika Gorica',
+      venue: 'Bugatti Rimac Test Track · Mičevec',
+      c: [45.7515, 16.0545],
+      z: [0.012, 0.019],
+    },
   ],
   trackPlan: 'Track layout',
-  sponTitle: 'Partners who drive us.',
+  compMapOpen: 'Open map',
+  sponTitle: 'Partners',
   sponText:
     'Your technology on track, your brand in front of Europe’s engineering talent. We offer visibility, recruiting and collaboration on real development.',
-  sponCta: 'Download sponsor pack',
+  sponCta: 'Become a partner',
+  sponCount: 'Partners: {n}',
+  sponTiers: ['University', 'Main partners', 'Partners', 'Supporters'],
   joinTitle: 'Nobody sleeps before a competition.',
   joinText:
     'We are looking for mechanical, electrical, computing and economics students who want to build, not just study.',
-  formPath: 'fesb-racing ~ /apply',
   fName: 'Full name',
   fMail: 'E-mail',
   fStudy: 'Study programme & year',
@@ -317,7 +456,6 @@ const en: Content = {
   companyTitle: 'Let’s race together.',
   companyText:
     'Looking for young engineers, visibility on European tracks or a development partner? Tell us a little about your company and we will get back to you with our sponsorship pack.',
-  companyPath: 'fesb-racing ~ /partners',
   fCompany: 'Company',
   fContact: 'Contact person',
   fMessage: 'Message',
@@ -327,13 +465,10 @@ const en: Content = {
   errMessage: 'Write us a short message.',
   newsLabel: 'News',
   newsTitle: 'From the workshop',
-  gallery: ['Wide shot — car on track', 'Workshop, night', 'PCB / electronics detail', 'Team photo', 'Pit lane'],
   readMore: 'Read',
   readFull: 'Read the full story',
   allNews: 'All news',
-  noNews: 'No news yet.',
-  sponsorMore: 'More about this sponsor',
-  visitWebsite: 'Website',
+  noNews: 'No posts yet',
   close: 'Close',
   notFound: 'This page does not exist.',
   backHome: 'Back to home',
@@ -342,9 +477,9 @@ const en: Content = {
   mail: 'info@fesbracing.hr',
   foot: '© FESB Racing — FESB student association',
   menu: 'Menu',
-  themeLight: 'Light',
-  themeDark: 'Dark',
-  themeToggle: 'Toggle theme',
+  footTeam: 'Team',
+  footProgram: 'Program',
+  footFollow: 'Follow',
   langSwitch: 'Switch language',
 }
 
