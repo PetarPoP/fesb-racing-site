@@ -21,9 +21,8 @@ The scripts do steps 3 to 9 for you. Read them before you run them.
    Then open `<CMS_URL>/admin` and log in with the seed user.
 8. Build and deploy the site: set `CMS_URL` to the public CMS address, then `npm run build`.
    - The build prerenders `/hr`, `/en`, the news list and every news page into `.output/public`.
-   - Upload **[wrangler]**: `.output/server/wrangler.json` is the Worker config. `cf deploy` needs a
-     Build Output Specification (`.cloudflare/output/v0`) that the Nitro preset does not write yet.
-     Until it does, the upload needs `wrangler deploy` (the Nitro preset command) run by a human.
+   - The build also writes the Build Output Specification in `.cloudflare/output/v0` (`scripts/build-output.mjs`).
+   - Upload: `cf deploy --prebuilt`.
 9. Set the webhook (the site rebuilds after a publish):
    - Create a GitHub fine-grained token for this repository with "Contents: read and write".
    - Add the repository secrets `CLOUDFLARE_API_TOKEN`, `CLOUDFLARE_ACCOUNT_ID`, `CMS_URL`, `CMS_PUBLIC_URL`.

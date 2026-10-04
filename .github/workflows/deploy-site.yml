@@ -38,7 +38,7 @@ jobs:
         run: npm ci
 
       - name: Install the cf CLI
-        run: npm install -g cf
+        run: npm install -g cf@1.0.0-beta.12
 
       - name: Build the site (the prerender reads the CMS)
         run: npm run build
@@ -46,14 +46,5 @@ jobs:
       - name: Count the prerendered pages
         run: find .output/public -name '*.html' | wc -l
 
-      # PLACEHOLDER: cf deploy needs a Build Output Specification (.cloudflare/output/v0).
-      # The Nitro cloudflare-module preset does not write it yet. Until it does, this step
-      # skips the upload and the deploy needs a human (see DEPLOY.md, "Deploy the site").
       - name: Deploy the site with cf
-        run: |
-          if [ -f .cloudflare/output/v0/config.json ]; then
-            cf deploy --prebuilt
-          else
-            echo "No Build Output Specification. Upload skipped. See DEPLOY.md."
-            exit 1
-          fi
+        run: cf deploy --prebuilt

@@ -53,15 +53,7 @@ if [ "${SKIP_SITE:-0}" != "1" ]; then
   [ -d "$ROOT/node_modules" ] || (cd "$ROOT" && npm install)
   (cd "$ROOT" && npm run build)
   info "Prerendered pages: $(find "$ROOT/.output/public" -name '*.html' | wc -l)"
-  if [ -f "$ROOT/.cloudflare/output/v0/config.json" ]; then
-    (cd "$ROOT" && cf deploy --prebuilt)
-  else
-    cat <<'MSG'
-   The build is ready in .output (Nitro cloudflare-module: .output/server and .output/public).
-   cf deploy needs a Build Output Specification, and Nitro does not write one yet.
-   This upload step works only with wrangler. See DEPLOY.md, step "Deploy the site".
-MSG
-  fi
+  (cd "$ROOT" && cf deploy --prebuilt)
 fi
 
 say "Done"
