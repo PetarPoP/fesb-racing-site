@@ -318,7 +318,8 @@ export function Sponsors({ c, partners = PARTNERS }: { c: Content; partners?: Pa
     const [minW, h] = PARTNER_TIERS[t]
     // The top tier keeps its large tiles. The other tiers use a fixed column count per width (TIER_COLS).
     if (t === 1) return { flex: `1 1 ${minW}px`, minWidth: `min(calc(50% - 4px), ${minW}px)`, height: h } as const
-    return { flex: '1 1 calc((100% - (var(--cols) - 1) * 8px) / var(--cols))', maxWidth: 'calc((100% - (var(--cols) - 1) * 8px) / var(--cols) * 2)', height: h } as const
+    // Fixed width (no grow), so a short last row stays centred instead of stretching
+    return { flex: '0 0 calc((100% - (var(--cols) - 1) * 8px) / var(--cols))', height: h } as const
   }
   return (
     <section id="sponzori" className={tw.section}>
@@ -335,7 +336,7 @@ export function Sponsors({ c, partners = PARTNERS }: { c: Content; partners?: Pa
       </div>
       <div className="flex flex-col gap-2">
         {tiers.map(({ t, label, items }) => (
-          <ul key={t} aria-label={label} className={cx('m-0 flex list-none flex-wrap gap-2 p-0', TIER_COLS[t])}>
+          <ul key={t} aria-label={label} className={cx('m-0 flex list-none flex-wrap justify-center gap-2 p-0', TIER_COLS[t])}>
             {items.map((p) => {
               const { w, h } = partnerLogoSize(p)
               const img = (
