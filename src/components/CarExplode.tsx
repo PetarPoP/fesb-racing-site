@@ -472,11 +472,11 @@ export function Teams({ c, lang }: { c: Content; lang: Lang }) {
             </div>
           )}
 
-          {/* Text of the active team: top right on wide screens, above the chips on a phone */}
+          {/* Text of the active team: top right on wide screens, above the chips on a phone (there every card has the same width) */}
           <div className="pointer-events-none absolute inset-x-[calc(var(--cs)+12px)] top-[calc(var(--ct)+46px)] flex max-md:top-auto max-md:bottom-[calc(var(--cb)+clamp(72px,12vw,96px))] md:justify-end">
             <div
               className={cx(
-                'glass max-w-[420px] rounded-2xl p-3.5 transition-[opacity,translate] duration-300 md:p-5',
+                'glass max-w-[420px] rounded-2xl p-3.5 transition-[opacity,translate] duration-300 max-md:mx-auto max-md:w-full md:p-5',
                 activeTeam ? 'translate-y-0 opacity-100' : 'translate-y-2 opacity-0',
               )}
               aria-live="polite"
