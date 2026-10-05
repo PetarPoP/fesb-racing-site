@@ -2,9 +2,9 @@
 # The CMS calls this workflow with repository_dispatch (event type: cms-publish) after a publish.
 name: deploy-site
 
+# A merge into master is built and deployed by Cloudflare Workers Builds (the repo is connected in Cloudflare),
+# so this workflow no longer runs on push. It still runs for a CMS publish and by hand.
 on:
-  push:
-    branches: [master]
   repository_dispatch:
     types: [cms-publish]
   workflow_dispatch:
