@@ -7,9 +7,10 @@ import type { Partner } from '~/lib/partners'
 import type { News } from '~/lib/format'
 import { galleryHtml, lexicalToHtml, type HtmlContext } from './lexical'
 
-const TIMEOUT_MS = 2000
+/** The CMS Worker sometimes needs 2–4 s on a cold start. 2 s was too short: pages were built without news and logos. */
+const TIMEOUT_MS = 5000
 const TTL_MS = 60_000
-/** A failed call is cached for a short time, so a CMS that is down does not add 2 s to each request. */
+/** A failed call is cached for a short time, so a CMS that is down does not add the timeout to each request. */
 const FAIL_TTL_MS = 10_000
 
 const baseUrl = () => (process.env.CMS_URL || 'http://localhost:3100').replace(/\/$/, '')
