@@ -495,7 +495,7 @@ export function Teams({ c, lang }: { c: Content; lang: Lang }) {
             </div>
           </div>
 
-          {/* Team selector: glass pill. The lines end on the chips. */}
+          {/* Team selector: glass pill. The lines end on the chips. Every chip has the same fixed width. */}
           <nav
             aria-label={c.teamsTitle}
             className="absolute bottom-[calc(var(--cb)+clamp(12px,3vw,24px))] left-1/2 flex max-w-[calc(100%-24px)] -translate-x-1/2 gap-0.5 rounded-full border border-fg/[.14] bg-[rgba(20,17,18,.55)] p-1 text-sm whitespace-nowrap backdrop-blur-[14px]"
@@ -522,7 +522,7 @@ export function Teams({ c, lang }: { c: Content; lang: Lang }) {
                 aria-pressed={active === i}
                 title={t.name}
                 className={cx(
-                  'press relative z-10 min-h-11 cursor-pointer rounded-full px-[clamp(10px,2.6vw,16px)] py-[9px] font-semibold',
+                  'press relative z-10 min-h-11 w-[clamp(56px,15vw,70px)] shrink-0 cursor-pointer rounded-full px-0 py-[9px] text-center font-semibold',
                   active === i ? 'text-[#141112]' : 'text-fg hover:bg-fg/10',
                 )}
               >

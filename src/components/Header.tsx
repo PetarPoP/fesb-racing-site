@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, type ComponentProps } from 'react'
+import { useEffect, useRef, useState, type ComponentProps, type CSSProperties } from 'react'
 import { Link } from '@tanstack/react-router'
 import { SECTION_IDS, type Content, type Lang } from '~/content'
 import { cx } from './ui'
@@ -161,9 +161,11 @@ export function Header({ lang, c, onHome }: { lang: Lang; c: Content; onHome: bo
       <nav
         ref={navRef}
         id="mobile-nav"
-        hidden={!menuOpen}
+        data-open={menuOpen}
+        aria-hidden={!menuOpen}
+        inert={!menuOpen}
         aria-label={c.menu}
-        className="glass-nav animate-pop-in origin-top pointer-events-auto mt-2 w-full max-w-[420px] rounded-3xl p-2 min-[1000px]:hidden"
+        className="menu-sheet pointer-events-auto mt-2 w-full max-w-[420px] rounded-3xl p-2 min-[1000px]:hidden"
       >
         <div className="flex flex-col text-base">
           {c.nav.map((label, i) => (
@@ -174,7 +176,8 @@ export function Header({ lang, c, onHome }: { lang: Lang; c: Content; onHome: bo
               onHome={onHome}
               onClick={() => setMenuOpen(false)}
               aria-current={active === SECTION_IDS[i] ? 'location' : undefined}
-              className={cx('press flex min-h-11 items-center rounded-2xl px-4 font-semibold hover:bg-fg/10', linkClass(SECTION_IDS[i]!, false))}
+              style={{ '--i': i } as CSSProperties}
+              className={cx('menu-item flex min-h-11 items-center rounded-2xl px-4 font-semibold hover:bg-fg/10 active:bg-fg/10', linkClass(SECTION_IDS[i]!, false))}
             >
               {label}
             </SectionLink>
