@@ -44,6 +44,21 @@ export function Teams({ c, lang }: { c: Content; lang: Lang }) {
   const [pill, setPill] = useState({ x: 0, w: 0 })
   if (activeTeam) lastTeam.current = activeTeam
   // Measure the active chip. Measure again when the window size changes.
+  // All chips get the width of the widest one (padding stays as in the design). Measured again on resize.
+  const [chipW, setChipW] = useState(0)
+  useLayoutEffect(() => {
+    const measure = () => {
+      const chips = chipRefs.current.filter((el): el is HTMLButtonElement => !!el)
+      chips.forEach((el) => (el.style.minWidth = ''))
+      const w = Math.ceil(Math.max(0, ...chips.map((el) => el.getBoundingClientRect().width)))
+      chips.forEach((el) => (el.style.minWidth = `${w}px`))
+      setChipW(w)
+    }
+    measure()
+    void document.fonts?.ready.then(measure) // the width changes when the web font arrives
+    window.addEventListener('resize', measure)
+    return () => window.removeEventListener('resize', measure)
+  }, [teams])
   useLayoutEffect(() => {
     const measure = () => {
       const chip = active >= 0 ? chipRefs.current[active] : null
@@ -52,7 +67,7 @@ export function Teams({ c, lang }: { c: Content; lang: Lang }) {
     measure()
     window.addEventListener('resize', measure)
     return () => window.removeEventListener('resize', measure)
-  }, [active])
+  }, [active, chipW])
   const ghostTeam = activeTeam ?? lastTeam.current // the big code stays while it fades out
 
   // Rano, u praznom hodu nakon učitavanja stranice: model, dekoder i kod scene (bez blokiranja prvog prikaza)
@@ -457,8 +472,8 @@ export function Teams({ c, lang }: { c: Content; lang: Lang }) {
             </div>
           )}
 
-          {/* Text of the active team (top right, so it does not cover the car or the lines) */}
-          <div className="pointer-events-none absolute inset-x-[calc(var(--cs)+12px)] top-[calc(var(--ct)+46px)] flex md:justify-end">
+          {/* Text of the active team: top right on wide screens, above the chips on a phone */}
+          <div className="pointer-events-none absolute inset-x-[calc(var(--cs)+12px)] top-[calc(var(--ct)+46px)] flex max-md:top-auto max-md:bottom-[calc(var(--cb)+clamp(72px,12vw,96px))] md:justify-end">
             <div
               className={cx(
                 'glass max-w-[420px] rounded-2xl p-3.5 transition-[opacity,translate] duration-300 md:p-5',
@@ -477,7 +492,7 @@ export function Teams({ c, lang }: { c: Content; lang: Lang }) {
                   <h3 className="display m-0 mt-1 text-2xl leading-none [font-stretch:115%] tracking-[-.02em] md:text-[32px]">
                     {activeTeam.name}
                   </h3>
-                  <p className="m-0 mt-1.5 text-[13px] leading-snug text-[#c9bdb9] md:mt-2 md:text-[15px] md:leading-normal">{activeTeam.d}</p>
+                  <p className="m-0 mt-1.5 hidden text-[13px] leading-snug text-[#c9bdb9] md:mt-2 md:block md:text-[15px] md:leading-normal">{activeTeam.d}</p>
                   <p className="m-0 mt-2 text-xs text-mute md:text-[13px]">{countLine(activeTeam.code)}</p>
                   <div className="mt-2.5 flex flex-wrap gap-1.5">
                     {activeTeam.tags.map((g) => (
@@ -495,7 +510,7 @@ export function Teams({ c, lang }: { c: Content; lang: Lang }) {
             </div>
           </div>
 
-          {/* Team selector: glass pill. The lines end on the chips. Every chip has the same fixed width. */}
+          {/* Team selector: glass pill. The lines end on the chips. Every chip is as wide as the widest one. */}
           <nav
             aria-label={c.teamsTitle}
             className="absolute bottom-[calc(var(--cb)+clamp(12px,3vw,24px))] left-1/2 flex max-w-[calc(100%-24px)] -translate-x-1/2 gap-0.5 rounded-full border border-fg/[.14] bg-[rgba(20,17,18,.55)] p-1 text-sm whitespace-nowrap backdrop-blur-[14px]"
@@ -522,7 +537,7 @@ export function Teams({ c, lang }: { c: Content; lang: Lang }) {
                 aria-pressed={active === i}
                 title={t.name}
                 className={cx(
-                  'press relative z-10 min-h-11 w-[clamp(56px,15vw,70px)] shrink-0 cursor-pointer rounded-full px-0 py-[9px] text-center font-semibold',
+                  'press relative z-10 min-h-11 cursor-pointer rounded-full px-[clamp(10px,2.6vw,16px)] py-[9px] text-center font-semibold',
                   active === i ? 'text-[#141112]' : 'text-fg hover:bg-fg/10',
                 )}
               >
