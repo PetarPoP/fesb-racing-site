@@ -287,6 +287,27 @@ export function Competitions({ c }: { c: Content }) {
   )
 }
 
+/** Local copy of a partner logo (public/partners), found by name. CMS partners have no key of their own. */
+const LOCAL_LOGO = new Map(PARTNERS.map((p) => [p.name.toLowerCase(), `/partners/${p.key}.png`]))
+
+/** A CMS logo that does not load (CMS down or slow) is replaced with the local copy, when one exists. */
+function swapToLocalLogo(img: HTMLImageElement, p: Partner) {
+  const local = LOCAL_LOGO.get(p.name.toLowerCase())
+  if (local && !img.src.endsWith(local)) img.src = local
+}
+/** The error can fire before React hydrates and attaches onError, so a broken logo is also checked on mount. */
+const logoFallback = (p: Partner) => (img: HTMLImageElement | null) => {
+  if (img && p.logoUrl && img.complete && img.naturalWidth === 0) swapToLocalLogo(img, p)
+}
+
+/** Tiles per row for tiers 2 to 4: one more than the old flexible layout at each width, so the list is shorter. */
+const TIER_COLS: Record<Partner['tier'], string> = {
+  1: '',
+  2: '[--cols:2] min-[700px]:[--cols:3] min-[1000px]:[--cols:4] min-[1300px]:[--cols:5]',
+  3: '[--cols:2] min-[700px]:[--cols:4] min-[1000px]:[--cols:5] min-[1300px]:[--cols:7]',
+  4: '[--cols:3] min-[700px]:[--cols:5] min-[1000px]:[--cols:6] min-[1300px]:[--cols:8]',
+}
+
 export function Sponsors({ c, partners = PARTNERS }: { c: Content; partners?: Partner[] }) {
   const total = partners.length
   const tiers = ([1, 2, 3, 4] as const).map((t, i) => ({ t, label: c.sponTiers[i], items: partners.filter((p) => p.tier === t) }))
@@ -295,7 +316,9 @@ export function Sponsors({ c, partners = PARTNERS }: { c: Content; partners?: Pa
   const linkTileClass = cx(tileBase, 'press hover:border-acc/60 hover:opacity-100 focus-visible:border-acc/60 focus-visible:opacity-100')
   const tileStyle = (t: Partner['tier']) => {
     const [minW, h] = PARTNER_TIERS[t]
-    return { flex: `1 1 ${minW}px`, minWidth: `min(calc(50% - 4px), ${minW}px)`, height: h } as const
+    // The top tier keeps its large tiles. The other tiers use a fixed column count per width (TIER_COLS).
+    if (t === 1) return { flex: `1 1 ${minW}px`, minWidth: `min(calc(50% - 4px), ${minW}px)`, height: h } as const
+    return { flex: '1 1 calc((100% - (var(--cols) - 1) * 8px) / var(--cols))', maxWidth: 'calc((100% - (var(--cols) - 1) * 8px) / var(--cols) * 2)', height: h } as const
   }
   return (
     <section id="sponzori" className={tw.section}>
@@ -312,12 +335,14 @@ export function Sponsors({ c, partners = PARTNERS }: { c: Content; partners?: Pa
       </div>
       <div className="flex flex-col gap-2">
         {tiers.map(({ t, label, items }) => (
-          <ul key={t} aria-label={label} className="m-0 flex list-none flex-wrap gap-2 p-0">
+          <ul key={t} aria-label={label} className={cx('m-0 flex list-none flex-wrap gap-2 p-0', TIER_COLS[t])}>
             {items.map((p) => {
               const { w, h } = partnerLogoSize(p)
               const img = (
                 <img
                   src={p.logoUrl ?? `/partners/${p.key}.png`}
+                  ref={logoFallback(p)}
+                  onError={(e) => swapToLocalLogo(e.currentTarget, p)}
                   alt={p.name}
                   width={w}
                   height={h}
