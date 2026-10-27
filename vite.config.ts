@@ -74,6 +74,8 @@ export default defineConfig(async ({ command, mode }) => {
           (n: { options: { output: { publicDir: string } }; hooks: { hook: (name: 'compiled', fn: () => Promise<void>) => void } }) => {
             if (command !== 'build') return
             n.hooks.hook('compiled', async () => {
+              // Cloudflare accepts only https or relative targets. A build without a CMS URL (localhost) writes no rule.
+              if (!cmsAdmin.startsWith('https://')) return
               await appendFile(join(n.options.output.publicDir, '_redirects'), `/admin ${cmsAdmin} 302\n/admin/* ${cmsAdmin}/:splat 302\n`)
             })
           },
