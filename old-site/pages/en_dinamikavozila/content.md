@@ -1,0 +1,7 @@
+# Dinamika vozila – FESB Racing
+
+Source: https://ups-fesb.hr/en/dinamikavozila/
+
+# VEHICLE DYNAMICS
+
+The vehicle dynamics team, as its name suggests, deals with analyzing driving, forces transmitted to other components and designing suspension parameters in order to achieve greater grip of the tire on the ground, and thus the desired behavior on the track. The main tasks are divided into three categories: control, simulation and mechanical suspension design. Control deals with finished vehicles, we look at how they behave, how to adjust the parameters to get a few hundredths more, and what they would change for future projects. By simulating, we put all ideas on paper, build a computer model of the vehicle and optimize it to get an example of behavior as similar as possible to reality. Through it we get the forces and dimensions with which, in cooperation with other sub-teams, we build a complete vehicle. We participate in this construction with the mechanical design of the suspension, steering and braking systems. From the choice of materials, bearings, screws and method of manufacture, all the way to the final assembly, testing and adjustment, we participate in every part of the design and thus ensure the desired quality.

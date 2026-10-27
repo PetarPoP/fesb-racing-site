@@ -1,0 +1,13 @@
+# MOTOSTUDENT – FESB Racing
+
+Source: https://ups-fesb.hr/hr/motostudent/
+
+FESB Racing, tim Fakulteta elektrotehnike, strojarstva i brodogradnje u Splitu, od 15. do 19. listopada uspješno je nastupio na međunarodnom natjecanju MotoStudent. Natjecanje se svake dvije godine održava na MotoGP stazi MotorLand Aragón u Španjolskoj.
+
+MotoStudent je međunarodno studentsko natjecanje iz područja tehničkih znanosti. Studenti dizajniraju, izrađuju i testiraju vlastiti trkaći motocikl. Natjecanje je podijeljeno u dvije cjeline – MS1 i MS2. MS1 obuhvaća tehničku i projektnu dokumentaciju koja se predaje tijekom akademske godine. Uključuje i jednu prezentaciju na samom natjecanju. Ocjenjuju se koncept, konstrukcija, proračuni, CAD modeli i dokumentacija. Posebno se vrednuju inovativnost i ekonomski plan projekta. MS2 predstavlja dinamički dio natjecanja. Prvog dana voze se testne discipline: ubrzanje, gymkhana i test kočenja. Discipline se izvode jedna za drugom. Drugog dana održavaju se slobodni treninzi i kvalifikacije. Najbolji timovi sudjeluju u „head-to-head“ utrci posljednjeg dana.
+
+Iako natjecanje traje pet dana, projekt se razvija kroz tri semestra. Proces započinje idejom i proračunima. Nastavlja se izborom tehnologija i izradom motocikla. Završava validacijom i testiranjem svih rješenja. Pravilnik za izradu motocikala temelji se na Moto3 specifikacijama. Utrke se održavaju prema FIM standardima. Ove godine sudjelovalo je više od 85 timova iz 19 zemalja. Timovi su bili podijeljeni u CV i EV kategorije.
+
+Ovogodišnji motocikl FRM5 imao je masu od 94 kg i motor zapremine 250 cm³. U odnosu na prethodni projekt ostvaren je značajan napredak. Optimizirana je šasija i redizajnirana oplata. Aerodinamika je znatno poboljšana. Time su postignute bolje performanse i veća udobnost vožnje. Zahvaljujući iskustvu tima, prijava i tehnička inspekcija prošle su bez poteškoća. FRM5 je već drugog dana dobio odobrenje testnog vozača. Time je osiguran nastup u dinamičkim disciplinama. Posebno smo ponosni na statičke discipline. U kategorijama „Prototip, CAD i crteži“ te „Ekonomski plan“ osvojili smo drugo mjesto.
+
+Nažalost, nakon prva dva uspješna slobodna treninga došlo je do loma vilice. Incident je uočen pri povratku vozača u boks. Zbog toga smo bili prisiljeni odustati od nastavka natjecanja. Najvažnije je istaknuti da vozač nije ozlijeđen. FESB Racing otvara vrata novim članovima. Pozivamo sve ambiciozne studente koji vole timski rad. Nudimo praktično iskustvo koje nadograđuje znanja sa studija. Takvo iskustvo može snažno utjecati na buduću karijeru. Zainteresirani nam se mogu javiti putem Instagrama @fesbracing ili ispuniti prijavni obrazac putem poveznice. Studenti FESB-a i ostalih sastavnica Sveučilišta u Splitu su dobrodošli.
