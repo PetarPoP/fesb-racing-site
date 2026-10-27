@@ -22,6 +22,7 @@ export function Hero({ c }: { c: Content }) {
           <div className="flex flex-wrap gap-2.5">
             <a
               href="#pridruzi-se"
+              data-join-mode="student"
               data-dh="wipe"
               data-dh-c="#f1e9e5"
               className="press rounded-full bg-acc px-5 py-3.5 text-[15px] font-semibold whitespace-nowrap text-ink hover:text-ink"
@@ -29,7 +30,8 @@ export function Hero({ c }: { c: Content }) {
               {c.cta}
             </a>
             <a
-              href="#sponzori"
+              href="#pridruzi-se"
+              data-join-mode="company"
               data-dh="glow"
               className="press rounded-full border border-fg/20 bg-scrim px-5 py-3.5 text-[15px] font-semibold whitespace-nowrap backdrop-blur-[14px]"
             >

@@ -53,6 +53,21 @@ export function Header({ lang, c, onHome }: { lang: Lang; c: Content; onHome: bo
   const active = useActiveSection()
   const other: Lang = lang === 'hr' ? 'en' : 'hr'
 
+  // Language switch in a browser without View Transitions: the page fades out on the click and back in
+  // when the new language is on screen. With View Transitions the router animates it (styles.css).
+  const fadeLang = () => {
+    if (typeof (document as { startViewTransition?: unknown }).startViewTransition === 'function') return
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return
+    document.documentElement.classList.add('lang-anim', 'lang-out')
+  }
+  useEffect(() => {
+    const root = document.documentElement
+    if (!root.classList.contains('lang-out')) return
+    root.classList.remove('lang-out')
+    const t = window.setTimeout(() => root.classList.remove('lang-anim'), 400)
+    return () => window.clearTimeout(t)
+  }, [lang])
+
   const pillRef = useRef<HTMLDivElement>(null)
   const navRef = useRef<HTMLElement>(null)
 
@@ -113,6 +128,7 @@ export function Header({ lang, c, onHome }: { lang: Lang; c: Content; onHome: bo
               params={(p) => ({ ...p, lang: l })}
               resetScroll={false}
               viewTransition
+              onClick={fadeLang}
               hrefLang={l}
               aria-current={l === lang ? 'true' : undefined}
               className={cx('press relative rounded-full px-2.5 py-1.5', l === lang ? 'text-ink' : 'text-fg hover:text-acc')}
@@ -131,6 +147,7 @@ export function Header({ lang, c, onHome }: { lang: Lang; c: Content; onHome: bo
           params={(p) => ({ ...p, lang: other })}
           resetScroll={false}
           viewTransition
+          onClick={fadeLang}
           hrefLang={other}
           className="press grid h-9 min-w-9 place-items-center rounded-full border border-line px-2 text-[13px] font-semibold text-fg hover:text-acc min-[1000px]:hidden"
           aria-label={c.langSwitch}
@@ -141,7 +158,10 @@ export function Header({ lang, c, onHome }: { lang: Lang; c: Content; onHome: bo
         {/* Both icons are in the HTML. CSS shows the one for the other theme, so the server and the client render the same thing. */}
         <button
           type="button"
-          onClick={() => setTheme(currentTheme() === 'light' ? 'dark' : 'light')}
+          onClick={(e) => {
+            const r = e.currentTarget.getBoundingClientRect()
+            setTheme(currentTheme() === 'light' ? 'dark' : 'light', { x: r.left + r.width / 2, y: r.top + r.height / 2 })
+          }}
           className="press -mx-1 grid size-9 shrink-0 cursor-pointer place-items-center rounded-full border border-line text-fg hover:text-acc"
           aria-label={c.themeSwitch}
           title={c.themeSwitch}
@@ -154,6 +174,7 @@ export function Header({ lang, c, onHome }: { lang: Lang; c: Content; onHome: bo
           id="pridruzi-se"
           lang={lang}
           onHome={onHome}
+          data-join-mode="student"
           data-dh="wipe"
           data-dh-c="#e2475b"
           className="press rounded-full bg-fg px-4 py-2.5 font-semibold text-ink hover:text-ink"

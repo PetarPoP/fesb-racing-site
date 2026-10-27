@@ -15,7 +15,6 @@ import {
   BufferAttribute,
   BufferGeometry,
   Color,
-  EdgesGeometry,
   Group,
   LineBasicMaterial,
   LineSegments,
@@ -37,7 +36,7 @@ import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js'
 import { DRACO_PATH, fetchModel } from './carModel'
 import { DRACOLoader } from 'three/examples/jsm/loaders/DRACOLoader.js'
 import { RoomEnvironment } from 'three/examples/jsm/environments/RoomEnvironment.js'
-import { toCreasedNormals } from 'three/examples/jsm/utils/BufferGeometryUtils.js'
+import { buildGeoAll, type GeoJob } from './carGeo'
 import { CAR_GROUPS, explodeAt, teamColor, yawAt, type CarGroup } from './carGroups'
 
 export { MODEL_URL } from './carModel'
@@ -215,7 +214,8 @@ float tyreMask() {
       .replace('#include <metalnessmap_fragment>', '#include <metalnessmap_fragment>\nmetalnessFactor = mix(0.7, 0.0, tyreK);')
   }
   const byKey = new Map(CAR_GROUPS.map((g) => [g.key, g]))
-  const parts: Part[] = []
+  // First the meshes and their groups, then the normals and edges for all of them at once (in a worker).
+  const found: { mesh: Mesh; group: CarGroup; side: number }[] = []
   root.traverse((o: Object3D) => {
     if (!(o as Mesh).isMesh) return
     const mesh = o as Mesh
@@ -223,16 +223,25 @@ float tyreMask() {
     const name = (mesh.name || mesh.parent?.name || '').replace(/_\d+$/, '')
     const m = /^(.*?)(?:_(L|R|C))?$/.exec(name)!
     const group = byKey.get(m[1])
-    if (!group) return
-    const side = m[2] === 'L' ? 1 : m[2] === 'R' ? -1 : 0
+    if (group) found.push({ mesh, group, side: m[2] === 'L' ? 1 : m[2] === 'R' ? -1 : 0 })
+  })
+  // Wheels use a wide crease angle, so the round tyre and rim shade smooth.
+  const jobs: GeoJob[] = found.map(({ mesh, group }) => ({
+    position: mesh.geometry.attributes.position.array as Float32Array,
+    index: (mesh.geometry.index?.array as Uint16Array | Uint32Array | undefined) ?? null,
+    crease: MathUtils.degToRad(group.key === 'wheels' ? 50 : 35),
+  }))
+  const geos = await buildGeoAll(jobs)
+  const parts: Part[] = []
+  found.forEach(({ mesh, group, side }, i) => {
+    const geo = geos[i]!
+    const raw = mesh.geometry
+    mesh.geometry = new BufferGeometry()
+    mesh.geometry.setAttribute('position', new BufferAttribute(geo.position, 3))
+    mesh.geometry.setAttribute('normal', new BufferAttribute(geo.normal, 3))
+    raw.dispose()
     const [x, y, z] = group.explode
     const offset = new Vector3(x, y, z + side * (group.spread ?? 0))
-    // The GLB has no normals (smaller file). They are computed here, with sharp edges above 35 degrees.
-    const raw = mesh.geometry
-    // Wheels use a wide crease angle, so the round tyre and rim shade smooth.
-    const crease = group.key === 'wheels' ? 50 : 35
-    if (!raw.attributes.normal) mesh.geometry = toCreasedNormals(raw, MathUtils.degToRad(crease))
-    if (mesh.geometry !== raw) raw.dispose()
     const look = LOOKS[group.key] ?? LOOKS.frame
     const wheelInfo = look.paint === 'wheel' ? paintWheels(mesh.geometry) : null
     const mat = new MeshStandardMaterial({
@@ -247,7 +256,9 @@ float tyreMask() {
     }
     mesh.material = mat
     const edgeMat = new LineBasicMaterial({ transparent: true, depthWrite: false, opacity: 0.1 })
-    const edges = new LineSegments(new EdgesGeometry(mesh.geometry, 32), edgeMat)
+    const edgeGeo = new BufferGeometry()
+    edgeGeo.setAttribute('position', new BufferAttribute(geo.edges, 3))
+    const edges = new LineSegments(edgeGeo, edgeMat)
     edges.frustumCulled = false
     mesh.add(edges)
     mesh.geometry.computeBoundingBox()
@@ -535,6 +546,9 @@ float tyreMask() {
       }
     })
   }
+
+  // Shaders compile in the background (where the browser can), so the first frame does not stall.
+  await renderer.compileAsync(scene, camera).catch(() => {})
 
   return {
     resize,

@@ -268,7 +268,7 @@ export function ShopPage({ c, lang }: { c: Content; lang: Lang }) {
           ))}
         </div>
       ) : (
-        <div className="grid grid-cols-[repeat(auto-fill,minmax(min(100%,260px),1fr))] gap-4">
+        <div data-reveal="stagger" className="grid grid-cols-[repeat(auto-fill,minmax(min(100%,260px),1fr))] gap-4">
           {products.map((p) => (
             <ProductCard key={p.id} p={p} lang={lang} c={c} onOpen={() => setOpen(p)} />
           ))}

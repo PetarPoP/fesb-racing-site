@@ -59,16 +59,19 @@ export function ProjectsSection({ c, lang, vehicles }: { c: Content; lang: Lang;
   return (
     <section id="projekti" className={tw.section}>
       <h2 className={tw.h2}>{c.vehTitle}</h2>
-      <div className="grid grid-cols-[repeat(auto-fit,minmax(min(100%,440px),1fr))] gap-4">
+      <div data-reveal="stagger" className="grid grid-cols-[repeat(auto-fit,minmax(min(100%,440px),1fr))] gap-4">
         {PROJECTS.map((p) => {
           const list = vehicles.filter((v) => v.project === p.id)
           return (
-            <article key={p.id} className="flex flex-col overflow-hidden rounded-3xl border border-fg/10 bg-panel">
-              <div className="relative aspect-[16/10] bg-sunk">
-                <img src={p.photo} alt={p.photoAlt[lang]} loading="lazy" decoding="async" className="absolute inset-0 size-full object-cover" />
+            <article key={p.id} className="group flex flex-col overflow-hidden rounded-3xl border border-fg/10 bg-panel">
+              {/* The logo of the program in place of a photo */}
+              <div className="relative grid aspect-[16/10] place-items-center overflow-hidden bg-[radial-gradient(90%_80%_at_50%_45%,color-mix(in_oklab,var(--acc)_14%,var(--sunk)),var(--sunk))]">
+                <ProjectLogo
+                  p={p}
+                  className="max-h-[52%] w-[min(78%,520px)] object-contain transition-transform duration-700 ease-[cubic-bezier(.2,.8,.2,1)] group-hover:scale-[1.04]"
+                />
               </div>
               <div className="flex flex-1 flex-col gap-5 p-[clamp(18px,5vw,28px)]">
-                <ProjectLogo p={p} className="h-[clamp(56px,7vw,76px)] w-auto self-start" />
                 <h3 className="display m-0 text-[clamp(26px,6vw,34px)] leading-none [font-stretch:115%] tracking-[-.02em]">{p.name}</h3>
                 <p className={tw.bodyMute}>{p.intro[lang][0]}</p>
                 {list.length > 0 && (
@@ -144,7 +147,7 @@ function VehicleCard({ v, lang, c }: { v: VehicleView; lang: Lang; c: Content })
 
 function BackToProjects({ lang, label }: { lang: Lang; label: string }) {
   return (
-    <Link to="/$lang" params={{ lang }} hash="projekti" className="group inline-flex items-center gap-2 text-[15px] font-semibold text-mute transition-colors hover:text-acc">
+    <Link to="/$lang" params={{ lang }} hash="projekti" className={tw.backPill}>
       <ArrowLeft size={16} aria-hidden="true" className="transition-transform group-hover:-translate-x-0.5" />
       {label}
     </Link>
@@ -169,7 +172,7 @@ export function ProjectPage({ project, vehicles, lang, c }: { project: ProjectId
         </div>
       </div>
       <h2 className="display m-0 mt-6 text-[clamp(28px,4vw,48px)] leading-none">{c.projGenerations}</h2>
-      <div className="grid grid-cols-[repeat(auto-fill,minmax(min(100%,320px),1fr))] gap-4">
+      <div data-reveal="stagger" className="grid grid-cols-[repeat(auto-fill,minmax(min(100%,320px),1fr))] gap-4">
         {vehicles.map((v) => (
           <VehicleCard key={v.id} v={v} lang={lang} c={c} />
         ))}
@@ -190,7 +193,7 @@ export function VehiclePage({ v, others, lang, c }: { v: VehicleView; others: Ve
       <Link
         to="/$lang/projekti/$project"
         params={{ lang, project: p.id }}
-        className="group inline-flex items-center gap-2 self-start text-[15px] font-semibold text-mute transition-colors hover:text-acc"
+        className={tw.backPill}
       >
         <ArrowLeft size={16} aria-hidden="true" className="transition-transform group-hover:-translate-x-0.5" />
         {p.name}
@@ -203,7 +206,7 @@ export function VehiclePage({ v, others, lang, c }: { v: VehicleView; others: Ve
       <section ref={gallery} className="flex flex-col gap-10">
         {cover && <VehicleImage img={cover} alt={v.name} sizes="(min-width: 1280px) 1200px, 100vw" eager full className="aspect-[16/9] rounded-3xl border border-fg/10" />}
 
-        <div className="grid grid-cols-[repeat(auto-fit,minmax(min(100%,360px),1fr))] gap-4">
+        <div data-reveal="stagger" className="grid grid-cols-[repeat(auto-fit,minmax(min(100%,360px),1fr))] gap-4">
           <div className={cx(tw.card, 'flex flex-col gap-4 p-[clamp(20px,4vw,28px)]')}>
             <h2 className={h3Class}>{c.specsTitle}</h2>
             {v.specs.length > 0 ? (
@@ -237,7 +240,7 @@ export function VehiclePage({ v, others, lang, c }: { v: VehicleView; others: Ve
 
         {v.description && <p className="m-0 max-w-[820px] text-[17px] leading-[1.7] whitespace-pre-line text-soft">{v.description}</p>}
         {v.sections.length > 0 && (
-          <div className="grid grid-cols-[repeat(auto-fit,minmax(min(100%,460px),1fr))] gap-x-10 gap-y-8">
+          <div data-reveal="stagger" className="grid grid-cols-[repeat(auto-fit,minmax(min(100%,460px),1fr))] gap-x-10 gap-y-8">
             {v.sections.map((s) => (
               <article key={s.t} className="flex flex-col gap-3">
                 <h2 className={h3Class}>{s.t}</h2>
@@ -254,7 +257,7 @@ export function VehiclePage({ v, others, lang, c }: { v: VehicleView; others: Ve
         {rest.length > 0 && (
           <div className="flex flex-col gap-4">
             <h2 className={h3Class}>{c.galleryTitle}</h2>
-            <div className="grid grid-cols-[repeat(auto-fill,minmax(min(100%,240px),1fr))] gap-3">
+            <div data-reveal="stagger" className="grid grid-cols-[repeat(auto-fill,minmax(min(100%,240px),1fr))] gap-3">
               {rest.map((img, i) => (
                 <VehicleImage key={img.src} img={img} alt={`${v.name} ${i + 2}`} sizes="(min-width: 900px) 25vw, 50vw" full className="aspect-[4/3] cursor-zoom-in rounded-2xl border border-fg/10" />
               ))}

@@ -10,6 +10,7 @@ import { ProjectsSection, type VehicleChip } from './Projects'
 import { DitherCanvas, DitherProvider } from './Dither'
 import { Teams } from './CarExplode'
 import { TeamCards } from './TeamCards'
+import { useReveal } from '~/lib/reveal'
 
 // Klik na sidro samo skrola; hash se briše iz URL-a da „Natrag“ ni osvježavanje ne vraćaju na tu sekciju.
 // Podijeljeni link s #sekcijom i dalje otvara tu sekciju jer ga preglednik obradi pri učitavanju.
@@ -24,6 +25,7 @@ function onAnchorClick(e: MouseEvent<HTMLElement>) {
 }
 
 export function Shell({ lang, c, onHome, children }: { lang: Lang; c: Content; onHome: boolean; children: ReactNode }) {
+  useReveal()
   return (
     <DitherProvider className="contents">
       <div className="contents" onClick={onAnchorClick}>

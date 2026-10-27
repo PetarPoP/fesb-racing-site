@@ -109,7 +109,7 @@ export function Ticker({ c }: { c: Content }) {
 export function Stats({ c }: { c: Content }) {
   return (
     <section className="mx-auto w-full max-w-[1344px] px-[clamp(20px,3.4vw,48px)] pt-[clamp(56px,9vw,96px)]">
-      <div className="grid grid-cols-2 border-t border-fg/[.14] min-[900px]:grid-cols-4">
+      <div data-reveal="stagger" className="grid grid-cols-2 border-t border-fg/[.14] min-[900px]:grid-cols-4">
         {c.stats.map((s) => (
           <div key={s.l} className="flex flex-col gap-3 pt-6 pr-4">
             <span className="text-sm text-mute">{s.l}</span>
@@ -155,7 +155,7 @@ export function Competitions({ c }: { c: Content }) {
   return (
     <section id="natjecanja" className={tw.section}>
       <h2 className={tw.h2}>{c.compTitle}</h2>
-      <div className="grid grid-cols-[repeat(auto-fit,minmax(min(100%,420px),1fr))] gap-4">
+      <div data-reveal="stagger" className="grid grid-cols-[repeat(auto-fit,minmax(min(100%,420px),1fr))] gap-4">
         <div role="tablist" aria-label={c.compLabel} aria-orientation="vertical" className="flex flex-col border-t border-fg/[.14]">
           {c.comps.map((k, i) => (
             <button
@@ -281,7 +281,7 @@ export function Sponsors({ c, partners = PARTNERS }: { c: Content; partners?: Pa
           </a>
         </div>
       </div>
-      <div className="flex flex-col gap-2">
+      <div data-reveal="stagger" className="flex flex-col gap-2">
         {tiers.map(({ t, label, items }) => (
           <ul key={t} aria-label={label} className={cx('m-0 flex list-none flex-wrap justify-center gap-2 p-0', TIER_COLS[t])}>
             {items.map((p) => {
@@ -383,7 +383,7 @@ export function News({ c, lang, news }: { c: Content; lang: Lang; news: NewsCard
       {news.length === 0 ? (
         <EmptyNews c={c} />
       ) : (
-        <div className="grid grid-cols-[repeat(auto-fit,minmax(min(100%,320px),1fr))] gap-4">
+        <div data-reveal="stagger" className="grid grid-cols-[repeat(auto-fit,minmax(min(100%,320px),1fr))] gap-4">
           {news.map((n) => (
             <NewsCardItem key={n.id} n={n} lang={lang} c={c} />
           ))}
@@ -443,7 +443,7 @@ export function Blog({ c, lang, posts }: { c: Content; lang: Lang; posts: NewsCa
       {!first && <EmptyNews c={c} />}
       {first && <PostFeatured kind="blog" n={first} lang={lang} c={c} />}
       {rest.length > 0 && (
-        <div className="border-t border-fg/[.14]">
+        <div data-reveal="stagger" className="border-t border-fg/[.14]">
           {rest.map((n) => (
             <NewsRow key={n.id} kind="blog" n={n} lang={lang} c={c} />
           ))}
@@ -580,7 +580,7 @@ export function Footer({ c, lang, onHome }: { c: Content; lang: Lang; onHome: bo
     <footer id="kontakt" className="relative scroll-mt-16 overflow-hidden bg-bg [container-type:inline-size]">
       <DitherCanvas mode="footer" className="absolute inset-0 size-full" />
       <div className="relative flex flex-col pt-[clamp(72px,12cqw,120px)] px-[clamp(20px,3.4cqw,48px)]">
-        <div className="grid grid-cols-[repeat(auto-fit,minmax(min(100%,360px),1fr))] gap-x-10 gap-y-[clamp(32px,6cqw,48px)]">
+        <div data-reveal="stagger" className="grid grid-cols-[repeat(auto-fit,minmax(min(100%,360px),1fr))] gap-x-10 gap-y-[clamp(32px,6cqw,48px)]">
           <div className="flex min-w-0 flex-col gap-5">
             <div className="display text-[clamp(38px,9cqw,52px)] leading-[.88] tracking-[-.03em]">{c.contactTitle}</div>
             <address className="max-w-[340px] text-base leading-normal not-italic">
@@ -591,6 +591,7 @@ export function Footer({ c, lang, onHome }: { c: Content; lang: Lang; onHome: bo
                 id="pridruzi-se"
                 lang={lang}
                 onHome={onHome}
+                data-join-mode="student"
                 data-dh="wipe"
                 data-dh-c="#e2475b"
                 className="press rounded-full bg-fg px-5 py-3 text-[15px] font-semibold whitespace-nowrap text-ink hover:text-ink"
@@ -598,9 +599,10 @@ export function Footer({ c, lang, onHome }: { c: Content; lang: Lang; onHome: bo
                 {c.cta}
               </SectionLink>
               <SectionLink
-                id="sponzori"
+                id="pridruzi-se"
                 lang={lang}
                 onHome={onHome}
+                data-join-mode="company"
                 data-dh="glow"
                 className="press rounded-full border border-fg/25 bg-scrim px-5 py-3 text-[15px] font-semibold whitespace-nowrap"
               >
