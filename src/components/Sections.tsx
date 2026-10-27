@@ -8,6 +8,7 @@ import { DitherCanvas, useDriveBy } from './Dither'
 import { SectionLink } from './Header'
 import { PARTNERS, PARTNER_TIERS, partnerLogoSize, partnerUrl, type Partner } from '~/lib/partners'
 import { cx, tw } from './ui'
+import { telHref } from './TeamCards'
 
 // Lucide više nema ikone brendova, pa su obrisi ovdje ručno, u istom stilu linija.
 // The first three always show (with the default address). The others show when the CMS has a link for them.
@@ -120,54 +121,9 @@ export function Stats({ c }: { c: Content }) {
   )
 }
 
-export function Vehicles({ c }: { c: Content }) {
-  return (
-    <section id="vozila" className={tw.section}>
-      <h2 className={tw.h2}>{c.vehTitle}</h2>
-      <div className="grid grid-cols-[repeat(auto-fit,minmax(min(100%,440px),1fr))] gap-4">
-        {c.vehicles.map((v) => (
-          <article
-            key={v.id}
-            className="flex flex-col overflow-hidden rounded-3xl border border-fg/10 bg-panel"
-          >
-            <div className="relative aspect-[16/10] bg-sunk">
-              {v.src && (
-                <img
-                  src={v.src}
-                  alt={v.img}
-                  loading="lazy"
-                  decoding="async"
-                  className="absolute inset-0 size-full object-cover"
-                  style={v.pos ? { objectPosition: v.pos } : undefined}
-                />
-              )}
-            </div>
-            <div className="flex flex-col gap-4 p-[clamp(18px,5vw,28px)]">
-              <div className="flex flex-col gap-2">
-                <span className="text-sm text-mute">{v.cls}</span>
-                <h3 className="display m-0 text-[clamp(26px,6vw,34px)] leading-none [font-stretch:115%] tracking-[-.02em]">{v.name}</h3>
-              </div>
-              <p className={tw.bodyMute}>{v.d}</p>
-              <ul className="m-0 flex list-none flex-wrap gap-1.5 p-0">
-                {v.sys.map((s) => (
-                  <li key={s} className="rounded-full border border-fg/15 px-3 py-1.5 text-sm text-soft">
-                    {s}
-                  </li>
-                ))}
-              </ul>
-            </div>
-          </article>
-        ))}
-      </div>
-    </section>
-  )
-}
-
 /** OpenStreetMap embed that shows the given box. */
 const mapSrc = (k: Content['comps'][number]) =>
   `https://www.openstreetmap.org/export/embed.html?bbox=${[k.c[1] - k.z[1], k.c[0] - k.z[0], k.c[1] + k.z[1], k.c[0] + k.z[0]].join(',')}&layer=mapnik`
-const mapLink = (k: Content['comps'][number]) =>
-  `https://www.openstreetmap.org/?mlat=${k.c[0]}&mlon=${k.c[1]}#map=15/${k.c[0]}/${k.c[1]}`
 
 export function Competitions({ c }: { c: Content }) {
   const [sel, setSel] = useState(3)
@@ -260,15 +216,17 @@ export function Competitions({ c }: { c: Content }) {
               <span className="text-[15px] font-semibold">{comp.name}</span>
               <span className="text-[13px] text-soft">{comp.venue}</span>
             </span>
-            <a
-              href={mapLink(comp)}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex items-center gap-1.5 rounded-full bg-fg px-3.5 py-[9px] text-[13px] font-semibold text-ink hover:text-ink"
-            >
-              {c.compMapOpen}
-              <ArrowUpRight size={14} aria-hidden="true" />
-            </a>
+            {comp.url && (
+              <a
+                href={comp.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center gap-1.5 rounded-full bg-fg px-3.5 py-[9px] text-[13px] font-semibold text-ink hover:text-ink"
+              >
+                {c.compMapOpen}
+                <ArrowUpRight size={14} aria-hidden="true" />
+              </a>
+            )}
           </div>
         </div>
       </div>
@@ -582,8 +540,6 @@ function socialLinks(c: Content) {
   return SOCIALS.map((s) => ({ ...s, url: c.socials?.[s.key] ?? s.href })).filter((s): s is typeof s & { url: string } => Boolean(s.url))
 }
 
-/** A phone number as a tel: link (spaces and dashes removed). */
-const telHref = (phone: string) => `tel:${phone.replace(/[^\d+]/g, '')}`
 
 /** One club contact in the footer (CEO, CTO): photo, role, name, e-mail and phone. */
 function LeaderCard({ p }: { p: Content['leaders'][number] }) {

@@ -353,9 +353,9 @@ export function Teams({ c, lang }: { c: Content; lang: Lang }) {
   }
 
   return (
-    <section id="timovi" className="scroll-mt-16 pt-[clamp(96px,14vw,160px)]">
+    <section aria-labelledby="car-title" className="scroll-mt-16 pt-[clamp(72px,10vw,120px)]">
       <div className="mx-auto flex w-full max-w-[1344px] flex-wrap items-end justify-between gap-6 px-[clamp(20px,3.4vw,48px)]">
-        <h2 className={tw.h2}>{c.teamsTitle}</h2>
+        <h2 id="car-title" className="display m-0 text-[clamp(32px,5vw,72px)] leading-[.88] text-balance">{c.carTitle}</h2>
         <p className="m-0 max-w-[380px] text-[17px] leading-[1.55] text-soft">{c.carIntro}</p>
       </div>
 

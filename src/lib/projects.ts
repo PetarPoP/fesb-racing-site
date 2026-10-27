@@ -634,7 +634,7 @@ export const VEHICLES: Vehicle[] = [
       ],
     },
     awards: {
-      hr: ['1. Mjesto u kategoriji akceleracije', '1. Mjesto u MS1 Finals kategoriji'],
+      hr: ['1. mjesto u kategoriji akceleracije', '1. mjesto u MS1 Finals kategoriji'],
       en: ['1st place in Acceleration category', '1st place in MS1 Finals category'],
     },
     sections: {
@@ -687,18 +687,14 @@ export const VEHICLES: Vehicle[] = [
       hr: {
         d: 'Održano 11.10.-15.10.2023. godine',
         items: [
-          '1 mjesto u kategoriji akceleracija',
-          '1 mjesto u kategoriji MS1 Finali',
-          '4 put natjecanje na MotoStudentu',
-          '7 mjesto u kategorijama kočenje I najveća brzina',
-          '11 mjesto u najboljem dizajnu',
+          '7. mjesto u kategorijama kočenje i najveća brzina',
+          '11. mjesto u kategoriji najbolji dizajn',
+          '4. nastup na MotoStudentu',
         ],
       },
       en: {
         d: 'Held on 11.10. – 15.10. 2023.',
         items: [
-          '1st place in Acceleration category',
-          '1st place in MS1 Finals category',
           '4th time participating',
           '7th place in Braking and Vmax categories',
           '11th place in Best design category',
@@ -969,3 +965,33 @@ export const VEHICLES: Vehicle[] = [
     },
   },
 ]
+
+/** A vehicle in one language, as the pages use it. */
+export type VehicleView = {
+  id: string
+  project: ProjectId
+  name: string
+  year: string
+  images: Img[]
+  specs: [string, string][]
+  awards: string[]
+  sections: { t: string; d: string }[]
+  comp: { d: string; items: string[] } | null
+  /** Text of a vehicle added in the CMS. The static vehicles use `sections`. */
+  description?: string
+}
+
+export const vehicleView = (v: Vehicle, lang: Lang): VehicleView => ({
+  id: v.id,
+  project: v.project,
+  name: v.name,
+  year: v.year,
+  images: v.images,
+  specs: v.specs[lang],
+  awards: v.awards[lang],
+  sections: v.sections[lang],
+  comp: v.comp[lang],
+})
+
+/** A render on a transparent or white background shows whole on a light tile. A photo fills its frame. */
+export const isPhoto = (src: string) => /\.jpe?g$/i.test(src) || src.includes('/frm5/') || /^https?:/.test(src)

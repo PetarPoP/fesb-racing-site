@@ -1,7 +1,8 @@
 import { createServerFn } from '@tanstack/react-start'
 import { content, isLang, type Lang } from '~/content'
 import { PARTNERS } from '~/lib/partners'
-import { getCmsContent, getCmsPartners, getCmsPostBySlug, getCmsPosts, type PostKind } from '~/server/cms'
+import { getCmsContent, getCmsPartners, getCmsPostBySlug, getCmsPosts, getCmsVehicles, type PostKind } from '~/server/cms'
+import { isProjectId, type ProjectId } from '~/lib/projects'
 
 // The CMS (cms/) is the only source of news and blog posts. A CMS that is down or empty gives an empty list.
 // The static data in src/content.ts and src/lib/partners.ts is the fallback for the other sections.
@@ -33,13 +34,16 @@ export const getSiteContent = createServerFn({ method: 'GET' })
 export const getHome = createServerFn({ method: 'GET' })
   .validator(langInput)
   .handler(async ({ data: lang }) => {
-    const [news, blog, partners, c] = await Promise.all([
+    const [news, blog, partners, c, vehicles] = await Promise.all([
       postCards('news', lang, 3),
       postCards('blog', lang, 4),
       getCmsPartners(lang),
       getCmsContent(lang, content[lang]),
+      getCmsVehicles(lang),
     ])
-    return { news, blog, partners: partners ?? PARTNERS, c }
+    // The home page shows only the names of the vehicles.
+    const chips = vehicles.map(({ id, project, name, year, images }) => ({ id, project, name, year, cover: images[0] ?? null }))
+    return { news, blog, partners: partners ?? PARTNERS, c, vehicles: chips }
   })
 
 export const getPostList = createServerFn({ method: 'GET' })
@@ -49,3 +53,23 @@ export const getPostList = createServerFn({ method: 'GET' })
 export const getPost = createServerFn({ method: 'GET' })
   .validator(postInput)
   .handler(({ data }) => getCmsPostBySlug(data.kind, data.slug, data.lang))
+
+const projectInput = (d: unknown) => {
+  const o = (d ?? {}) as { project?: unknown; vehicle?: unknown; lang?: unknown }
+  const project: ProjectId = isProjectId(o.project) ? o.project : 'formula-student'
+  return { project, vehicle: slugInput(o.vehicle), lang: langInput(o.lang) }
+}
+
+/** The vehicles of one project, in the CMS order (newest first in the static data). */
+export const getProjectVehicles = createServerFn({ method: 'GET' })
+  .validator(projectInput)
+  .handler(async ({ data }) => (await getCmsVehicles(data.lang)).filter((v) => v.project === data.project))
+
+/** One vehicle and the other vehicles of its project. Null when the slug does not exist. */
+export const getVehicle = createServerFn({ method: 'GET' })
+  .validator(projectInput)
+  .handler(async ({ data }) => {
+    const all = (await getCmsVehicles(data.lang)).filter((v) => v.project === data.project)
+    const v = all.find((x) => x.id === data.vehicle)
+    return v ? { v, others: all.filter((x) => x !== v) } : null
+  })

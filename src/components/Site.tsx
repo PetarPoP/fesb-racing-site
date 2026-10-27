@@ -5,9 +5,11 @@ import type { NewsCard } from '~/lib/format'
 import { Header } from './Header'
 import { Hero } from './Hero'
 import { Join } from './Join'
-import { Blog, Competitions, Footer, News, Sponsors, Stats, Ticker, Vehicles } from './Sections'
+import { Blog, Competitions, Footer, News, Sponsors, Stats, Ticker } from './Sections'
+import { ProjectsSection, type VehicleChip } from './Projects'
 import { DitherCanvas, DitherProvider } from './Dither'
 import { Teams } from './CarExplode'
+import { TeamCards } from './TeamCards'
 
 // Klik na sidro samo skrola; hash se briše iz URL-a da „Natrag“ ni osvježavanje ne vraćaju na tu sekciju.
 // Podijeljeni link s #sekcijom i dalje otvara tu sekciju jer ga preglednik obradi pri učitavanju.
@@ -34,15 +36,30 @@ export function Shell({ lang, c, onHome, children }: { lang: Lang; c: Content; o
   )
 }
 
-export function Home({ lang, c, news, blog, partners }: { lang: Lang; c: Content; news: NewsCard[]; blog: NewsCard[]; partners: Partner[] }) {
+export function Home({
+  lang,
+  c,
+  news,
+  blog,
+  partners,
+  vehicles,
+}: {
+  lang: Lang
+  c: Content
+  news: NewsCard[]
+  blog: NewsCard[]
+  partners: Partner[]
+  vehicles: VehicleChip[]
+}) {
   return (
     <main id="top" className="overflow-x-clip">
       <Hero c={c} />
       <Ticker c={c} />
       <Stats c={c} />
       <News c={c} lang={lang} news={news} />
+      <TeamCards c={c} />
       <Teams c={c} lang={lang} />
-      <Vehicles c={c} />
+      <ProjectsSection c={c} lang={lang} vehicles={vehicles} />
       <Competitions c={c} />
       <Sponsors c={c} partners={partners} />
       <Blog c={c} lang={lang} posts={blog} />
