@@ -12,6 +12,12 @@ const labelText =
 
 const clamp01 = (x: number) => Math.min(1, Math.max(0, x))
 
+/**
+ * three.js only in the browser. The server build drops this import, because DRACOLoader builds URLs from
+ * import.meta.url when it loads, and that fails in the Worker: the whole server render failed with it.
+ */
+const loadCar3d = () => (import.meta.env.SSR ? Promise.reject(new Error('3D scene is client only')) : import('~/lib/car3d'))
+
 /** Koji je tim aktivan za dani napredak skrolanja (-1 = nijedan). */
 const teamAt = (p: number, n: number) =>
   p < PHASE.teamsFrom || p >= PHASE.teamsTo
@@ -77,7 +83,7 @@ export function Teams({ c, lang }: { c: Content; lang: Lang }) {
       if (cancelled) return
       fetchModel().catch(() => {})
       warmDecoder()
-      void import('~/lib/car3d')
+      loadCar3d().catch(() => {})
     }
     const idle = () => {
       const ric = window.requestIdleCallback
@@ -104,7 +110,7 @@ export function Teams({ c, lang }: { c: Content; lang: Lang }) {
         io.disconnect()
         setLoaded(0)
         try {
-          const { createCarScene } = await import('~/lib/car3d')
+          const { createCarScene } = await loadCar3d()
           const scene = await createCarScene(canvas, (f) => !cancelled && setLoaded(f))
           if (cancelled) return scene.dispose()
           sceneRef.current = scene
@@ -353,10 +359,10 @@ export function Teams({ c, lang }: { c: Content; lang: Lang }) {
   }
 
   return (
-    <section id="timovi" className="scroll-mt-16 pt-[clamp(96px,14vw,160px)]">
+    <section aria-labelledby="car-title" className="scroll-mt-16 pt-[clamp(72px,10vw,120px)]">
       <div className="mx-auto flex w-full max-w-[1344px] flex-wrap items-end justify-between gap-6 px-[clamp(20px,3.4vw,48px)]">
-        <h2 className={tw.h2}>{c.teamsTitle}</h2>
-        <p className="m-0 max-w-[380px] text-[17px] leading-[1.55] text-[#b8aca8]">{c.carIntro}</p>
+        <h2 id="car-title" className="display m-0 text-[clamp(32px,5vw,72px)] leading-[.88] text-balance">{c.carTitle}</h2>
+        <p className="m-0 max-w-[380px] text-[17px] leading-[1.55] text-soft">{c.carIntro}</p>
       </div>
 
       <div
@@ -374,13 +380,15 @@ export function Teams({ c, lang }: { c: Content; lang: Lang }) {
             }}
           />
         ))}
+        {/* The 3D stage stays dark in both themes: the floor shader and the part colours are made for a dark studio. */}
         <div
           ref={stageRef}
+          data-theme="dark"
           data-edge-hide
           style={{ '--e': 0, '--team': '#e2475b' } as CSSProperties}
           className={cx(
             // --e is 0 for the inset card and 1 for the full screen. The clip path follows it.
-            'sticky top-0 h-svh w-full bg-bg',
+            'sticky top-0 h-svh w-full bg-bg text-fg',
             '[--ct:72px] [--cb:12px] [--cs:clamp(20px,3.4vw,48px)] [--cr:clamp(18px,4vw,24px)] md:[--ct:80px] md:[--cb:16px]',
             '[clip-path:inset(calc(var(--ct)*(1-var(--e)))_calc(var(--cs)*(1-var(--e)))_calc(var(--cb)*(1-var(--e)))_calc(var(--cs)*(1-var(--e)))_round_calc(var(--cr)*(1-var(--e))))]',
           )}
@@ -492,7 +500,7 @@ export function Teams({ c, lang }: { c: Content; lang: Lang }) {
                   <h3 className="display m-0 mt-1 text-2xl leading-none [font-stretch:115%] tracking-[-.02em] md:text-[32px]">
                     {activeTeam.name}
                   </h3>
-                  <p className="m-0 mt-1.5 hidden text-[13px] leading-snug text-[#c9bdb9] md:mt-2 md:block md:text-[15px] md:leading-normal">{activeTeam.d}</p>
+                  <p className="m-0 mt-1.5 hidden text-[13px] leading-snug text-soft md:mt-2 md:block md:text-[15px] md:leading-normal">{activeTeam.d}</p>
                   <p className="m-0 mt-2 text-xs text-mute md:text-[13px]">{countLine(activeTeam.code)}</p>
                   <div className="mt-2.5 flex flex-wrap gap-1.5">
                     {activeTeam.tags.map((g) => (
@@ -513,7 +521,7 @@ export function Teams({ c, lang }: { c: Content; lang: Lang }) {
           {/* Team selector: glass pill. The lines end on the chips. Every chip is as wide as the widest one. */}
           <nav
             aria-label={c.teamsTitle}
-            className="absolute bottom-[calc(var(--cb)+clamp(12px,3vw,24px))] left-1/2 flex max-w-[calc(100%-24px)] -translate-x-1/2 gap-0.5 rounded-full border border-fg/[.14] bg-[rgba(20,17,18,.55)] p-1 text-sm whitespace-nowrap backdrop-blur-[14px]"
+            className="absolute bottom-[calc(var(--cb)+clamp(12px,3vw,24px))] left-1/2 flex max-w-[calc(100%-24px)] -translate-x-1/2 gap-0.5 rounded-full border border-fg/[.14] bg-scrim p-1 text-sm whitespace-nowrap backdrop-blur-[14px]"
           >
             {/* Sliding pill behind the active chip */}
             <span
@@ -538,7 +546,7 @@ export function Teams({ c, lang }: { c: Content; lang: Lang }) {
                 title={t.name}
                 className={cx(
                   'press relative z-10 min-h-11 cursor-pointer rounded-full px-[clamp(10px,2.6vw,16px)] py-[9px] text-center font-semibold',
-                  active === i ? 'text-[#141112]' : 'text-fg hover:bg-fg/10',
+                  active === i ? 'text-ink' : 'text-fg hover:bg-fg/10',
                 )}
               >
                 {t.code}

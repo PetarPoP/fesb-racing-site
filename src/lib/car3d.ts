@@ -427,7 +427,7 @@ float tyreMask() {
     for (const g of CAR_GROUPS) {
       // '*' = a team without own parts (marketing): the whole car is lit
       const goal = team === null ? 0 : team === '*' || g.team === team ? 1 : -1
-      if (goal === 1) gColor.set(g, new Color(teamColor(team === '*' ? 'M&B' : team)))
+      if (goal === 1) gColor.set(g, new Color(teamColor(team === '*' ? 'B&M' : team)))
       const cur = mix.get(g) ?? 0
       const next = MathUtils.damp(cur, goal, 9, dt)
       if (Math.abs(next - goal) > 0.002) moving = true
@@ -477,7 +477,7 @@ float tyreMask() {
     const fu = floorMat.uniforms
     fu.uSpotAmt.value = spotAmt
     fu.uYaw.value = car.rotation.y
-    if (team !== null) (fu.uSpotCol.value as Color).set(teamColor(team === '*' ? 'M&B' : team))
+    if (team !== null) (fu.uSpotCol.value as Color).set(teamColor(team === '*' ? 'B&M' : team))
 
     if (dirty || shown !== before || colorsMoving || camMoving || pulsing || spotMoving || Math.abs(spotAmt - (team === null ? 0 : 1)) > 0.002) {
       renderer.render(scene, camera)

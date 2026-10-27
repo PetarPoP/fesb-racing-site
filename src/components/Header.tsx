@@ -1,6 +1,8 @@
 import { useEffect, useRef, useState, type ComponentProps, type CSSProperties } from 'react'
 import { Link } from '@tanstack/react-router'
+import { Moon, Sun } from 'lucide-react'
 import { SECTION_IDS, type Content, type Lang } from '~/content'
+import { currentTheme, setTheme } from '~/lib/theme'
 import { cx } from './ui'
 
 // Na početnoj običan #sidro (skrola bez unosa u povijest), na podstranicama povratak na početnu na tu sekciju.
@@ -95,6 +97,11 @@ export function Header({ lang, c, onHome }: { lang: Lang; c: Content; onHome: bo
               {label}
             </SectionLink>
           ))}
+          {c.shop?.enabled && (
+            <Link to="/$lang/shop" params={{ lang }} className={linkClass('shop')} activeProps={{ 'aria-current': 'page' }}>
+              {c.shopNav}
+            </Link>
+          )}
         </nav>
 
         {/* Wide: segmented HR/EN */}
@@ -108,7 +115,7 @@ export function Header({ lang, c, onHome }: { lang: Lang; c: Content; onHome: bo
               viewTransition
               hrefLang={l}
               aria-current={l === lang ? 'true' : undefined}
-              className={cx('press relative rounded-full px-2.5 py-1.5', l === lang ? 'text-[#141112]' : 'text-fg hover:text-acc')}
+              className={cx('press relative rounded-full px-2.5 py-1.5', l === lang ? 'text-ink' : 'text-fg hover:text-acc')}
             >
               {l === lang && <span aria-hidden="true" className="absolute inset-0 rounded-full bg-fg [view-transition-name:lang-pill]" />}
               <span className={cx('relative', l === 'hr' ? '[view-transition-name:lang-hr]' : '[view-transition-name:lang-en]')}>
@@ -131,13 +138,25 @@ export function Header({ lang, c, onHome }: { lang: Lang; c: Content; onHome: bo
           {other.toUpperCase()}
         </Link>
 
+        {/* Both icons are in the HTML. CSS shows the one for the other theme, so the server and the client render the same thing. */}
+        <button
+          type="button"
+          onClick={() => setTheme(currentTheme() === 'light' ? 'dark' : 'light')}
+          className="press -mx-1 grid size-9 shrink-0 cursor-pointer place-items-center rounded-full border border-line text-fg hover:text-acc"
+          aria-label={c.themeSwitch}
+          title={c.themeSwitch}
+        >
+          <Sun size={16} aria-hidden="true" className="light:hidden" />
+          <Moon size={16} aria-hidden="true" className="hidden light:block" />
+        </button>
+
         <SectionLink
           id="pridruzi-se"
           lang={lang}
           onHome={onHome}
           data-dh="wipe"
           data-dh-c="#e2475b"
-          className="press rounded-full bg-fg px-4 py-2.5 font-semibold text-[#141112] hover:text-[#141112]"
+          className="press rounded-full bg-fg px-4 py-2.5 font-semibold text-ink hover:text-ink"
         >
           {c.cta}
         </SectionLink>
@@ -182,6 +201,17 @@ export function Header({ lang, c, onHome }: { lang: Lang; c: Content; onHome: bo
               {label}
             </SectionLink>
           ))}
+          {c.shop?.enabled && (
+            <Link
+              to="/$lang/shop"
+              params={{ lang }}
+              onClick={() => setMenuOpen(false)}
+              style={{ '--i': c.nav.length } as CSSProperties}
+              className={cx('menu-item flex min-h-11 items-center rounded-2xl px-4 font-semibold hover:bg-fg/10 active:bg-fg/10', linkClass('shop', false))}
+            >
+              {c.shopNav}
+            </Link>
+          )}
         </div>
       </nav>
     </header>

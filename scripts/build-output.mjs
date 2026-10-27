@@ -1,6 +1,6 @@
 // Convert the Nitro output (.output) to the Build Output Specification v0 (.cloudflare/output/v0).
 // The command "cf deploy --prebuilt" reads that format. Nitro does not write it.
-import { cp, mkdir, readFile, readdir, rm, writeFile } from 'node:fs/promises'
+import { cp, mkdir, readFile, readdir, readlink, rm, writeFile } from 'node:fs/promises'
 import { join } from 'node:path'
 
 const root = process.cwd()
@@ -46,3 +46,29 @@ await cp(nitroPublic, join(workerDir, 'assets'), { recursive: true })
 await writeFile(join(outputRoot, 'v0', 'config.json'), JSON.stringify({ buildContext: { isPreview: false } }))
 await writeFile(join(workerDir, 'worker.config.json'), JSON.stringify(worker))
 console.log(`Build Output Specification written to ${outputRoot}`)
+
+// The prerender starts "wrangler dev" as a preview server and does not stop it: it outlives "vite build".
+// It keeps the build log open, so Cloudflare Workers Builds waited for it until the 30 minute timeout.
+// Stop the preview servers started in this folder. Linux only (/proc); elsewhere there is nothing to do.
+async function stopPreviewServers() {
+  let pids
+  try {
+    pids = (await readdir('/proc')).filter((d) => /^\d+$/.test(d) && Number(d) !== process.pid)
+  } catch {
+    return
+  }
+  for (const pid of pids) {
+    try {
+      const argv = (await readFile(`/proc/${pid}/cmdline`, 'utf8')).split('\0')
+      // node .../wrangler/bin/wrangler.js --cwd ./ dev --port <n>, or its child .../wrangler-dist/cli.js.
+      const script = argv.findIndex((a) => /[\\/]wrangler([\\/]bin[\\/]wrangler\.js|-dist[\\/]cli\.js)$/.test(a))
+      if (script < 0 || !argv.slice(script + 1).includes('dev')) continue
+      if ((await readlink(`/proc/${pid}/cwd`)) !== root) continue
+      process.kill(Number(pid), 'SIGTERM')
+      console.log(`Stopped the prerender preview server (pid ${pid})`)
+    } catch {
+      // The process ended in the meantime, or it is not ours.
+    }
+  }
+}
+await stopPreviewServers()

@@ -12,12 +12,26 @@ const B = [
   53, 21,
 ]
 type Rgb = readonly [number, number, number]
-const P: readonly Rgb[] = [
-  [11, 10, 11],
-  [125, 28, 44],
-  [226, 71, 91],
-  [241, 233, 229],
-]
+/** Four levels per theme: page background, dark red, red, strongest. The light theme flips the strongest level to ink. */
+const PALETTES: Record<'dark' | 'light', readonly Rgb[]> = {
+  dark: [
+    [11, 10, 11],
+    [125, 28, 44],
+    [226, 71, 91],
+    [241, 233, 229],
+  ],
+  light: [
+    [245, 240, 237],
+    [233, 178, 186],
+    [195, 40, 63],
+    [23, 18, 19],
+  ],
+}
+let P: readonly Rgb[] = PALETTES.dark
+const themeOf = (el: Element) => ((el.closest('[data-theme]') as HTMLElement | null)?.dataset.theme === 'light' ? 'light' : 'dark')
+const readPalette = () => {
+  P = PALETTES[themeOf(document.documentElement)]
+}
 
 // Car body mask, in pixels of the 656x458 hero image
 const CAR_POLY: readonly (readonly [number, number])[] = [
@@ -118,6 +132,8 @@ class Engine {
   }
 
   start() {
+    readPalette()
+    window.addEventListener('themechange', this.onTheme)
     this.t0 = performance.now()
     const im = new Image()
     im.onload = () => {
@@ -150,6 +166,7 @@ class Engine {
     cancelAnimationFrame(this.raf)
     cancelAnimationFrame(this.pending)
     window.removeEventListener('resize', this.onResize)
+    window.removeEventListener('themechange', this.onTheme)
     window.removeEventListener('scroll', this.requestStill)
     window.removeEventListener('pointermove', this.onPointer)
     document.removeEventListener('pointerleave', this.onLeave)
@@ -167,6 +184,13 @@ class Engine {
       this.pending = 0
       if (!this.stopped) this.paint(0)
     })
+  }
+
+  // A theme switch repaints the still canvases with the other palette.
+  private onTheme = () => {
+    readPalette()
+    this.done = new WeakMap()
+    this.requestStill()
   }
 
   private onResize = () => {
@@ -456,6 +480,8 @@ class Engine {
   }
 
   private dither(c: HTMLCanvasElement, mode: Mode, t: number): boolean {
+    // A section can pin its own theme (the hero stays dark), so the palette is read per canvas.
+    const P = PALETTES[themeOf(c)]
     const W = Math.floor(c.clientWidth / S)
     const H = Math.floor(c.clientHeight / S)
     if (W < 2 || H < 2) return false

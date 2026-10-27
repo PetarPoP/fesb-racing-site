@@ -1,0 +1,813 @@
+{
+  "teams": [
+    {
+      "code": "PWT",
+      "icon": "/img/timovi/pwt.png",
+      "lead": {
+        "name": "Ime Prezime",
+        "email": "powertrain@fesbracing.hr",
+        "phone": "+385 00 000 0000"
+      },
+      "hr": {
+        "name": "Powertrain",
+        "description": "Pogonski sustav i svi njegovi podsustavi: motor, prijenos snage, a sve više i baterijski paket električnog pogona.",
+        "about": "Zadatak tima Powertrain je razvoj pogonskog sustava vozila i svih njegovih podsustava za MotoStudent i Formula Student natjecanja. Simulacijama, optimiranjem i managementom motora i njegovih podsustava izvlačimo maksimum iz motora. U sve to spada i razvoj drivetraina koji uključuje odabir prijenosnika, te oblikovanje i optimiranje njegovih komponenti. U skoroj budućnosti tim Powertrain proširuje svoje vidike razvojem baterijskog sklopa i thermal managementom električnog pogona.",
+        "tags": [
+          "Motor",
+          "Prijenos",
+          "Thermal management"
+        ]
+      },
+      "en": {
+        "name": "Powertrain",
+        "description": "The propulsion system and all its subsystems: engine, drivetrain and more and more the battery pack of the electric drive.",
+        "about": "The task of the Powertrain team is to develop the vehicle propulsion system and all its subsystems for the MotoStudent and Formula Student competitions. By simulating, optimising and managing the engine and its subsystems, we get the most out of the engine. This includes the development of the drivetrain: the selection of the gearbox and the design and optimisation of its components. In the near future the Powertrain team is expanding its horizons with the development of a battery pack and the thermal management of the electric drive.",
+        "tags": [
+          "Engine",
+          "Drivetrain",
+          "Thermal management"
+        ]
+      }
+    },
+    {
+      "code": "ELE",
+      "icon": "/img/timovi/ele.png",
+      "lead": {
+        "name": "Ime Prezime",
+        "email": "elektronika@fesbracing.hr",
+        "phone": "+385 00 000 0000"
+      },
+      "hr": {
+        "name": "Elektronika",
+        "description": "Vlastite tiskane pločice, firmware, ožičenje, visokonaponski sustav i prikupljanje podataka s bolida.",
+        "about": "Tim elektronika se dijeli na podtimove softver, hardver, ožičenje, HV sistemi i DAQ. Hardware tim se bavi razvojem PCB pločica koje zadovoljavaju zahtjevne automobilske standarde. Zadaća softver tima je da razvija firmware za mikrokontrolere na PCB pločicama i ostale softverske alate koji pomažu u razvoju i testiranju bolida. HV tim se bavi razvijanjem i simuliranjem baterijskog paketa električnog bolida. Tim ožičenje je zadužen da se na pouzdan način povežu električne komponente na bolidima. DAQ tim se bavi prikupljanjem i obradom podataka koji se zatim analiziraju kako bi se pronašli načini da se povećaju performanse bolida.",
+        "tags": [
+          "PCB",
+          "Firmware",
+          "HV",
+          "DAQ"
+        ]
+      },
+      "en": {
+        "name": "Electronics",
+        "description": "Our own circuit boards, firmware, wiring, the high-voltage system and data acquisition.",
+        "about": "The electronics team is divided into the sub-teams software, hardware, wiring, HV systems and DAQ. The hardware team develops PCBs that meet demanding automotive standards. The software team develops firmware for the microcontrollers on the PCBs and other software tools that help in the development and testing of the cars. The HV team develops and simulates the battery pack of the electric car. The wiring team connects the electrical components on the cars in a reliable way. The DAQ team collects and processes data, which is then analysed to find ways to increase the performance of the car.",
+        "tags": [
+          "PCB",
+          "Firmware",
+          "HV",
+          "DAQ"
+        ]
+      }
+    },
+    {
+      "code": "DAE",
+      "icon": "/img/timovi/dae.png",
+      "lead": {
+        "name": "Ime Prezime",
+        "email": "aero@fesbracing.hr",
+        "phone": "+385 00 000 0000"
+      },
+      "hr": {
+        "name": "Dizajn i aerodinamika",
+        "description": "Izgled vozila, CFD simulacije, krila i podnica te ergonomija sjedala.",
+        "about": "Tim se bavi općim izgledom projekata. Od samog vizualnog izgleda, preko projektiranja, pa sve do simuliranja oblikuje se identitet naših projekata. Sa ciljem dobivanja što boljih voznih sposobnosti, svi naši projekti prolaze CFD simulacije u kojima vidimo aerodinamička svojstva vozila te odlučujemo kako ih poboljšati dodavanjem raznih aerodinamičkih naprava. Jedan od značajnijih utjecaja na rezultate na natjecanjima je i vozačeva udobnost, pa se tako ovaj tim bavi i projektiranjem ergonomski povoljnih sjedišta bilo da je riječ o formuli ili o motociklu.",
+        "tags": [
+          "CFD",
+          "Oplata",
+          "Ergonomija"
+        ]
+      },
+      "en": {
+        "name": "Design and aerodynamics",
+        "description": "The look of the vehicle, CFD simulations, wings and undertray, and seat ergonomics.",
+        "about": "The team shapes the general layout of the projects. From the visual appearance, through design, all the way to simulation, the identity of our projects is formed. To get the best possible driving performance, all our projects go through CFD simulations in which we see the aerodynamic properties of the vehicle and decide how to improve them with aerodynamic devices. Driver comfort has a large influence on the results at competitions, so this team also designs ergonomic seats, for the car as well as for the motorcycle.",
+        "tags": [
+          "CFD",
+          "Bodywork",
+          "Ergonomics"
+        ]
+      }
+    },
+    {
+      "code": "DIN",
+      "icon": "/img/timovi/din.png",
+      "lead": {
+        "name": "Ime Prezime",
+        "email": "dinamika@fesbracing.hr",
+        "phone": "+385 00 000 0000"
+      },
+      "hr": {
+        "name": "Dinamika vozila",
+        "description": "Ovjes, upravljanje i kočnice: od simulacije vožnje do namještanja vozila na stazi.",
+        "about": "Tim dinamika vozila bavi se analiziranjem vožnje, silama koje se prenose na ostale komponente te dizajniranjem parametara ovjesa s ciljem ostvarivanja što većeg prijanjanja gume uz podlogu, a time i željenog ponašanja na stazi. Glavni zadaci dijele se u tri kategorije: kontrola, simulacija i mehanički dizajn ovjesa. Simulacijom gradimo računalni model vozila i optimiramo ga, a preko njega dobivamo sile i dimenzije s kojima, u suradnji s ostalim podtimovima, gradimo kompletno vozilo. U toj izgradnji sudjelujemo mehaničkim dizajnom sustava ovjesa, upravljanja i kočenja, od odabira materijala, ležajeva i vijaka do završnog sastavljanja, testiranja i namještanja.",
+        "tags": [
+          "Ovjes",
+          "Upravljanje",
+          "Kočnice"
+        ]
+      },
+      "en": {
+        "name": "Vehicle dynamics",
+        "description": "Suspension, steering and brakes: from driving simulation to set-up on track.",
+        "about": "The vehicle dynamics team analyses driving and the forces transmitted to the other components, and designs the suspension parameters to get as much tyre grip as possible and the desired behaviour on track. The main tasks fall into three categories: control, simulation and the mechanical design of the suspension. With simulation we build a computer model of the vehicle and optimise it, and from it we get the forces and dimensions with which, together with the other sub-teams, we build the complete vehicle. We take part in that with the mechanical design of the suspension, steering and braking systems, from the choice of materials, bearings and bolts to the final assembly, testing and set-up.",
+        "tags": [
+          "Suspension",
+          "Steering",
+          "Brakes"
+        ]
+      }
+    },
+    {
+      "code": "KON",
+      "icon": "/img/timovi/kon.png",
+      "lead": {
+        "name": "Ime Prezime",
+        "email": "konstrukcija@fesbracing.hr",
+        "phone": "+385 00 000 0000"
+      },
+      "hr": {
+        "name": "Konstrukcija",
+        "description": "Šasija kao glavna nosiva konstrukcija: što manja masa uz što veću torzijsku krutost.",
+        "about": "Šasija, kao glavna strukturna komponenta, mora omogućiti prihvat svih ostalih sustava vozila te osigurati potrebnu krutost vozila. Cilj pri projektiranju je minimizirati masu i maksimizirati ključne veličine poput torzijske krutosti. Konstrukcijski materijali koji trenutno dominiraju su čelik i aluminij, a implementacija kompozitnih materijala u strukturi se intenzivno istražuje. Vizija tima je izrada monokok šasije bolida te integracija što većeg broja strukturnih kompozitnih komponenti.",
+        "tags": [
+          "Šasija",
+          "Kompoziti",
+          "Krutost"
+        ]
+      },
+      "en": {
+        "name": "Chassis",
+        "description": "The chassis as the main load-bearing structure: low mass with high torsional stiffness.",
+        "about": "The chassis, as the main structural component, must carry all the other systems of the vehicle and give it the necessary stiffness. The goal of the design is to minimise mass and maximise key values such as torsional stiffness. Steel and aluminium are the main materials today, and composite materials in the structure are being researched intensively. The vision of the team is a monocoque chassis and as many structural composite components as possible.",
+        "tags": [
+          "Chassis",
+          "Composites",
+          "Stiffness"
+        ]
+      }
+    },
+    {
+      "code": "B&M",
+      "icon": "/img/timovi/bm.png",
+      "lead": {
+        "name": "Ime Prezime",
+        "email": "marketing@fesbracing.hr",
+        "phone": "+385 00 000 0000"
+      },
+      "hr": {
+        "name": "Business i marketing",
+        "description": "Partnerstva, društvene mreže, foto i video, eventi i odnosi s javnošću.",
+        "about": "Tim marketing bavi se prezentacijom udruge široj javnosti. Ta prezentacija uključuje širok spektar aktivnosti kako bi doseg publike bio što veći i svrsishodniji. U timu marketing vode se društvene mreže, održava web stranica, izrađuju fotografije i video zapisi, priprema se i planira ideje za evente, izrađuju se različiti promotivni materijali, traži se sponzore te bavi odnosima s javnošću.",
+        "tags": [
+          "Sponzori",
+          "Mediji",
+          "Eventi"
+        ]
+      },
+      "en": {
+        "name": "Business and marketing",
+        "description": "Partnerships, social media, photo and video, events and public relations.",
+        "about": "The marketing team presents the association to the public. This covers a wide range of activities that make the reach as large and meaningful as possible. The marketing team runs the social networks, maintains the website, makes photos and videos, plans events, creates promotional materials, looks for sponsors and handles public relations.",
+        "tags": [
+          "Sponsors",
+          "Media",
+          "Events"
+        ]
+      }
+    }
+  ],
+  "leaders": [
+    {
+      "name": "Ime Prezime",
+      "email": "ceo@fesbracing.hr",
+      "phone": "+385 00 000 0000",
+      "hr": {
+        "role": "CEO"
+      },
+      "en": {
+        "role": "CEO"
+      }
+    },
+    {
+      "name": "Ime Prezime",
+      "email": "cto@fesbracing.hr",
+      "phone": "+385 00 000 0000",
+      "hr": {
+        "role": "CTO"
+      },
+      "en": {
+        "role": "CTO"
+      }
+    }
+  ],
+  "vehicles": [
+    {
+      "slug": "efrt01",
+      "kind": "car",
+      "season": "",
+      "order": 0,
+      "hr": {
+        "name": "eFRT01",
+        "specs": [],
+        "results": [],
+        "sections": [
+          {
+            "t": "Prvi električni bolid",
+            "d": "eFRT01 je prvi električni Formula Student bolid FESB Racinga. Vlastite tiskane pločice, VCU algoritam upravljanja, akumulator i visokonaponski sustav razvijeni su u radionici. Rastav bolida po timovima možete pogledati u 3D prikazu na naslovnici."
+          }
+        ]
+      },
+      "en": {
+        "name": "eFRT01",
+        "specs": [],
+        "results": [],
+        "sections": [
+          {
+            "t": "The first electric car",
+            "d": "eFRT01 is the first electric Formula Student car of FESB Racing. The circuit boards, the VCU control algorithm, the accumulator and the high-voltage system were developed in the workshop. The 3D view on the home page shows which team builds which part."
+          }
+        ]
+      }
+    },
+    {
+      "slug": "frt01",
+      "kind": "car",
+      "season": "2013",
+      "order": 1,
+      "hr": {
+        "name": "FRT01",
+        "specs": [
+          [
+            "Snaga motora",
+            "61kW (82KS)"
+          ],
+          [
+            "Okretni moment",
+            "59Nm"
+          ],
+          [
+            "Ukupna težina",
+            "299kg"
+          ],
+          [
+            "Oplata",
+            "4-slojni karbon kompozit"
+          ],
+          [
+            "Šasija",
+            "CrMo TiG zavareno"
+          ]
+        ],
+        "results": [],
+        "sections": []
+      },
+      "en": {
+        "name": "FRT01",
+        "specs": [
+          [
+            "Engine power",
+            "61kW (82HP)"
+          ],
+          [
+            "Torque",
+            "59Nm"
+          ],
+          [
+            "Total weight",
+            "299 kg"
+          ],
+          [
+            "Fairing",
+            "4-layer carbon composite"
+          ],
+          [
+            "Chassis",
+            "CrMo TIG welded"
+          ]
+        ],
+        "results": [],
+        "sections": []
+      }
+    },
+    {
+      "slug": "frt02",
+      "kind": "car",
+      "season": "2018",
+      "order": 2,
+      "hr": {
+        "name": "FRT02",
+        "specs": [
+          [
+            "Snaga motora",
+            "63kW (85 KS)"
+          ],
+          [
+            "Okretni moment",
+            "62 Nm"
+          ],
+          [
+            "Ukupna težina",
+            "246 kg"
+          ],
+          [
+            "Oplata",
+            "2-slojni karbon i karbon kevlar kompozit"
+          ],
+          [
+            "Šasija",
+            "CrMo TiG zavareno"
+          ]
+        ],
+        "results": [],
+        "sections": []
+      },
+      "en": {
+        "name": "FRT02",
+        "specs": [
+          [
+            "Engine power",
+            "63kW (85HP)"
+          ],
+          [
+            "Torque",
+            "62Nm"
+          ],
+          [
+            "Total weight",
+            "246 kg"
+          ],
+          [
+            "Fairing",
+            "two-layered carbon and carbon-kevlar composite"
+          ],
+          [
+            "Chassis",
+            "CrMo TIG welded"
+          ]
+        ],
+        "results": [],
+        "sections": []
+      }
+    },
+    {
+      "slug": "frt03",
+      "kind": "car",
+      "season": "2022",
+      "order": 3,
+      "hr": {
+        "name": "FRT03",
+        "specs": [
+          [
+            "Snaga motora",
+            "68 kW (91 KS)"
+          ],
+          [
+            "Okretni moment",
+            "64 Nm"
+          ],
+          [
+            "Ukupna težina",
+            "248 kg"
+          ],
+          [
+            "Oplata",
+            "Karbon-kevlar kompozit"
+          ],
+          [
+            "Šasija",
+            "25CrMo4 + Al 7075-T6 33kg"
+          ]
+        ],
+        "results": [],
+        "sections": [
+          {
+            "t": "Powertrain",
+            "d": "Za pogon bolida FRT03 koristi se četverotaktni četverocilindrični Otto motor iz motocikla CB600F, čiji su usisni i ispušni sustavi optimizirani CFD analizama. Lagani sustav goriva izrađen je od kompozitnih materijala s potopnom pumpom i 3D printanim usisnim vodom s restriktorom od 20 mm. Ispušni sustav je 4-1 konfiguracije od nehrđajućeg čelika s elektronskom kontrolom gasa. Prijenos snage ostvaren je aluminijskim lančanicima i Drexler diferencijalom s promjenjivim prijenosnim omjerima ovisno o stazi."
+          },
+          {
+            "t": "Ovjes",
+            "d": "Geometrija ovjesa FRT03 optimizirana je računalnim simulacijama kinematskog odaziva kako bi se maksimizirala dodirna površina guma s tlom i poništio negativan utjecaj savijanja guma u zavojima. Dizajn ovjesa uzima u obzir utjecaj sila, prigušenja amortizera, karakteristike guma, krutost opruga i prijenos mase radi postizanja maksimalne sile trenja. Mehaničke komponente ovjesa dizajnirane su s fokusom na podesivost, malu masu i visoku krutost, koristeći lagane materijale i promjenjive dijelove. Ovjes je tipa dvostrukih vilica s unutarnjim oprugama spojenim preko klackalica, a performanse se validiraju i optimiziraju analizom podataka prikupljenih tijekom vožnje."
+          },
+          {
+            "t": "Konstrukcija",
+            "d": "Nosiva konstrukcija bolida FRT03 kombinira čeličnu prostornu konstrukciju od kromolijskog čelika 25CrMo4 za krutost s aluminijskim nosačem od Al 7075-T6 za jednostavnost montaže i pristup komponentama. Šasija je dizajnirana paralelno s ostalim sustavima s ciljem maksimiziranja krutosti uz minimalnu masu. Sigurnost vozača osigurana je kompozitnim sjedalom od karbon-kevlar vlakana, pojasom sa 6 točaka i aluminijskim panelom koji štiti od topline motora. Ergonomija je poboljšana prilagodljivim jastucima i sustavom podesivih pedala za vozače različitih građa."
+          },
+          {
+            "t": "Aerodinamika",
+            "d": "Aerodinamički uređaji na FRT03 (prednje i stražnje krilo, podnica i rashladni kanali) dizajnirani su pomoću CFD simulacija radi optimizacije potisne sile i smanjenja otpora zraka. Krila koriste razliku tlaka i rubne ploče za efikasnost, dok podnica stvara potisak Venturijevim efektom. Simulacijom cijelog sustava osigurava se aerodinamička ravnoteža i protok zraka za hlađenje motora. Krila su izrađena od karbonskih vlakana, a rezultati simulacija validiraju se testiranjem u vjetrotunelu."
+          }
+        ]
+      },
+      "en": {
+        "name": "FRT03",
+        "specs": [
+          [
+            "Engine power",
+            "68kW (91HP)"
+          ],
+          [
+            "Torque",
+            "64Nm"
+          ],
+          [
+            "Total weight",
+            "248 kg"
+          ],
+          [
+            "Fairing",
+            "Carbon-kevlar composite"
+          ],
+          [
+            "Chassis",
+            "25CrMo4 + Al 7075-T6 33kg"
+          ]
+        ],
+        "results": [],
+        "sections": [
+          {
+            "t": "Powertrain",
+            "d": "The FRT03 car is powered by a four-stroke, four-cylinder Otto engine from a CB600F motorcycle, whose intake and exhaust systems are optimized by CFD analyses. The lightweight fuel system is made of composite materials with a submersible pump and a 3D-printed intake duct with a 20 mm restrictor. The exhaust system is a 4-1 stainless steel configuration with electronic throttle control. Power transmission is achieved by aluminum sprockets and a Drexler differential with variable gear ratios depending on the track."
+          },
+          {
+            "t": "Suspension",
+            "d": "The suspension geometry of the FRT03 is optimized using kinematic response computer simulations to maximize the contact patch of the tires with the ground and negate the negative effect of tire bending in turns. The suspension design takes into account the influence of forces, damper damping, tire characteristics, spring stiffness, and mass transfer to achieve maximum friction force. Mechanical suspension components are designed with a focus on adjustability, low mass, and high stiffness, using lightweight materials and variable parts. The suspension is a double-wishbone type with internal springs connected via rocker arms, and performance is validated and optimized by analyzing data collected during driving."
+          },
+          {
+            "t": "Chassis",
+            "d": "The load-bearing structure of the FRT03 car combines a 25CrMo4 chromoly steel space frame for rigidity with an Al 7075-T6 aluminum carrier for ease of assembly and access to components. The chassis is designed in parallel with other systems with the aim of maximizing stiffness with minimal mass. Driver safety is ensured by a carbon-kevlar fiber composite seat, a 6-point harness, and an aluminum panel that protects against engine heat. Ergonomics are improved with adjustable cushions and an adjustable pedal system for drivers of various builds."
+          },
+          {
+            "t": "Aerodynamics",
+            "d": "The aerodynamic devices on the FRT03 (front and rear wings, underbody, and cooling channels) were designed using CFD simulations to optimize downforce and reduce air resistance. The wings use pressure differences and endplates for efficiency, while the underbody generates downforce using the Venturi effect. The simulation of the entire system ensures aerodynamic balance and airflow for engine cooling. The wings are made of carbon fiber, and the simulation results are validated by wind tunnel testing."
+          }
+        ]
+      }
+    },
+    {
+      "slug": "frm5",
+      "kind": "bike",
+      "season": "2024/2025",
+      "order": 4,
+      "hr": {
+        "name": "FRM5",
+        "specs": [
+          [
+            "Motor",
+            "250 cm³"
+          ],
+          [
+            "Ukupna težina",
+            "94 kg"
+          ]
+        ],
+        "results": [
+          "2. mjesto u kategoriji „Prototip, CAD i crteži“",
+          "2. mjesto u kategoriji „Ekonomski plan“"
+        ],
+        "sections": [
+          {
+            "t": "Natjecanje 2025.",
+            "d": "U odnosu na prethodni projekt ostvaren je značajan napredak: optimizirana je šasija, redizajnirana oplata i znatno poboljšana aerodinamika, što je donijelo bolje performanse i veću udobnost vožnje. Prijava i tehnička inspekcija prošle su bez poteškoća, a FRM5 je već drugog dana dobio odobrenje testnog vozača i time osigurao nastup u dinamičkim disciplinama.\n\nNa natjecanju je sudjelovalo više od 85 timova iz 19 zemalja. Nakon prva dva uspješna slobodna treninga došlo je do loma vilice pa je tim odustao od nastavka natjecanja. Vozač nije ozlijeđen."
+          }
+        ]
+      },
+      "en": {
+        "name": "FRM5",
+        "specs": [
+          [
+            "Engine",
+            "250 cc"
+          ],
+          [
+            "Total weight",
+            "94 kg"
+          ]
+        ],
+        "results": [
+          "2nd place in the “Prototype, CAD and drawings” category",
+          "2nd place in the “Business plan” category"
+        ],
+        "sections": [
+          {
+            "t": "Competition 2025",
+            "d": "Compared with the previous project the bike made a big step forward: the chassis was optimised, the fairing redesigned and the aerodynamics clearly improved, which brought better performance and more riding comfort. Registration and technical inspection went without problems, and on the second day FRM5 was cleared by the test rider, which secured its place in the dynamic disciplines.\n\nMore than 85 teams from 19 countries took part. After two good free practice sessions the front fork broke, so the team withdrew from the rest of the event. The rider was not hurt."
+          }
+        ]
+      }
+    },
+    {
+      "slug": "frm4",
+      "kind": "bike",
+      "season": "2022/2023",
+      "order": 5,
+      "hr": {
+        "name": "FRM4",
+        "specs": [
+          [
+            "Motor",
+            "50 HP, KTM 250 SX-F"
+          ],
+          [
+            "Akceleracija",
+            "0-100km/h: 4,4s"
+          ],
+          [
+            "Ukupna težina",
+            "95 kg"
+          ],
+          [
+            "Međuosovinski razmak",
+            "1296±23 mm"
+          ]
+        ],
+        "results": [
+          "1. mjesto u kategoriji akceleracije",
+          "1. mjesto u MS1 Finals kategoriji"
+        ],
+        "sections": [
+          {
+            "t": "Pogonski sustav",
+            "d": "Za dizajn i optimizaciju usisnog, ispušnog, gorivnog i rashladnog sustava motora KTM 250 SX – F i evaluaciju performansi, razvijen je 1D model performansi motora koristeći AVL Boost. Simulacije vremena kruga provedene su korištenjem MATLAB-a i Open lap skripte kako bi se odredio najkorišteniji segment radnog područja, prosječno na 12040 RPM rasponu od 10000 do 14000 RPM. Ovi podaci poslužili su kao osnova za daljnju optimizaciju performansi motora putem AVL Boost-a. Četrnaest ključnih parametara je varirano, uključujući primarnu duljinu/promjer usisa, volumen zračne kutije, duljinu/promjer ulaza zraka i duljinu/promjer ispuha, među ostalima. Komparativna analiza u odnosu na tvornički motor otkrila je povećanje momenta od 13,5% i povećanje snage od 7,71% kroz optimizaciju. Posebno, vrhunac okretnog momenta pomaknut je s 12000 na 10000 RPM, dok je vrhunac snage ostao na 14000 RPM. Ova poboljšanja potvrđena su testiranjem na dinamometru. Kako bi se učinkovito prenijela ova povećana snaga na kotače uz održavanje laganog dizajna, provedene su modifikacije poput korištenja lakšeg lanca 415, prilagođenog prednjeg lančanika i aluminijskog stražnjeg lančanika izrađenog od aluminija 7075-T6."
+          },
+          {
+            "t": "Ovjes",
+            "d": "FRM4 ima optimizirani sustav ovjesa, pažljivo analiziran korištenjem MATLAB -a i Altair Motion View -a. Simulacije vremena kruga, prilagođene trkaćoj stazi Motorland u Aragonu, bile su ključne za unapređenje performansi ovjesa. Precizan odabir točaka pričvršćivanja ovjesa usklađen je sa željenom krivuljom odziva, postigavši ravnotežu između krutosti i odzivnosti za optimalno iskustvo na stazi. Koristeći prednosti aluminija 7075-T6, posebna pažnja posvećena je dizajnu komponenti, pažljivo optimiziranih i izrađenih od nule. Komponente prednjeg i stražnjeg ovjesa projektirane su kako bi osigurale željeno ponašanje, prilagodljivost i laganu konstrukciju. Stražnja vilica kao ključni element, izrađena je od aluminija 6082-T6 zbog svoje visoke granice tečenja od 503 MPa. Korištenjem tehnika obrade za oblikovanje u šuplje elemente, praćeno TIG zavarivanjem i toplinskom obradom, rezultiralo je strukturom visoke krutosti od 0,95 kNm/deg torzijske krutosti, uz održavanje minimalne težine."
+          },
+          {
+            "t": "Oplata",
+            "d": "Oplata FRM4 sastoji se od prednjih i stražnjih blatobrana, gornjih i donjih dijelova oplate, i poklopca spremnika za gorivo. Početni geometrijski dizajn preuzet je s našeg prethodnog motocikla, zatim je pojednostavljen i simuliran u Ansys Fluent -u, omogućujući brzo generiranje mreže i iteraciju geometrije. Koristeći K-epsilon i GEKO modele turbulencije u CFD analizi, izračunat je koeficijent otpora zraka (cd) od 0,274, praćen negativnim koeficijentom uzgona (cl) od 0,0165. Cijeli proces izrade obavlja se unutar naše radionice. Počinje 3D printom modela te nanošenjem gelcoata i staklenih vlakana za izradu kalupa. Završni korak uključuje ručno laminiranje četiri sloja kompozitnih ugljičnih vlakana s epoksidnom smolom, osiguravajući lagan ali strukturalno čvrst dio s optimalnim svojstvima krutosti i mase. Posebno dizajnirana da bude lagana, ali otporna na testiranje i uvjete na stazi, rep motora to jest stražnja potkonstrukcija izrađena je od 450 g/m² preprega ugljičnih vlakana i osnovnog materijala. Korištenje vakuumskog sustava za pritiskanje slojeva na polirani MDF kalup, praćeno stvrdnjavanjem preprega u autoclave, osigurava da strukturni integritet potkonstrukcije odgovara simulacijama."
+          },
+          {
+            "t": "Konstrukcija",
+            "d": "Okvir šasije, pravi temelj ovog motocikla, nastao je kroz spoj SolidWorks CAD-a za početnu geometriju i simulacije u Ansys-u strukturne analize. Sinfonija inovacija i inženjerske briljantnosti orkestrirala je njezinu optimizaciju, fino podešavajući krutost i smanjujući težinu. Finalna 32. verzija, rezultirala je u 36 kromolijiskih čeličnih cijevi, pažljivo CNC obrađenih i besprijekorno spojenih. Hardox® 450 pružio je snagu nosačima motora i ovjesa, kroz preciznosti TIG zavarivanja uz WCrMo1Si kao dodatni materijal, rezultirajući izvrsnosti. Ukrašena zaštitnom plastifikacijom koji je završni sloj, s težinom od svega 8,9 kg, ali s torzijskom krutošću od 4 kNm/deg, šasija je svjedočanstvo o skladnom spoju forme i funkcije. Papučice, izrađene od aluminija Al 7075 T6, su gotovo zanemarive mase dok omogućuju prilagodljivost, krojeno jedinstvenom poziciji I preferenci svakog vozača."
+          },
+          {
+            "t": "Elektronika",
+            "d": "Ožičenje je dizajnirano koristeći EPLAN softver i izrađeno je u skladu sa standardima kako bi se osigurala maksimalna pouzdanost. Ožičenje je sastavljeno koristeći visokokvalitetne automobilske komponente. Korištene komponente su žice vojnih specifikacija ( Spec-44 ), DR-25 termo-skupljajući bužir različitih veličina, automobilski konektori Sumitomo DL, Deutsch, Amphenol. Krajevi žica su označeni oznakama kako bi se olakšala identifikacija.\n\nDigitalni LCD zaslon na motoru povezan je s Taipan ECU -om putem samorazvijene CAN mreže te prikazuje najvažnije podatke kako bi vozaču pomogao u upravljanju motociklom, to uključujućuje brzinu, broj okretaja motora (RPM), temperaturu motora, napon baterije i trenutnu brzinu motocikla. Aplikacija koja pokreće zaslon izrađena je koristeći Qt platformu. Kako bi se optimiziralo vrijeme pokretanja aplikacije, razvijen je minimalistički Linux sustav koristeći Buildroot."
+          }
+        ]
+      },
+      "en": {
+        "name": "FRM4",
+        "specs": [
+          [
+            "Engine",
+            "50 HP, KTM 250 SX-F"
+          ],
+          [
+            "Acceleration",
+            "0-100km/h: 4,4 s"
+          ],
+          [
+            "Total weight",
+            "95 kg"
+          ],
+          [
+            "Wheelbase",
+            "1296±23 mm"
+          ]
+        ],
+        "results": [
+          "1st place in Acceleration category",
+          "1st place in MS1 Finals category"
+        ],
+        "sections": [
+          {
+            "t": "Powertrain",
+            "d": "To design and optimize the KTM 250 SX - F engine's intake, exhaust, fuel, and cooling systems and evaluate performance, a 1D engine performance model was developed using AVL Boost. Lap time simulations were conducted using MATLAB and Open lap script to determine the most utilized segment of the powerband, averaging at 12040 rpm within the range of 10000 to 14000 rpm. This data served as the basis for further optimizing engine performance via AVL Boost. Fourteen key parameters were varied, including intake primary length/diameter, airbox volume, ram air length/diameter, and exhaust length/diameter, among others. Comparative analysis against the stock engine revealed a 13,5% increase in torque and a 7,71% boost in power through the optimization. Notably, the torque peak shifted from 12000 to 10000 rpm while the power peak remained at 14000 rpm. These enhancements were validated through dyno testing. To efficiently transfer this augmented power to the wheels while maintaining a lightweight design, modifications such as utilizing a lighter 415 chain, custom front sprocket, and aluminum rear sprocket were manufactured from 7075-T6 Aluminium."
+          },
+          {
+            "t": "Suspension",
+            "d": "The FRM4 showcases an optimized suspension system, meticulously analyzed using MATLAB and Altair Motion View. Lap time simulations, tailored to the Aragon Motorland racetrack, were instrumental in refining the suspension's performance. Precise selection of suspension hardpoints aligned with the desired response curve, striking a balance between rigidity and responsiveness for an optimal on-track experience. Utilizing strengths of 7075-T6 Aluminium significant emphasis was placed on component design, meticulously optimized and created from scratch. Both front and rear suspension components were engineered to ensure the desired behavior, adjustability, and lightweight construction. The rear swingarm, a key element, was crafted from 6082 - T6 Aluminum because of its high yield strength of 503 MPa. Utilizing milling techniques to shape it into shells, followed by TIG welding and heat treatment, resulted in a high-rigidity structure of 0,95 kNm/deg of torsional stiffness while keeping weight at a minimum."
+          },
+          {
+            "t": "Fairing",
+            "d": "The fairing of the FRM4 consists of the front and rear mudguards, upper and lower body parts, and the fuel tank cover. The initial geometric design was taken from our previous motorcycle and it was simplified and then simulated in Ansys Fluent, enabling quick mesh generation and geometry iteration. Leveraging K-epsilon and GEKO turbulence models in the CFD analysis, the resulting drag coefficient (cd) was calculated as 0,274, accompanied by a negative lift coefficient (cl) of 0,0165. The entire manufacturing process is completed in-house. It commences with 3D printing the models and applying gelcoat and glass fiber to create the mold. The final step involves hand-laminating four layers of composite carbon fiber with epoxy resin, ensuring a lightweight yet structurally sound part with optimal stiffness and mass properties. Specifically designed to be lightweight yet resilient to testing and track conditions, the tail subframe is manufactured using 450 g/m2 carbon fiber prepreg and core material. Employing vacuum bagging to press the layup against a polished MDF mold, followed by curing the prepreg in an autoclave, ensures the subframe's structural integrity aligns with simulations."
+          },
+          {
+            "t": "Chassis",
+            "d": "The space frame chassis, the very backbone of this motorcycle, came to life through a fusion of SolidWorks CAD magic for its initial geometry and Ansys structural analysis prowess. A symphony of innovation and engineering brilliance orchestrated its optimization, fine-tuning stiffness and shedding weight. The crescendo, the 32nd version, emerged from the 36 chromoly steel tubes, meticulously CNC milled and united seamlessly. Hardox® 450 lent its strength to the engine and suspension mounts, a ballet of precision through TIG welding with added WCrMo1Si filler rod, resulting in a canvas of excellence. Adorned with a powder-coated finish, boasting a mere 8,9 kg in weight yet wielding a torsional stiffness of 4 kNm/deg, a testament to the harmonious marriage of form and function. The pedals, crafted from Al 7075 T6, embody lightness while embracing adjustability, tailored for the unique imprint of each driver."
+          },
+          {
+            "t": "Electronics",
+            "d": "The wiring was designed using EPLAN software and is constructed according to standards to ensure maximum reliability. The wiring is assembled using high-quality automotive components to achieve flawless reliability. The components used are: Military spec wire (Spec-44), DR-25 heat-shrink tubing in various sizes, automotive connectors Sumitomo DL, Deutsch, Amphenol. Wire ends are identified using cable labels to facilitate identification.\n\nA digital LCD display on the motor is connected to the Taipan ECU through the self-developed CAN network, and it shows the most important data to assist the driver in managing the motorcycle, including speed, RPM, engine temperature, battery voltage, and the motorcycle's current speed. The application that runs the display is made using the Qt framework. To optimize the application startup time, a minimalist Linux operating system was developed using Buildroot."
+          }
+        ]
+      }
+    },
+    {
+      "slug": "frm3",
+      "kind": "bike",
+      "season": "2019/2020",
+      "order": 6,
+      "hr": {
+        "name": "FRM3",
+        "specs": [
+          [
+            "Motor",
+            "35 HP, KTM 250 RC"
+          ],
+          [
+            "Akceleracija",
+            "0-100km/h: 5,1s"
+          ],
+          [
+            "Ukupna težina",
+            "98 kg"
+          ],
+          [
+            "Međuosovinski razmak",
+            "1300 mm."
+          ]
+        ],
+        "results": [],
+        "sections": []
+      },
+      "en": {
+        "name": "FRM3",
+        "specs": [
+          [
+            "Engine",
+            "35 HP, KTM 250 RC"
+          ],
+          [
+            "Acceleration",
+            "0-100km/h: 5,1s"
+          ],
+          [
+            "Total weight",
+            "98 kg"
+          ],
+          [
+            "Wheelbase",
+            "1300 mm"
+          ]
+        ],
+        "results": [],
+        "sections": []
+      }
+    },
+    {
+      "slug": "efrm1",
+      "kind": "bike",
+      "season": "2019/2021",
+      "order": 7,
+      "hr": {
+        "name": "eFRM1",
+        "specs": [
+          [
+            "Motor",
+            "41 HP, 4,77 kWh, ENGRIO 205A"
+          ],
+          [
+            "Akceleracija",
+            "0-100km/h: 4,9s"
+          ],
+          [
+            "Ukupna težina",
+            "115 kg"
+          ],
+          [
+            "Međuosovinski razmak",
+            "1300 mm"
+          ]
+        ],
+        "results": [],
+        "sections": []
+      },
+      "en": {
+        "name": "eFRM1",
+        "specs": [
+          [
+            "Engine",
+            "41 HP, 4,77 kWh, ENGRIO 205A"
+          ],
+          [
+            "Acceleration",
+            "0-100km/h: 4,9s"
+          ],
+          [
+            "Total weight",
+            "115 kg"
+          ],
+          [
+            "Wheelbase",
+            "1300 mm"
+          ]
+        ],
+        "results": [],
+        "sections": []
+      }
+    },
+    {
+      "slug": "frm2",
+      "kind": "bike",
+      "season": "2017/2018",
+      "order": 8,
+      "hr": {
+        "name": "FRM2",
+        "specs": [
+          [
+            "Motor",
+            "35 HP, KTM 250 RC"
+          ],
+          [
+            "Akceleracija",
+            "0-100km/h: 5,3s"
+          ],
+          [
+            "Ukupna težina",
+            "104 kg"
+          ],
+          [
+            "Međuosovinski razmak",
+            "1340 mm"
+          ]
+        ],
+        "results": [],
+        "sections": []
+      },
+      "en": {
+        "name": "FRM2",
+        "specs": [
+          [
+            "Engine",
+            "35 HP, KTM 250 RC"
+          ],
+          [
+            "Acceleration",
+            "0-100km/h: 5,3 s"
+          ],
+          [
+            "Total weight",
+            "104 kg"
+          ],
+          [
+            "Wheelbase",
+            "1340 mm"
+          ]
+        ],
+        "results": [],
+        "sections": []
+      }
+    },
+    {
+      "slug": "frm1",
+      "kind": "bike",
+      "season": "2015/2016",
+      "order": 9,
+      "hr": {
+        "name": "FRM1",
+        "specs": [
+          [
+            "Motor",
+            "27 HP, Honda CBR250R"
+          ],
+          [
+            "Akceleracija",
+            "0-100km/h: 6,5s"
+          ],
+          [
+            "Ukupna težina",
+            "145 kg"
+          ],
+          [
+            "Međuosovinski razmak",
+            "1300 mm"
+          ]
+        ],
+        "results": [],
+        "sections": []
+      },
+      "en": {
+        "name": "FRM1",
+        "specs": [
+          [
+            "Engine",
+            "27 HP, Honda CBR250R"
+          ],
+          [
+            "Acceleration",
+            "0-100km/h: 6,5s"
+          ],
+          [
+            "Total weight",
+            "145 kg"
+          ],
+          [
+            "Wheelbase",
+            "1300 mm"
+          ]
+        ],
+        "results": [],
+        "sections": []
+      }
+    }
+  ],
+  "competitionLinks": {
+    "Formula Student Italy": "https://www.formula-ata.it",
+    "Formula Student Czech": "https://www.fsczech.cz",
+    "MotoStudent": "https://www.motostudent.com"
+  }
+}

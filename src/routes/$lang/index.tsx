@@ -17,6 +17,6 @@ export const Route = createFileRoute('/$lang/')({
 
 function HomePage() {
   const lang = Route.useParams().lang as Lang
-  const { news, partners, c } = Route.useLoaderData()
-  return <Home lang={lang} c={c} news={news} partners={partners} />
+  const { news, blog, partners, c, vehicles } = Route.useLoaderData()
+  return <Home lang={lang} c={c} news={news} blog={blog} partners={partners} vehicles={vehicles} />
 }

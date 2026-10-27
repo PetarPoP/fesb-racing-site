@@ -3,14 +3,19 @@
 /* Fonts are self-hosted (@fontsource). No call goes to Google Fonts. */
 @import '@fontsource-variable/archivo/wdth.css';
 
-/* The site has one dark theme. The variant stays so that old classes still compile. */
+/* Two themes. The head script in src/lib/theme.ts sets data-theme on <html> before the first paint:
+   the saved choice from the header switch, or else the system setting. */
 @custom-variant dark (&:where([data-theme='dark'], [data-theme='dark'] *));
+@custom-variant light (&:where([data-theme='light'], [data-theme='light'] *));
 
 /* Colour tokens, v3 palette */
 :root,
 [data-theme='dark'] {
+  color-scheme: dark;
   --bg: #0b0a0b;
   --fg: #f1e9e5;
+  /* Secondary text: lighter than mute, for body copy on the page background. */
+  --soft: #c9bdb9;
   --mute: #9b8f8c;
   --acc: #e2475b;
   --mark: #e2475b;
@@ -18,11 +23,60 @@
   --ph: rgba(226, 71, 91, 0.1);
   --sel: rgba(226, 71, 91, 0.32);
   --panel: #141112;
+  /* A surface set into a panel: image wells, logo tiles. */
+  --sunk: #0f0d0e;
+  /* Text on a bg-fg or bg-acc fill. */
+  --ink: #141112;
+  /* Translucent fill behind text over a photo or a map. */
+  --scrim: rgba(20, 17, 18, 0.55);
+  --scrim-strong: rgba(20, 17, 18, 0.85);
+  /* Glass surfaces (header pill, cards over photos). */
+  --glass-top: rgba(52, 44, 46, 0.62);
+  --glass-bottom: rgba(20, 17, 18, 0.66);
+  --glass-nav: rgba(20, 17, 18, 0.45);
+  --glass-sheet: rgba(20, 17, 18, 0.9);
+  --glass-edge: rgba(241, 233, 229, 0.16);
+  --glass-shine: rgba(241, 233, 229, 0.18);
+  --shadow: rgba(0, 0, 0, 0.6);
+  /* A logo file is white on the dark theme and black on the light theme. */
+  --logo-filter: brightness(0) invert(1);
+  /* The track maps are OpenStreetMap tiles, recoloured to match the theme. */
+  --map-filter: grayscale(1) invert(1) contrast(1.35) brightness(0.9);
+  --map-blend: multiply;
+}
+
+[data-theme='light'] {
+  color-scheme: light;
+  --bg: #f5f0ed;
+  --fg: #171213;
+  --soft: #4b4142;
+  --mute: #6f6462;
+  --acc: #c3283f;
+  --mark: #c3283f;
+  --line: rgba(23, 18, 19, 0.14);
+  --ph: rgba(195, 40, 63, 0.08);
+  --sel: rgba(195, 40, 63, 0.22);
+  --panel: #fffcfa;
+  --sunk: #ebe4e0;
+  --ink: #f5f0ed;
+  --scrim: rgba(255, 252, 250, 0.6);
+  --scrim-strong: rgba(245, 240, 237, 0.85);
+  --glass-top: rgba(255, 252, 250, 0.72);
+  --glass-bottom: rgba(245, 240, 237, 0.7);
+  --glass-nav: rgba(255, 252, 250, 0.55);
+  --glass-sheet: rgba(255, 252, 250, 0.94);
+  --glass-edge: rgba(23, 18, 19, 0.12);
+  --glass-shine: rgba(255, 255, 255, 0.7);
+  --shadow: rgba(60, 30, 35, 0.18);
+  --logo-filter: brightness(0);
+  --map-filter: grayscale(1) contrast(1.1) brightness(1.04);
+  --map-blend: screen;
 }
 
 @theme inline {
   --color-bg: var(--bg);
   --color-fg: var(--fg);
+  --color-soft: var(--soft);
   --color-mute: var(--mute);
   --color-acc: var(--acc);
   --color-mark: var(--mark);
@@ -30,6 +84,9 @@
   --color-ph: var(--ph);
   --color-sel: var(--sel);
   --color-panel: var(--panel);
+  --color-sunk: var(--sunk);
+  --color-ink: var(--ink);
+  --color-scrim: var(--scrim);
 }
 
 @theme {
@@ -191,10 +248,10 @@
     border-radius: 0.25em;
   }
   & ul.checklist li[data-checked='true']::before {
-    background: var(--acc) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='none' stroke='%230b0a0b' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M3.5 8.5l3 3 6-7'/%3E%3C/svg%3E") center / 80% no-repeat;
+    background: var(--acc) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='none' stroke='%23ffffff' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M3.5 8.5l3 3 6-7'/%3E%3C/svg%3E") center / 80% no-repeat;
   }
-  & ul.checklist li[data-checked='true'] { @apply text-mute; text-decoration: line-through; text-decoration-color: rgba(241, 233, 229, 0.3); }
-  & blockquote { @apply border-l-2 border-acc pl-5 text-[#c9bdb9] italic; }
+  & ul.checklist li[data-checked='true'] { @apply text-mute; text-decoration: line-through; text-decoration-color: var(--line); }
+  & blockquote { @apply border-l-2 border-acc pl-5 text-soft italic; }
   & hr { @apply border-0 border-t border-line; margin-block: 2em; }
   & :where(code) { @apply rounded bg-ph px-1.5 py-0.5 font-mono text-[0.88em]; }
   & pre { @apply overflow-x-auto rounded-2xl border border-fg/10 bg-panel p-4 font-mono text-sm leading-[1.6]; position: relative; }
@@ -249,39 +306,39 @@
 
 /* Glass panel: used by the nav pill, the hero card and similar surfaces */
 @utility glass {
-  background: linear-gradient(180deg, rgba(52, 44, 46, 0.62), rgba(20, 17, 18, 0.66));
+  background: linear-gradient(180deg, var(--glass-top), var(--glass-bottom));
   backdrop-filter: blur(18px) saturate(160%);
   -webkit-backdrop-filter: blur(18px) saturate(160%);
-  border: 1px solid rgba(241, 233, 229, 0.16);
+  border: 1px solid var(--glass-edge);
   box-shadow:
-    inset 0 1px 0 rgba(241, 233, 229, 0.18),
-    inset 0 -1px 0 rgba(0, 0, 0, 0.35),
-    0 10px 30px -8px rgba(0, 0, 0, 0.6),
-    0 2px 6px rgba(0, 0, 0, 0.35);
+    inset 0 1px 0 var(--glass-shine),
+    inset 0 -1px 0 rgba(0, 0, 0, 0.12),
+    0 10px 30px -8px var(--shadow),
+    0 2px 6px var(--shadow);
 }
 
 /* Frosted glass of the header pill and the mobile menu. The fill must stay translucent, or the blur is not visible. */
 @utility glass-nav {
-  background: rgba(20, 17, 18, 0.45);
+  background: var(--glass-nav);
   backdrop-filter: blur(20px) saturate(160%);
   -webkit-backdrop-filter: blur(20px) saturate(160%);
-  border: 1px solid rgba(241, 233, 229, 0.16);
+  border: 1px solid var(--glass-edge);
   box-shadow:
-    inset 0 1px 0 rgba(241, 233, 229, 0.2),
-    0 10px 30px -8px rgba(0, 0, 0, 0.55),
-    0 2px 6px rgba(0, 0, 0, 0.3);
+    inset 0 1px 0 var(--glass-shine),
+    0 10px 30px -8px var(--shadow),
+    0 2px 6px var(--shadow);
 }
 
 /* Mobile menu sheet: far less see-through than the nav pill, so the links stay readable over photos.
    Opens and closes with a fade, a small drop and a blur; the links follow one after another. */
 @utility menu-sheet {
-  background: rgba(20, 17, 18, 0.9);
+  background: var(--glass-sheet);
   backdrop-filter: blur(24px) saturate(140%);
   -webkit-backdrop-filter: blur(24px) saturate(140%);
-  border: 1px solid rgba(241, 233, 229, 0.16);
+  border: 1px solid var(--glass-edge);
   box-shadow:
-    inset 0 1px 0 rgba(241, 233, 229, 0.16),
-    0 18px 40px -10px rgba(0, 0, 0, 0.7);
+    inset 0 1px 0 var(--glass-shine),
+    0 18px 40px -10px var(--shadow);
   transform-origin: top center;
   transition:
     opacity 220ms cubic-bezier(0.2, 0.8, 0.2, 1),
@@ -325,7 +382,7 @@
   .glass,
   .glass-nav,
   .menu-sheet {
-    background: #141112;
+    background: var(--panel);
     backdrop-filter: none;
     -webkit-backdrop-filter: none;
   }
@@ -333,8 +390,8 @@
 @media (prefers-contrast: more) {
   .glass,
   .glass-nav {
-    background: #141112;
-    border-color: rgba(241, 233, 229, 0.7);
+    background: var(--panel);
+    border-color: var(--fg);
   }
 }
 

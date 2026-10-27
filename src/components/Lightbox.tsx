@@ -19,7 +19,8 @@ const SLIDE_PX = 48
 function collect(root: HTMLElement): { items: Item[]; nodes: HTMLImageElement[] } {
   const nodes = [...root.querySelectorAll<HTMLImageElement>(SELECTOR)]
   const items = nodes.map((img) => ({
-    src: img.currentSrc || img.src,
+    // data-full: a larger file than the one shown in the page (the gallery shows small copies).
+    src: img.dataset.full || img.currentSrc || img.src,
     alt: img.alt,
     caption: img.closest('figure')?.querySelector('figcaption')?.textContent ?? '',
   }))

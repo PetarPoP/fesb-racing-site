@@ -19,19 +19,19 @@ export type CarGroup = {
 }
 
 export const CAR_GROUPS: CarGroup[] = [
-  { key: 'frame', codes: ['04-FR'], team: 'MEH', name: { hr: 'Šasija', en: 'Chassis' }, explode: [0, 0, 0] },
-  { key: 'body', codes: ['04-BM'], team: 'KAR', name: { hr: 'Karoserija', en: 'Bodywork' }, explode: [0.05, 1.15, 0] },
-  { key: 'aero_front', codes: ['04-AF'], team: 'AER', name: { hr: 'Prednje krilo', en: 'Front wing' }, explode: [1.15, -0.05, 0] },
-  { key: 'aero_rear', codes: ['04-AR'], team: 'AER', name: { hr: 'Stražnje krilo', en: 'Rear wing' }, explode: [-1.0, 0.7, 0] },
-  { key: 'aero_under', codes: ['04-AU'], team: 'AER', name: { hr: 'Podnica i difuzor', en: 'Undertray & diffuser' }, explode: [0, -0.55, 0], spread: 0.25 },
-  { key: 'accu', codes: ['09-ET'], team: 'E&S', name: { hr: 'Akumulator i VN sustav', en: 'Accumulator & HV system' }, explode: [-0.25, 1.7, 0] },
-  { key: 'lv', codes: ['02-LV'], team: 'E&S', name: { hr: 'Niskonaponski sustav', en: 'Low-voltage system' }, explode: [0.1, 0.55, 0], spread: 0.55 },
-  { key: 'drive', codes: ['03-DT'], team: 'MEH', name: { hr: 'Pogonski sklop', en: 'Drivetrain' }, explode: [-1.15, -0.05, 0] },
-  { key: 'steer', codes: ['06-ST'], team: 'MEH', name: { hr: 'Upravljanje', en: 'Steering' }, explode: [0.55, 0.85, 0] },
-  { key: 'cockpit', codes: ['05-MS'], team: 'MEH', name: { hr: 'Kokpit i sjedalo', en: 'Cockpit & seat' }, explode: [0.1, 0.6, 0] },
-  { key: 'susp', codes: ['07-SU'], team: 'MEH', name: { hr: 'Ovjes', en: 'Suspension' }, explode: [0, 0, 0], spread: 0.75 },
-  { key: 'brakes', codes: ['01-BR'], team: 'MEH', name: { hr: 'Kočioni sustav', en: 'Brake system' }, explode: [0, -0.15, 0], spread: 1.0 },
-  { key: 'wheels', codes: ['08-WT'], team: 'MEH', name: { hr: 'Kotači i gume', en: 'Wheels & tyres' }, explode: [0, 0, 0], spread: 1.4 },
+  { key: 'frame', codes: ['04-FR'], team: 'KON', name: { hr: 'Šasija', en: 'Chassis' }, explode: [0, 0, 0] },
+  { key: 'body', codes: ['04-BM'], team: 'DAE', name: { hr: 'Karoserija', en: 'Bodywork' }, explode: [0.05, 1.15, 0] },
+  { key: 'aero_front', codes: ['04-AF'], team: 'DAE', name: { hr: 'Prednje krilo', en: 'Front wing' }, explode: [1.15, -0.05, 0] },
+  { key: 'aero_rear', codes: ['04-AR'], team: 'DAE', name: { hr: 'Stražnje krilo', en: 'Rear wing' }, explode: [-1.0, 0.7, 0] },
+  { key: 'aero_under', codes: ['04-AU'], team: 'DAE', name: { hr: 'Podnica i difuzor', en: 'Undertray & diffuser' }, explode: [0, -0.55, 0], spread: 0.25 },
+  { key: 'accu', codes: ['09-ET'], team: 'ELE', name: { hr: 'Akumulator i VN sustav', en: 'Accumulator & HV system' }, explode: [-0.25, 1.7, 0] },
+  { key: 'lv', codes: ['02-LV'], team: 'ELE', name: { hr: 'Niskonaponski sustav', en: 'Low-voltage system' }, explode: [0.1, 0.55, 0], spread: 0.55 },
+  { key: 'drive', codes: ['03-DT'], team: 'PWT', name: { hr: 'Pogonski sklop', en: 'Drivetrain' }, explode: [-1.15, -0.05, 0] },
+  { key: 'steer', codes: ['06-ST'], team: 'DIN', name: { hr: 'Upravljanje', en: 'Steering' }, explode: [0.55, 0.85, 0] },
+  { key: 'cockpit', codes: ['05-MS'], team: 'DAE', name: { hr: 'Kokpit i sjedalo', en: 'Cockpit & seat' }, explode: [0.1, 0.6, 0] },
+  { key: 'susp', codes: ['07-SU'], team: 'DIN', name: { hr: 'Ovjes', en: 'Suspension' }, explode: [0, 0, 0], spread: 0.75 },
+  { key: 'brakes', codes: ['01-BR'], team: 'DIN', name: { hr: 'Kočioni sustav', en: 'Brake system' }, explode: [0, -0.15, 0], spread: 1.0 },
+  { key: 'wheels', codes: ['08-WT'], team: 'DIN', name: { hr: 'Kotači i gume', en: 'Wheels & tyres' }, explode: [0, 0, 0], spread: 1.4 },
 ]
 
 /**
@@ -39,11 +39,12 @@ export const CAR_GROUPS: CarGroup[] = [
  * Used for the chip, the line, the label, the outline and the glow of the active team.
  */
 export const TEAM_COLORS: Record<string, string> = {
-  MEH: '#e2475b',
-  'E&S': '#f2a640',
-  AER: '#4fb3bf',
-  KAR: '#e9d8b4',
-  'M&B': '#b79af0',
+  PWT: '#e2475b',
+  ELE: '#f2a640',
+  DAE: '#4fb3bf',
+  DIN: '#8fd17a',
+  KON: '#e9d8b4',
+  'B&M': '#b79af0',
 }
 export const teamColor = (code: string | null | undefined) => (code && TEAM_COLORS[code]) || '#e2475b'
 

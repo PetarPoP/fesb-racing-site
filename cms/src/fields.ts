@@ -20,6 +20,6 @@ export const sharedRacingFields: Field[] = [
       { name: 'caption', type: 'text', localized: true },
     ],
   },
-  { name: 'results', type: 'textarea', localized: true },
-  { name: 'link', type: 'text' },
+  { name: 'results', type: 'textarea', localized: true, admin: { description: 'Awards and results, one per line.' } },
+  { name: 'link', type: 'text', admin: { description: 'Website, for example https://www.motostudent.com. The competition panel links to it.' } },
 ]

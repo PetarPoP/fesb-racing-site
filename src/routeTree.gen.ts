@@ -13,8 +13,13 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as LangRouteImport } from './routes/$lang'
 import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
 import { Route as LangIndexRouteImport } from './routes/$lang/index'
+import { Route as LangShopRouteImport } from './routes/$lang/shop'
+import { Route as LangBlogIndexRouteImport } from './routes/$lang/blog/index'
+import { Route as LangBlogSlugRouteImport } from './routes/$lang/blog/$slug'
 import { Route as LangNovostiIndexRouteImport } from './routes/$lang/novosti/index'
 import { Route as LangNovostiSlugRouteImport } from './routes/$lang/novosti/$slug'
+import { Route as LangProjektiProjectIndexRouteImport } from './routes/$lang/projekti/$project.index'
+import { Route as LangProjektiProjectVehicleRouteImport } from './routes/$lang/projekti/$project.$vehicle'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -36,6 +41,21 @@ const LangIndexRoute = LangIndexRouteImport.update({
   path: '/',
   getParentRoute: () => LangRoute,
 } as any)
+const LangShopRoute = LangShopRouteImport.update({
+  id: '/shop',
+  path: '/shop',
+  getParentRoute: () => LangRoute,
+} as any)
+const LangBlogIndexRoute = LangBlogIndexRouteImport.update({
+  id: '/blog/',
+  path: '/blog/',
+  getParentRoute: () => LangRoute,
+} as any)
+const LangBlogSlugRoute = LangBlogSlugRouteImport.update({
+  id: '/blog/$slug',
+  path: '/blog/$slug',
+  getParentRoute: () => LangRoute,
+} as any)
 const LangNovostiIndexRoute = LangNovostiIndexRouteImport.update({
   id: '/novosti/',
   path: '/novosti/',
@@ -46,30 +66,57 @@ const LangNovostiSlugRoute = LangNovostiSlugRouteImport.update({
   path: '/novosti/$slug',
   getParentRoute: () => LangRoute,
 } as any)
+const LangProjektiProjectIndexRoute =
+  LangProjektiProjectIndexRouteImport.update({
+    id: '/projekti/$project/',
+    path: '/projekti/$project/',
+    getParentRoute: () => LangRoute,
+  } as any)
+const LangProjektiProjectVehicleRoute =
+  LangProjektiProjectVehicleRouteImport.update({
+    id: '/projekti/$project/$vehicle',
+    path: '/projekti/$project/$vehicle',
+    getParentRoute: () => LangRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/$lang': typeof LangRouteWithChildren
   '/sitemap.xml': typeof SitemapDotxmlRoute
+  '/$lang/shop': typeof LangShopRoute
   '/$lang/': typeof LangIndexRoute
+  '/$lang/blog/$slug': typeof LangBlogSlugRoute
   '/$lang/novosti/$slug': typeof LangNovostiSlugRoute
+  '/$lang/blog/': typeof LangBlogIndexRoute
   '/$lang/novosti/': typeof LangNovostiIndexRoute
+  '/$lang/projekti/$project/$vehicle': typeof LangProjektiProjectVehicleRoute
+  '/$lang/projekti/$project/': typeof LangProjektiProjectIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
+  '/$lang/shop': typeof LangShopRoute
   '/$lang': typeof LangIndexRoute
+  '/$lang/blog/$slug': typeof LangBlogSlugRoute
   '/$lang/novosti/$slug': typeof LangNovostiSlugRoute
+  '/$lang/blog': typeof LangBlogIndexRoute
   '/$lang/novosti': typeof LangNovostiIndexRoute
+  '/$lang/projekti/$project/$vehicle': typeof LangProjektiProjectVehicleRoute
+  '/$lang/projekti/$project': typeof LangProjektiProjectIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/$lang': typeof LangRouteWithChildren
   '/sitemap.xml': typeof SitemapDotxmlRoute
+  '/$lang/shop': typeof LangShopRoute
   '/$lang/': typeof LangIndexRoute
+  '/$lang/blog/$slug': typeof LangBlogSlugRoute
   '/$lang/novosti/$slug': typeof LangNovostiSlugRoute
+  '/$lang/blog/': typeof LangBlogIndexRoute
   '/$lang/novosti/': typeof LangNovostiIndexRoute
+  '/$lang/projekti/$project/$vehicle': typeof LangProjektiProjectVehicleRoute
+  '/$lang/projekti/$project/': typeof LangProjektiProjectIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -77,20 +124,39 @@ export interface FileRouteTypes {
     | '/'
     | '/$lang'
     | '/sitemap.xml'
+    | '/$lang/shop'
     | '/$lang/'
+    | '/$lang/blog/$slug'
     | '/$lang/novosti/$slug'
+    | '/$lang/blog/'
     | '/$lang/novosti/'
+    | '/$lang/projekti/$project/$vehicle'
+    | '/$lang/projekti/$project/'
   fileRoutesByTo: FileRoutesByTo
   to:
-    '/' | '/sitemap.xml' | '/$lang' | '/$lang/novosti/$slug' | '/$lang/novosti'
+    | '/'
+    | '/sitemap.xml'
+    | '/$lang/shop'
+    | '/$lang'
+    | '/$lang/blog/$slug'
+    | '/$lang/novosti/$slug'
+    | '/$lang/blog'
+    | '/$lang/novosti'
+    | '/$lang/projekti/$project/$vehicle'
+    | '/$lang/projekti/$project'
   id:
     | '__root__'
     | '/'
     | '/$lang'
     | '/sitemap.xml'
+    | '/$lang/shop'
     | '/$lang/'
+    | '/$lang/blog/$slug'
     | '/$lang/novosti/$slug'
+    | '/$lang/blog/'
     | '/$lang/novosti/'
+    | '/$lang/projekti/$project/$vehicle'
+    | '/$lang/projekti/$project/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -129,6 +195,27 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LangIndexRouteImport
       parentRoute: typeof LangRoute
     }
+    '/$lang/shop': {
+      id: '/$lang/shop'
+      path: '/shop'
+      fullPath: '/$lang/shop'
+      preLoaderRoute: typeof LangShopRouteImport
+      parentRoute: typeof LangRoute
+    }
+    '/$lang/blog/': {
+      id: '/$lang/blog/'
+      path: '/blog'
+      fullPath: '/$lang/blog/'
+      preLoaderRoute: typeof LangBlogIndexRouteImport
+      parentRoute: typeof LangRoute
+    }
+    '/$lang/blog/$slug': {
+      id: '/$lang/blog/$slug'
+      path: '/blog/$slug'
+      fullPath: '/$lang/blog/$slug'
+      preLoaderRoute: typeof LangBlogSlugRouteImport
+      parentRoute: typeof LangRoute
+    }
     '/$lang/novosti/': {
       id: '/$lang/novosti/'
       path: '/novosti'
@@ -143,19 +230,43 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LangNovostiSlugRouteImport
       parentRoute: typeof LangRoute
     }
+    '/$lang/projekti/$project/': {
+      id: '/$lang/projekti/$project/'
+      path: '/projekti/$project'
+      fullPath: '/$lang/projekti/$project/'
+      preLoaderRoute: typeof LangProjektiProjectIndexRouteImport
+      parentRoute: typeof LangRoute
+    }
+    '/$lang/projekti/$project/$vehicle': {
+      id: '/$lang/projekti/$project/$vehicle'
+      path: '/projekti/$project/$vehicle'
+      fullPath: '/$lang/projekti/$project/$vehicle'
+      preLoaderRoute: typeof LangProjektiProjectVehicleRouteImport
+      parentRoute: typeof LangRoute
+    }
   }
 }
 
 interface LangRouteChildren {
+  LangShopRoute: typeof LangShopRoute
   LangIndexRoute: typeof LangIndexRoute
+  LangBlogSlugRoute: typeof LangBlogSlugRoute
   LangNovostiSlugRoute: typeof LangNovostiSlugRoute
+  LangBlogIndexRoute: typeof LangBlogIndexRoute
   LangNovostiIndexRoute: typeof LangNovostiIndexRoute
+  LangProjektiProjectVehicleRoute: typeof LangProjektiProjectVehicleRoute
+  LangProjektiProjectIndexRoute: typeof LangProjektiProjectIndexRoute
 }
 
 const LangRouteChildren: LangRouteChildren = {
+  LangShopRoute: LangShopRoute,
   LangIndexRoute: LangIndexRoute,
+  LangBlogSlugRoute: LangBlogSlugRoute,
   LangNovostiSlugRoute: LangNovostiSlugRoute,
+  LangBlogIndexRoute: LangBlogIndexRoute,
   LangNovostiIndexRoute: LangNovostiIndexRoute,
+  LangProjektiProjectVehicleRoute: LangProjektiProjectVehicleRoute,
+  LangProjektiProjectIndexRoute: LangProjektiProjectIndexRoute,
 }
 
 const LangRouteWithChildren = LangRoute._addFileChildren(LangRouteChildren)

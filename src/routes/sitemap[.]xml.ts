@@ -1,6 +1,6 @@
 import { createFileRoute } from '@tanstack/react-router'
 import { LANGS } from '~/content'
-import { getCmsNews } from '~/server/cms'
+import { getCmsPosts } from '~/server/cms'
 
 const escapeXml = (s: string) => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;')
 
@@ -32,12 +32,17 @@ export const Route = createFileRoute('/sitemap.xml')({
         // SITE_URL sets the public address. Without it, the sitemap uses the address of the request.
         const origin = (process.env.SITE_URL || new URL(request.url).origin).replace(/\/$/, '')
         // The news list is null when the CMS is down. The sitemap then has only the static pages.
-        const news = (await getCmsNews('hr')) ?? []
-        const newest = news.map((n) => n.date).sort().at(-1)
+        const [news, blog] = await Promise.all([getCmsPosts('news', 'hr'), getCmsPosts('blog', 'hr')])
+        const newest = (list: { date: string }[] | null) => list?.map((n) => n.date).sort().at(-1)
         const entries: Entry[] = [
-          { path: '/hr', lastmod: newest },
-          { path: '/hr/novosti', lastmod: newest },
-          ...news.map((n) => ({ path: `/hr/novosti/${encodeURIComponent(n.slug)}`, lastmod: n.date })),
+          { path: '/hr', lastmod: newest([...(news ?? []), ...(blog ?? [])]) },
+          { path: '/hr/novosti', lastmod: newest(news) },
+          ...(news ?? []).map((n) => ({ path: `/hr/novosti/${encodeURIComponent(n.slug)}`, lastmod: n.date })),
+          { path: '/hr/blog', lastmod: newest(blog) },
+          ...(blog ?? []).map((n) => ({ path: `/hr/blog/${encodeURIComponent(n.slug)}`, lastmod: n.date })),
+          { path: '/hr/projekti/formula-student' },
+          { path: '/hr/projekti/motostudent' },
+          { path: '/hr/shop' },
         ]
         const xml = [
           '<?xml version="1.0" encoding="UTF-8"?>',

@@ -15,7 +15,7 @@ import { getCloudflareContext } from '@opennextjs/cloudflare'
 const DEBOUNCE_MS = Number(process.env.REBUILD_DEBOUNCE_MS) || 25_000
 
 /** The collections and globals that the public site shows. */
-export const REBUILD_COLLECTIONS = ['partners', 'news', 'teams', 'vehicles', 'competitions', 'pages']
+export const REBUILD_COLLECTIONS = ['partners', 'announcements', 'news', 'teams', 'vehicles', 'competitions', 'pages']
 export const REBUILD_GLOBALS = ['siteSettings', 'stats', 'ticker', 'footer', 'joinCta']
 
 type EnvReader = (name: string) => string | undefined

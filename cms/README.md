@@ -25,8 +25,9 @@ The seed script is safe to run two times. Each record has a natural key (email, 
 
 - One admin user from `SEED_ADMIN_EMAIL` and `SEED_ADMIN_PASSWORD`.
 - 56 partners with the tier, the order and the logo (the logo files are in `seed-assets/partners`).
-- Five teams, two vehicles, four competitions and the home page, from `src/content.ts` of the site (hr and en).
-- Three news posts. They come from the local database of the site, which holds only sample posts.
+- Six teams, the cars and bikes (one document each), four competitions and the home page, from the site data (hr and en).
+  The teams, vehicles and footer contacts come from `src/seed-data/site-v2.json`; the migration `20261027_210000_six_teams_data` writes the same rows.
+- Three blog posts. They come from the local database of the site, which holds only sample posts.
 - The globals: site settings, stats, ticker, footer and join call to action (hr and en).
 - Two forms, one sample submission and one sample redirect.
 - Five SAMPLE members. The names are not real. Replace them in the admin.
@@ -34,10 +35,11 @@ The seed script is safe to run two times. Each record has a natural key (email, 
 ## Content model
 
 - Locales: `hr` (default) and `en`. Fallback is on. Text fields are localized.
-- Collections: `users`, `media`, `news`, `pages`, `partners`, `teams`, `members`, `vehicles`, `competitions`.
-- Plugins: SEO (news and pages), form builder (`forms` and `form-submissions`), redirects.
+- Collections: `users`, `media`, `announcements` (News: short news at the top of the site), `news` (Blog: the longer posts),
+  `pages`, `partners`, `teams`, `members`, `vehicles`, `competitions`. The slug `news` stays for the blog, so old posts and links keep working.
+- Plugins: SEO (news, blog and pages), form builder (`forms` and `form-submissions`), redirects.
 - Globals: `siteSettings`, `stats`, `ticker`, `footer`, `joinCta`.
-- News and pages have drafts with autosave. A visitor can read only published documents.
+- News, blog posts and pages have drafts with autosave. A visitor can read only published documents.
 - Create, update and delete need a logged-in user. Only an admin can manage users.
 - Live preview opens `FRONTEND_URL` (default `http://localhost:3000`).
 
@@ -83,7 +85,7 @@ or run the seed script with remote bindings (not tested).
 
 ## Rebuild webhook
 
-`src/hooks/rebuild.ts` adds `afterChange` and `afterDelete` hooks to `partners`, `news`, `teams`, `vehicles`, `competitions`
+`src/hooks/rebuild.ts` adds `afterChange` and `afterDelete` hooks to `partners`, `announcements`, `news`, `teams`, `vehicles`, `competitions`
 and `pages`, and `afterChange` to all globals. For `news` and `pages` (drafts) it fires only for a publish, for a change of a
 published document, for an unpublish and for a delete of a published document. A draft save does nothing.
 It sends POST to `REBUILD_WEBHOOK_URL` after 25 s without a new change (in memory, trailing).

@@ -100,10 +100,10 @@ export function Join({ c, lang }: { c: Content; lang: Lang }) {
     >
       <div className="flex flex-col gap-5">
         <h2 key={`t-${mode}`} className={cx(tw.h2, 'animate-fade-up text-[clamp(32px,4.2vw,60px)] [overflow-wrap:anywhere]')}>{company ? c.companyTitle : c.joinTitle}</h2>
-        <p key={`p-${mode}`} className="m-0 max-w-[460px] animate-fade-up text-[17px] leading-[1.55] text-[#b8aca8]">{company ? c.companyText : c.joinText}</p>
+        <p key={`p-${mode}`} className="m-0 max-w-[460px] animate-fade-up text-[17px] leading-[1.55] text-soft">{company ? c.companyText : c.joinText}</p>
       </div>
 
-      <div className="flex flex-col gap-3 rounded-3xl border border-fg/10 bg-[#141112] p-[clamp(18px,5vw,28px)]">
+      <div className="flex flex-col gap-3 rounded-3xl border border-fg/10 bg-panel p-[clamp(18px,5vw,28px)]">
         <div role="radiogroup" aria-label={c.modeLabel} className="flex gap-1 self-start rounded-full bg-bg p-1">
           {(
             [
@@ -121,7 +121,7 @@ export function Join({ c, lang }: { c: Content; lang: Lang }) {
               onKeyDown={(e) => arrowNav(e, MODES.indexOf(mode), MODES.length, (n) => switchMode(MODES[n]))}
               className={cx(
                 'press min-h-11 cursor-pointer rounded-full px-4 py-2 text-sm font-semibold',
-                mode === m ? 'bg-fg text-[#141112]' : 'text-fg hover:text-acc',
+                mode === m ? 'bg-fg text-ink' : 'text-fg hover:text-acc',
               )}
             >
               {label}
@@ -172,7 +172,7 @@ export function Join({ c, lang }: { c: Content; lang: Lang }) {
                       onKeyDown={(e) => arrowNav(e, pick, c.teams.length, setPick)}
                       className={cx(
                         'press min-h-11 cursor-pointer rounded-full border px-4 py-2.5 text-sm font-semibold',
-                        pick === i ? 'border-fg bg-fg text-[#141112]' : 'border-fg/20 text-fg hover:border-acc hover:text-acc',
+                        pick === i ? 'border-fg bg-fg text-ink' : 'border-fg/20 text-fg hover:border-acc hover:text-acc',
                       )}
                     >
                       {t.code}
@@ -193,7 +193,7 @@ export function Join({ c, lang }: { c: Content; lang: Lang }) {
               disabled={status === 'sending'}
               data-dh="wipe"
               data-dh-c="#f1e9e5"
-              className="press mt-3 cursor-pointer rounded-full bg-acc px-5 py-4 text-center text-[15px] font-semibold text-[#141112] hover:text-[#141112] disabled:cursor-wait disabled:opacity-70"
+              className="press mt-3 cursor-pointer rounded-full bg-acc px-5 py-4 text-center text-[15px] font-semibold text-ink hover:text-ink disabled:cursor-wait disabled:opacity-70"
             >
               {status === 'sending' ? c.fSending : company ? c.fSendCompany : c.fSend}
             </button>

@@ -61,7 +61,7 @@ const GalleryBlock: Block = {
  * The full Lexical feature set of Payload 3.90.2.
  * The Markdown shortcuts (# , **, -, >, ```) are active for every feature that has a transformer.
  */
-const newsEditor = lexicalEditor({
+export const newsEditor = lexicalEditor({
   features: [
     ParagraphFeature(),
     HeadingFeature({ enabledHeadingSizes: ['h1', 'h2', 'h3', 'h4'] }),
@@ -70,7 +70,7 @@ const newsEditor = lexicalEditor({
     UnderlineFeature(),
     StrikethroughFeature(),
     InlineCodeFeature(),
-    LinkFeature({ enabledCollections: ['pages', 'news'] }),
+    LinkFeature({ enabledCollections: ['pages', 'news', 'announcements'] }),
     UnorderedListFeature(),
     OrderedListFeature(),
     ChecklistFeature(),
@@ -96,16 +96,20 @@ const newsEditor = lexicalEditor({
   ],
 })
 
+/**
+ * Blog posts: the longer stories at the bottom of the home page and on /blog.
+ * The slug stays "news" because the posts were in this collection before the split. The short news are "announcements".
+ */
 export const News: CollectionConfig = {
   slug: 'news',
-  labels: { singular: 'News post', plural: 'News' },
+  labels: { singular: 'Blog post', plural: 'Blog' },
   admin: {
     group: 'Content',
     useAsTitle: 'title',
     defaultColumns: ['title', 'publishedAt', '_status', 'updatedAt'],
     livePreview: {
       url: ({ data, locale }) =>
-        `${process.env.FRONTEND_URL || 'http://localhost:3000'}/${locale?.code ?? 'hr'}/novosti/${data?.slug ?? ''}`,
+        `${process.env.FRONTEND_URL || 'http://localhost:3000'}/${locale?.code ?? 'hr'}/blog/${data?.slug ?? ''}`,
     },
   },
   access: { read: publishedOrUser, ...writeAccess },
