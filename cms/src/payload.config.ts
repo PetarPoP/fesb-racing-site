@@ -15,6 +15,7 @@ import { anyone, isLoggedIn } from './access'
 import { Users } from './collections/Users'
 import { Media } from './collections/Media'
 import { News } from './collections/News'
+import { Announcements } from './collections/Announcements'
 import { Pages } from './collections/Pages'
 import { Partners } from './collections/Partners'
 import { Teams } from './collections/Teams'
@@ -65,7 +66,7 @@ const env = (name: string): string | undefined =>
 
 const withHooks = withRebuildHooks(
   env,
-  [Users, Media, News, Pages, Partners, Teams, Members, Vehicles, Competitions],
+  [Users, Media, Announcements, News, Pages, Partners, Teams, Members, Vehicles, Competitions],
   [SiteSettings, Stats, Ticker, Footer, JoinCta],
 )
 
@@ -83,7 +84,7 @@ export default buildConfig({
     components: { graphics: { Logo: '/components/Logo', Icon: '/components/Icon' } },
     livePreview: {
       url: frontendUrl,
-      collections: ['news', 'pages'],
+      collections: ['announcements', 'news', 'pages'],
       breakpoints: [
         { label: 'Mobile', name: 'mobile', width: 390, height: 844 },
         { label: 'Desktop', name: 'desktop', width: 1440, height: 900 },
@@ -113,7 +114,7 @@ export default buildConfig({
   plugins: [
     r2Storage({ bucket: cloudflare.env.R2, collections: { media: true } }),
     seoPlugin({
-      collections: ['news', 'pages'],
+      collections: ['announcements', 'news', 'pages'],
       uploadsCollection: 'media',
       tabbedUI: true,
       generateTitle: ({ doc }) => `${(doc as { title?: string }).title ?? ''} - FESB Racing`,
@@ -132,7 +133,7 @@ export default buildConfig({
       },
     }),
     redirectsPlugin({
-      collections: ['news', 'pages'],
+      collections: ['announcements', 'news', 'pages'],
       overrides: {
         admin: { group: 'Settings' },
         access: { read: anyone, create: isLoggedIn, update: isLoggedIn, delete: isLoggedIn },

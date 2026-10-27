@@ -10,6 +10,7 @@ import { getPayload, type Payload } from 'payload'
 import config from './payload.config'
 import content from './seed-data/content.json' with { type: 'json' }
 import partnersData from './seed-data/partners.json' with { type: 'json' }
+import siteV2 from './seed-data/site-v2.json' with { type: 'json' }
 
 const here = path.dirname(fileURLToPath(import.meta.url))
 const assets = path.resolve(here, '..', 'seed-assets')
@@ -181,24 +182,26 @@ async function main() {
   }
   log(`partners: ${partnerCount} created, ${partnersData.length} total`)
 
-  // 3. Teams (the five site teams).
+  // 3. Teams (the six site teams). The data migration of October 2026 writes the same rows.
   const teamDocs: Record<string, any> = {}
-  for (const [i, t] of hr.teams.entries()) {
-    const te = en.teams[i]
+  for (const [i, t] of siteV2.teams.entries()) {
     const r = await upsert(payload, 'teams', { code: { equals: t.code } },
-      { name: t.name, code: t.code, program: 'both', description: t.d, tags: t.tags.map((tag) => ({ tag })), order: i },
-      { name: te.name, description: te.d, tags: te.tags.map((tag) => ({ tag })) })
+      {
+        name: t.hr.name, code: t.code, program: 'both', description: t.hr.description, about: t.hr.about,
+        lead: { name: t.lead.name, email: t.lead.email, phone: t.lead.phone }, tags: t.hr.tags.map((tag) => ({ tag })), order: i,
+      },
+      { name: t.en.name, description: t.en.description, about: t.en.about, tags: t.en.tags.map((tag) => ({ tag })) })
     teamDocs[t.code] = r.doc
   }
   log('teams')
 
   // 4. Members. Sample data: replace it in the admin.
   const sampleMembers = [
-    { name: 'Primjer člana 1', team: 'MEH', hr: 'Voditelj tima', en: 'Team lead', year: 2024 },
-    { name: 'Primjer člana 2', team: 'E&S', hr: 'Inženjer elektronike', en: 'Electronics engineer', year: 2024 },
-    { name: 'Primjer člana 3', team: 'AER', hr: 'Aerodinamičar', en: 'Aerodynamicist', year: 2025 },
-    { name: 'Primjer člana 4', team: 'KAR', hr: 'Laminator', en: 'Laminator', year: 2025 },
-    { name: 'Primjer člana 5', team: 'M&B', hr: 'Voditelj partnerstava', en: 'Partnerships lead', year: 2025 },
+    { name: 'Primjer člana 1', team: 'PWT', hr: 'Voditelj tima', en: 'Team lead', year: 2024 },
+    { name: 'Primjer člana 2', team: 'ELE', hr: 'Inženjer elektronike', en: 'Electronics engineer', year: 2024 },
+    { name: 'Primjer člana 3', team: 'DAE', hr: 'Aerodinamičar', en: 'Aerodynamicist', year: 2025 },
+    { name: 'Primjer člana 4', team: 'KON', hr: 'Laminator', en: 'Laminator', year: 2025 },
+    { name: 'Primjer člana 5', team: 'B&M', hr: 'Voditelj partnerstava', en: 'Partnerships lead', year: 2025 },
   ]
   for (const [i, m] of sampleMembers.entries()) {
     await upsert(payload, 'members', { name: { equals: m.name } },
@@ -211,23 +214,18 @@ async function main() {
   const imgCar = await upsertMedia(payload, path.join(assets, 'img', 'foto-bolida.jpg'), hr.vehicles[0].img, en.vehicles[0].img)
   const imgBike = await upsertMedia(payload, path.join(assets, 'img', 'foto-motora.jpg'), hr.vehicles[1].img, en.vehicles[1].img)
   const imgHero = await upsertMedia(payload, path.join(assets, 'img', 'hero-car.jpg'), 'Bolid FESB Racing', 'FESB Racing car')
-  const media = [imgCar, imgBike]
-  const specs = (l: Locale, sys: string[]) => sys.map((value) => ({ key: l === 'hr' ? 'Sustav' : 'System', value }))
-  for (const [i, v] of hr.vehicles.entries()) {
-    const ve = en.vehicles[i]
-    await upsert(payload, 'vehicles', { slug: { equals: v.id } },
+  // One document per car and bike, without photos: the site uses its built-in photos of the same slug.
+  for (const v of siteV2.vehicles) {
+    await upsert(payload, 'vehicles', { slug: { equals: v.slug } },
       {
-        name: v.name,
-        slug: v.id,
-        kind: v.id === 'fs' ? 'car' : 'bike',
-        description: v.d,
-        cover: media[i].id,
-        specs: specs('hr', v.sys),
-        gallery: [{ image: media[i].id, caption: v.img }],
-        results: '',
-        link: '',
+        name: v.hr.name, slug: v.slug, kind: v.kind, season: v.season, order: v.order,
+        specs: v.hr.specs.map(([key, value]) => ({ key, value })), results: v.hr.results.join('\n'),
+        sections: v.hr.sections.map((x) => ({ title: x.t, text: x.d })),
       },
-      { name: ve.name, description: ve.d, specs: specs('en', ve.sys), gallery: [{ image: media[i].id, caption: ve.img }] })
+      {
+        name: v.en.name, specs: v.en.specs.map(([key, value]) => ({ key, value })), results: v.en.results.join('\n'),
+        sections: v.en.sections.map((x) => ({ title: x.t, text: x.d })),
+      })
   }
   for (const [i, c] of hr.comps.entries()) {
     const ce = en.comps[i]
@@ -243,7 +241,7 @@ async function main() {
         order: i,
         specs: [],
         results: '',
-        link: '',
+        link: (siteV2.competitionLinks as Record<string, string>)[c.name] ?? '',
       },
       { place: ce.place, venue: ce.venue })
   }
@@ -378,9 +376,8 @@ async function main() {
   await seedGlobal(payload, 'ticker', () => ({ items: ticker.map((text) => ({ text })) }))
   await seedGlobal(payload, 'footer', (l) => ({
     copyright: c(l).foot,
-    teamHeading: c(l).footTeam,
-    programHeading: c(l).footProgram,
     followHeading: c(l).footFollow,
+    contacts: siteV2.leaders.map((p) => ({ role: p[l].role, name: p.name, email: p.email, phone: p.phone })),
     links: c(l).nav.map((label, i) => ({ label, url: `/#${ids[i]}` })),
   }))
   await seedGlobal(payload, 'joinCta', (l) => ({ title: c(l).joinTitle, text: c(l).joinText, buttonLabel: c(l).cta }))

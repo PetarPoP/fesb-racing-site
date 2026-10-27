@@ -69,6 +69,7 @@ export interface Config {
   collections: {
     users: User;
     media: Media;
+    announcements: Announcement;
     news: News;
     pages: Page;
     partners: Partner;
@@ -88,6 +89,7 @@ export interface Config {
   collectionsSelect: {
     users: UsersSelect<false> | UsersSelect<true>;
     media: MediaSelect<false> | MediaSelect<true>;
+    announcements: AnnouncementsSelect<false> | AnnouncementsSelect<true>;
     news: NewsSelect<false> | NewsSelect<true>;
     pages: PagesSelect<false> | PagesSelect<true>;
     partners: PartnersSelect<false> | PartnersSelect<true>;
@@ -222,6 +224,53 @@ export interface Media {
       filename?: string | null;
     };
   };
+}
+/**
+ * Short news. The three newest show at the top of the home page. Longer stories go to Blog.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "announcements".
+ */
+export interface Announcement {
+  id: number;
+  title: string;
+  /**
+   * Used in the URL. It is made from the title when empty.
+   */
+  slug: string;
+  publishedAt?: string | null;
+  tags?: string[] | null;
+  cover?: (number | null) | Media;
+  /**
+   * Two or three sentences. The card on the home page shows them.
+   */
+  excerpt?: string | null;
+  body?: {
+    root: {
+      type: string;
+      children: {
+        type: any;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  } | null;
+  meta?: {
+    title?: string | null;
+    description?: string | null;
+    /**
+     * Maximum upload file size: 12MB. Recommended file size for images is <500KB.
+     */
+    image?: (number | null) | Media;
+  };
+  updatedAt: string;
+  createdAt: string;
+  _status?: ('draft' | 'published') | null;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -384,11 +433,28 @@ export interface Team {
   id: number;
   name: string;
   /**
-   * Short code, for example MEH.
+   * Short code: PWT, ELE, DAE, DIN, KON or B&M. The 3D car uses it to find the parts of the team.
    */
   code: string;
   program?: ('formula-student' | 'motostudent' | 'both') | null;
+  /**
+   * One sentence. The 3D view of the car shows it.
+   */
   description?: string | null;
+  /**
+   * Full text of the team card.
+   */
+  about?: string | null;
+  /**
+   * Optional. A black drawing on a transparent background (PNG or SVG). Empty: the built-in icon.
+   */
+  icon?: (number | null) | Media;
+  lead?: {
+    name?: string | null;
+    photo?: (number | null) | Media;
+    email?: string | null;
+    phone?: string | null;
+  };
   tags?:
     | {
         tag: string;
@@ -424,6 +490,8 @@ export interface Member {
   createdAt: string;
 }
 /**
+ * One document per car or bike. The project pages list them by order. Empty photos, data or texts use the built-in ones of the same slug.
+ *
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "vehicles".
  */
@@ -432,8 +500,29 @@ export interface Vehicle {
   name: string;
   slug: string;
   kind: 'car' | 'bike';
+  /**
+   * Shown next to the name, for example 2022/2023.
+   */
+  season?: string | null;
+  /**
+   * A lower number shows first.
+   */
+  order?: number | null;
+  /**
+   * Optional intro text of the vehicle page.
+   */
   description?: string | null;
   cover?: (number | null) | Media;
+  /**
+   * Text per system (powertrain, suspension, chassis ...).
+   */
+  sections?:
+    | {
+        title: string;
+        text: string;
+        id?: string | null;
+      }[]
+    | null;
   year?: number | null;
   specs?:
     | {
@@ -449,7 +538,13 @@ export interface Vehicle {
         id?: string | null;
       }[]
     | null;
+  /**
+   * Awards and results, one per line.
+   */
   results?: string | null;
+  /**
+   * Website, for example https://www.motostudent.com. The competition panel links to it.
+   */
   link?: string | null;
   updatedAt: string;
   createdAt: string;
@@ -475,6 +570,9 @@ export interface Competition {
    * Venue line in the map bar.
    */
   venue?: string | null;
+  /**
+   * The map above sets these values. Centre and half size of the view, in degrees.
+   */
   map?: {
     lat?: number | null;
     lng?: number | null;
@@ -500,7 +598,13 @@ export interface Competition {
         id?: string | null;
       }[]
     | null;
+  /**
+   * Awards and results, one per line.
+   */
   results?: string | null;
+  /**
+   * Website, for example https://www.motostudent.com. The competition panel links to it.
+   */
   link?: string | null;
   updatedAt: string;
   createdAt: string;
@@ -703,6 +807,10 @@ export interface Redirect {
     type?: ('reference' | 'custom') | null;
     reference?:
       | ({
+          relationTo: 'announcements';
+          value: number | Announcement;
+        } | null)
+      | ({
           relationTo: 'news';
           value: number | News;
         } | null)
@@ -746,6 +854,10 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'media';
         value: number | Media;
+      } | null)
+    | ({
+        relationTo: 'announcements';
+        value: number | Announcement;
       } | null)
     | ({
         relationTo: 'news';
@@ -909,6 +1021,29 @@ export interface MediaSelect<T extends boolean = true> {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "announcements_select".
+ */
+export interface AnnouncementsSelect<T extends boolean = true> {
+  title?: T;
+  slug?: T;
+  publishedAt?: T;
+  tags?: T;
+  cover?: T;
+  excerpt?: T;
+  body?: T;
+  meta?:
+    | T
+    | {
+        title?: T;
+        description?: T;
+        image?: T;
+      };
+  updatedAt?: T;
+  createdAt?: T;
+  _status?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "news_select".
  */
 export interface NewsSelect<T extends boolean = true> {
@@ -1025,6 +1160,16 @@ export interface TeamsSelect<T extends boolean = true> {
   code?: T;
   program?: T;
   description?: T;
+  about?: T;
+  icon?: T;
+  lead?:
+    | T
+    | {
+        name?: T;
+        photo?: T;
+        email?: T;
+        phone?: T;
+      };
   tags?:
     | T
     | {
@@ -1060,8 +1205,17 @@ export interface VehiclesSelect<T extends boolean = true> {
   name?: T;
   slug?: T;
   kind?: T;
+  season?: T;
+  order?: T;
   description?: T;
   cover?: T;
+  sections?:
+    | T
+    | {
+        title?: T;
+        text?: T;
+        id?: T;
+      };
   year?: T;
   specs?:
     | T
@@ -1348,6 +1502,20 @@ export interface SiteSetting {
         id?: string | null;
       }[]
     | null;
+  /**
+   * Shopify store of the shop page (/shop). The Shop link shows in the menu when "enabled" is on.
+   */
+  shop?: {
+    enabled?: boolean | null;
+    /**
+     * For example fesb-racing.myshopify.com
+     */
+    storeDomain?: string | null;
+    /**
+     * Storefront API access token (public, Shopify admin → Apps → Headless or a custom app). Not the Admin API token.
+     */
+    storefrontToken?: string | null;
+  };
   updatedAt?: string | null;
   createdAt?: string | null;
 }
@@ -1399,6 +1567,19 @@ export interface Footer {
         id?: string | null;
       }[]
     | null;
+  /**
+   * Club contacts in the footer, for example CEO and CTO.
+   */
+  contacts?:
+    | {
+        role: string;
+        name: string;
+        photo?: (number | null) | Media;
+        email?: string | null;
+        phone?: string | null;
+        id?: string | null;
+      }[]
+    | null;
   updatedAt?: string | null;
   createdAt?: string | null;
 }
@@ -1433,6 +1614,13 @@ export interface SiteSettingsSelect<T extends boolean = true> {
         platform?: T;
         url?: T;
         id?: T;
+      };
+  shop?:
+    | T
+    | {
+        enabled?: T;
+        storeDomain?: T;
+        storefrontToken?: T;
       };
   updatedAt?: T;
   createdAt?: T;
@@ -1483,6 +1671,16 @@ export interface FooterSelect<T extends boolean = true> {
     | {
         label?: T;
         url?: T;
+        id?: T;
+      };
+  contacts?:
+    | T
+    | {
+        role?: T;
+        name?: T;
+        photo?: T;
+        email?: T;
+        phone?: T;
         id?: T;
       };
   updatedAt?: T;

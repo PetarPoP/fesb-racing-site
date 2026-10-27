@@ -6,7 +6,13 @@ import { slugify } from '../lib/slug'
 export const Vehicles: CollectionConfig = {
   slug: 'vehicles',
   labels: { singular: 'Vehicle', plural: 'Vehicles (cars and bikes)' },
-  admin: { group: 'Racing', useAsTitle: 'name', defaultColumns: ['name', 'kind', 'year', 'updatedAt'] },
+  admin: {
+    group: 'Racing',
+    useAsTitle: 'name',
+    defaultColumns: ['name', 'kind', 'season', 'order', 'updatedAt'],
+    description: 'One document per car or bike. The project pages list them by order. Empty photos, data or texts use the built-in ones of the same slug.',
+  },
+  defaultSort: 'order',
   access: { read: anyone, ...writeAccess },
   fields: [
     { name: 'name', type: 'text', localized: true, required: true },
@@ -32,8 +38,20 @@ export const Vehicles: CollectionConfig = {
         { label: 'Bike (MotoStudent)', value: 'bike' },
       ],
     },
-    { name: 'description', type: 'textarea', localized: true },
+    { name: 'season', type: 'text', admin: { description: 'Shown next to the name, for example 2022/2023.' } },
+    { name: 'order', type: 'number', defaultValue: 0, admin: { position: 'sidebar', description: 'A lower number shows first.' } },
+    { name: 'description', type: 'textarea', localized: true, admin: { description: 'Optional intro text of the vehicle page.' } },
     { name: 'cover', type: 'upload', relationTo: 'media' },
+    {
+      name: 'sections',
+      type: 'array',
+      labels: { singular: 'Section', plural: 'Sections' },
+      admin: { description: 'Text per system (powertrain, suspension, chassis ...).' },
+      fields: [
+        { name: 'title', type: 'text', localized: true, required: true },
+        { name: 'text', type: 'textarea', localized: true, required: true },
+      ],
+    },
     ...sharedRacingFields,
   ],
 }

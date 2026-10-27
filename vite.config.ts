@@ -79,6 +79,8 @@ export default defineConfig(async ({ command, mode }) => {
         // Static HTML goes to the assets folder. Only the other requests reach the Worker.
         // Only for the build. The dev server keeps the Node runtime (the fallback database needs Node).
         ...(command === 'build' ? { preset: 'cloudflare-module' } : {}),
+        // A fixed date. Without it Nitro takes the build day, and the local runtime of wrangler (prerender) refuses a date newer than itself.
+        compatibilityDate: '2026-10-01',
         // The Worker (and the local runtime that renders the prerender) reads CMS_URL from its vars.
         cloudflare: {
           wrangler: { name: process.env.SITE_WORKER_NAME || 'fesb-racing-site', vars: { CMS_URL: cmsUrl, ...(process.env.CMS_PUBLIC_URL ? { CMS_PUBLIC_URL: process.env.CMS_PUBLIC_URL } : {}) } },

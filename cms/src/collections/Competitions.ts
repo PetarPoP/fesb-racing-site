@@ -15,8 +15,14 @@ export const Competitions: CollectionConfig = {
     { name: 'circuit', type: 'text', admin: { description: 'Circuit and town.' } },
     { name: 'venue', type: 'text', localized: true, admin: { description: 'Venue line in the map bar.' } },
     {
+      name: 'mapPicker',
+      type: 'ui',
+      admin: { components: { Field: '/components/MapPicker' } },
+    },
+    {
       name: 'map',
       type: 'group',
+      admin: { description: 'The map above sets these values. Centre and half size of the view, in degrees.' },
       fields: [
         { name: 'lat', type: 'number' },
         { name: 'lng', type: 'number' },

@@ -12,6 +12,12 @@ const labelText =
 
 const clamp01 = (x: number) => Math.min(1, Math.max(0, x))
 
+/**
+ * three.js only in the browser. The server build drops this import, because DRACOLoader builds URLs from
+ * import.meta.url when it loads, and that fails in the Worker: the whole server render failed with it.
+ */
+const loadCar3d = () => (import.meta.env.SSR ? Promise.reject(new Error('3D scene is client only')) : import('~/lib/car3d'))
+
 /** Koji je tim aktivan za dani napredak skrolanja (-1 = nijedan). */
 const teamAt = (p: number, n: number) =>
   p < PHASE.teamsFrom || p >= PHASE.teamsTo
@@ -77,7 +83,7 @@ export function Teams({ c, lang }: { c: Content; lang: Lang }) {
       if (cancelled) return
       fetchModel().catch(() => {})
       warmDecoder()
-      void import('~/lib/car3d')
+      loadCar3d().catch(() => {})
     }
     const idle = () => {
       const ric = window.requestIdleCallback
@@ -104,7 +110,7 @@ export function Teams({ c, lang }: { c: Content; lang: Lang }) {
         io.disconnect()
         setLoaded(0)
         try {
-          const { createCarScene } = await import('~/lib/car3d')
+          const { createCarScene } = await loadCar3d()
           const scene = await createCarScene(canvas, (f) => !cancelled && setLoaded(f))
           if (cancelled) return scene.dispose()
           sceneRef.current = scene
