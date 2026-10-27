@@ -10,6 +10,9 @@ export const tw = {
   h2: 'display m-0 text-[clamp(40px,7vw,104px)] leading-[.85] text-balance',
   /** Rounded card on the panel colour. */
   card: 'rounded-[20px] border border-fg/10 bg-panel',
+  /** "Back" link of a sub-page. It sticks under the header while the page scrolls. */
+  backPill:
+    'glass group sticky top-[clamp(84px,9vw,96px)] z-30 inline-flex items-center gap-2 self-start rounded-full px-4 py-2.5 text-[15px] font-semibold text-fg transition-colors hover:text-acc',
   cardTitle: 'display m-0 text-[30px] leading-none [font-stretch:115%] tracking-[-.02em]',
   bodyMute: 'm-0 text-base leading-[1.6] text-pretty text-soft',
   /** Pill button with the light fill. Pair it with data-dh="wipe". */

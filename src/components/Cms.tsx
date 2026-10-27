@@ -43,11 +43,11 @@ function BackLink({ kind, lang, label }: { kind: PostKind; lang: Lang; label: st
     </>
   )
   return kind === 'blog' ? (
-    <Link to="/$lang/blog" params={{ lang }} className={cx(linkClass, 'text-mute')}>
+    <Link to="/$lang/blog" params={{ lang }} className={tw.backPill}>
       {inner}
     </Link>
   ) : (
-    <Link to="/$lang/novosti" params={{ lang }} className={cx(linkClass, 'text-mute')}>
+    <Link to="/$lang/novosti" params={{ lang }} className={tw.backPill}>
       {inner}
     </Link>
   )
@@ -66,7 +66,7 @@ export function PostList({ kind, posts, lang, c }: { kind: PostKind; posts: News
       {posts.length === 0 ? (
         <EmptyNews c={c} />
       ) : kind === 'news' ? (
-        <div className="grid grid-cols-[repeat(auto-fill,minmax(min(100%,320px),1fr))] gap-4">
+        <div data-reveal="stagger" className="grid grid-cols-[repeat(auto-fill,minmax(min(100%,320px),1fr))] gap-4">
           {posts.map((n) => (
             <NewsCardItem key={n.id} n={n} lang={lang} c={c} />
           ))}

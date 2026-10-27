@@ -1,4 +1,4 @@
-import { useEffect, useState, type FormEvent, type KeyboardEvent } from 'react'
+import { useEffect, useLayoutEffect, useRef, useState, type FormEvent, type KeyboardEvent } from 'react'
 import { Check } from 'lucide-react'
 import type { Content, Lang } from '~/content'
 import { submitApplication, validateApplication, type Application, type Field, type FieldErrors } from '~/lib/apply'
@@ -33,15 +33,45 @@ export function Join({ c, lang }: { c: Content; lang: Lang }) {
     setStatus('idle')
   }
 
-  // A link with data-join-mode (the sponsor button) also switches the form to that mode.
+  // A link with data-join-mode ("Pridruži se", "Postani partner") scrolls here and then switches the form to that mode.
+  // The switch waits until the scroll ends, so the visitor sees it happen, and the panel flashes once.
+  const panelRef = useRef<HTMLDivElement>(null)
+  const [flash, setFlash] = useState(0)
   useEffect(() => {
     const onClick = (e: MouseEvent) => {
       const a = e.target instanceof Element ? e.target.closest<HTMLElement>('[data-join-mode]') : null
-      if (a?.dataset.joinMode === 'company') switchMode('company')
+      const m = a?.dataset.joinMode
+      if (m !== 'student' && m !== 'company') return
+      let done = false
+      const go = () => {
+        if (done) return
+        done = true
+        window.removeEventListener('scrollend', go)
+        window.setTimeout(() => {
+          switchMode(m)
+          setFlash((n) => n + 1)
+        }, 120)
+      }
+      window.addEventListener('scrollend', go, { once: true })
+      // No scrollend (Safari, or the form was already in view): switch after the smooth scroll.
+      window.setTimeout(go, 900)
     }
     document.addEventListener('click', onClick)
     return () => document.removeEventListener('click', onClick)
   }, [])
+
+  // The highlight of the active mode slides between the two buttons.
+  const modeRefs = useRef<(HTMLButtonElement | null)[]>([])
+  const [pill, setPill] = useState<{ x: number; w: number } | null>(null)
+  useLayoutEffect(() => {
+    const measure = () => {
+      const el = modeRefs.current[MODES.indexOf(mode)]
+      if (el) setPill({ x: el.offsetLeft, w: el.offsetWidth })
+    }
+    measure()
+    window.addEventListener('resize', measure)
+    return () => window.removeEventListener('resize', measure)
+  }, [mode, c.modeStudent, c.modeCompany])
 
   async function onSubmit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault()
@@ -99,12 +129,23 @@ export function Join({ c, lang }: { c: Content; lang: Lang }) {
       className="mx-auto grid w-full max-w-[1344px] scroll-mt-16 grid-cols-[repeat(auto-fit,minmax(min(100%,420px),1fr))] items-start gap-[clamp(28px,5vw,56px)] px-[clamp(20px,3.4vw,48px)] pt-[clamp(96px,14vw,160px)] pb-20"
     >
       <div className="flex flex-col gap-5">
-        <h2 key={`t-${mode}`} className={cx(tw.h2, 'animate-fade-up text-[clamp(32px,4.2vw,60px)] [overflow-wrap:anywhere]')}>{company ? c.companyTitle : c.joinTitle}</h2>
+        <h2 key={`t-${mode}`} className="display m-0 animate-fade-up text-[clamp(32px,4.6vw,64px)] leading-[.85] text-balance [overflow-wrap:break-word]">{company ? c.companyTitle : c.joinTitle}</h2>
         <p key={`p-${mode}`} className="m-0 max-w-[460px] animate-fade-up text-[17px] leading-[1.55] text-soft">{company ? c.companyText : c.joinText}</p>
       </div>
 
-      <div className="flex flex-col gap-3 rounded-3xl border border-fg/10 bg-panel p-[clamp(18px,5vw,28px)]">
-        <div role="radiogroup" aria-label={c.modeLabel} className="flex gap-1 self-start rounded-full bg-bg p-1">
+      <div
+        ref={panelRef}
+        key={`panel-${flash}`}
+        className={cx('flex flex-col gap-3 rounded-3xl border border-fg/10 bg-panel p-[clamp(18px,5vw,28px)]', flash > 0 && 'animate-join-flash')}
+      >
+        <div role="radiogroup" aria-label={c.modeLabel} className="relative flex gap-1 self-start rounded-full bg-bg p-1">
+          {pill && (
+            <span
+              aria-hidden="true"
+              className="absolute top-1 bottom-1 left-0 rounded-full bg-fg transition-[transform,width] duration-500 ease-[cubic-bezier(.2,.8,.2,1)]"
+              style={{ width: pill.w, transform: `translateX(${pill.x}px)` }}
+            />
+          )}
           {(
             [
               ['student', c.modeStudent],
@@ -113,6 +154,9 @@ export function Join({ c, lang }: { c: Content; lang: Lang }) {
           ).map(([m, label], i) => (
             <button
               key={m}
+              ref={(el) => {
+                modeRefs.current[i] = el
+              }}
               type="button"
               role="radio"
               aria-checked={mode === m}
@@ -120,8 +164,8 @@ export function Join({ c, lang }: { c: Content; lang: Lang }) {
               onClick={() => switchMode(m)}
               onKeyDown={(e) => arrowNav(e, MODES.indexOf(mode), MODES.length, (n) => switchMode(MODES[n]))}
               className={cx(
-                'press min-h-11 cursor-pointer rounded-full px-4 py-2 text-sm font-semibold',
-                mode === m ? 'bg-fg text-ink' : 'text-fg hover:text-acc',
+                'press relative min-h-11 cursor-pointer rounded-full px-4 py-2 text-sm font-semibold transition-colors duration-300',
+                mode === m ? (pill ? 'text-ink' : 'bg-fg text-ink') : 'text-fg hover:text-acc',
               )}
             >
               {label}
@@ -135,7 +179,7 @@ export function Join({ c, lang }: { c: Content; lang: Lang }) {
             <span>{company ? c.fSentCompany : c.fSent}</span>
           </div>
         ) : (
-          <form onSubmit={onSubmit} noValidate className="flex flex-col gap-3">
+          <form key={`form-${mode}`} onSubmit={onSubmit} noValidate className="flex animate-fade-up flex-col gap-3">
             {fields.map((f) => (
               <div key={f.name}>
                 <label className="block">

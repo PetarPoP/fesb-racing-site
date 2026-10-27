@@ -76,7 +76,7 @@ export function Teams({ c, lang }: { c: Content; lang: Lang }) {
   }, [active, chipW])
   const ghostTeam = activeTeam ?? lastTeam.current // the big code stays while it fades out
 
-  // Rano, u praznom hodu nakon učitavanja stranice: model, dekoder i kod scene (bez blokiranja prvog prikaza)
+  // Rano, čim je stranica interaktivna i preglednik slobodan: model, dekoder i kod scene (bez blokiranja prvog prikaza)
   useEffect(() => {
     let cancelled = false
     const warm = () => {
@@ -85,20 +85,17 @@ export function Teams({ c, lang }: { c: Content; lang: Lang }) {
       warmDecoder()
       loadCar3d().catch(() => {})
     }
-    const idle = () => {
-      const ric = window.requestIdleCallback
-      if (ric) ric(warm, { timeout: 5000 })
-      else setTimeout(warm, 2000)
-    }
-    if (document.readyState === 'complete') idle()
-    else window.addEventListener('load', idle, { once: true })
+    // Safari has no requestIdleCallback
+    const idle = typeof window.requestIdleCallback === 'function'
+    const id = idle ? window.requestIdleCallback(warm, { timeout: 600 }) : window.setTimeout(warm, 300)
     return () => {
       cancelled = true
-      window.removeEventListener('load', idle)
+      if (idle) window.cancelIdleCallback(id)
+      else window.clearTimeout(id)
     }
   }, [])
 
-  // Napravi scenu tek kad se sekcija približi ekranu
+  // Napravi scenu kad je sekcija do jedan i pol ekran daleko (teški dio radi u workeru, pa skrol ostaje gladak)
   useEffect(() => {
     const track = trackRef.current
     const canvas = canvasRef.current
@@ -120,7 +117,7 @@ export function Teams({ c, lang }: { c: Content; lang: Lang }) {
           if (!cancelled) setFailed(true)
         }
       },
-      { rootMargin: '600px 0px' },
+      { rootMargin: '150% 0px' },
     )
     io.observe(track)
     return () => {
