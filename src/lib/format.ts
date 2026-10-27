@@ -18,6 +18,9 @@ export type News = {
   galleryHr: string
   galleryEn: string
 }
+/** "news": short club news (/novosti). "blog": longer stories (/blog). */
+export type PostKind = 'news' | 'blog'
+
 export type NewsCard = Omit<News, 'bodyHr' | 'bodyEn' | 'galleryHr' | 'galleryEn'>
 
 /** EN polje ako je popunjeno, inače HR (prijevod još nije upisan ni generiran). */

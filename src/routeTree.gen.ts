@@ -13,6 +13,8 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as LangRouteImport } from './routes/$lang'
 import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
 import { Route as LangIndexRouteImport } from './routes/$lang/index'
+import { Route as LangBlogIndexRouteImport } from './routes/$lang/blog/index'
+import { Route as LangBlogSlugRouteImport } from './routes/$lang/blog/$slug'
 import { Route as LangNovostiIndexRouteImport } from './routes/$lang/novosti/index'
 import { Route as LangNovostiSlugRouteImport } from './routes/$lang/novosti/$slug'
 
@@ -36,6 +38,16 @@ const LangIndexRoute = LangIndexRouteImport.update({
   path: '/',
   getParentRoute: () => LangRoute,
 } as any)
+const LangBlogIndexRoute = LangBlogIndexRouteImport.update({
+  id: '/blog/',
+  path: '/blog/',
+  getParentRoute: () => LangRoute,
+} as any)
+const LangBlogSlugRoute = LangBlogSlugRouteImport.update({
+  id: '/blog/$slug',
+  path: '/blog/$slug',
+  getParentRoute: () => LangRoute,
+} as any)
 const LangNovostiIndexRoute = LangNovostiIndexRouteImport.update({
   id: '/novosti/',
   path: '/novosti/',
@@ -52,14 +64,18 @@ export interface FileRoutesByFullPath {
   '/$lang': typeof LangRouteWithChildren
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/$lang/': typeof LangIndexRoute
+  '/$lang/blog/$slug': typeof LangBlogSlugRoute
   '/$lang/novosti/$slug': typeof LangNovostiSlugRoute
+  '/$lang/blog/': typeof LangBlogIndexRoute
   '/$lang/novosti/': typeof LangNovostiIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/$lang': typeof LangIndexRoute
+  '/$lang/blog/$slug': typeof LangBlogSlugRoute
   '/$lang/novosti/$slug': typeof LangNovostiSlugRoute
+  '/$lang/blog': typeof LangBlogIndexRoute
   '/$lang/novosti': typeof LangNovostiIndexRoute
 }
 export interface FileRoutesById {
@@ -68,7 +84,9 @@ export interface FileRoutesById {
   '/$lang': typeof LangRouteWithChildren
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/$lang/': typeof LangIndexRoute
+  '/$lang/blog/$slug': typeof LangBlogSlugRoute
   '/$lang/novosti/$slug': typeof LangNovostiSlugRoute
+  '/$lang/blog/': typeof LangBlogIndexRoute
   '/$lang/novosti/': typeof LangNovostiIndexRoute
 }
 export interface FileRouteTypes {
@@ -78,18 +96,28 @@ export interface FileRouteTypes {
     | '/$lang'
     | '/sitemap.xml'
     | '/$lang/'
+    | '/$lang/blog/$slug'
     | '/$lang/novosti/$slug'
+    | '/$lang/blog/'
     | '/$lang/novosti/'
   fileRoutesByTo: FileRoutesByTo
   to:
-    '/' | '/sitemap.xml' | '/$lang' | '/$lang/novosti/$slug' | '/$lang/novosti'
+    | '/'
+    | '/sitemap.xml'
+    | '/$lang'
+    | '/$lang/blog/$slug'
+    | '/$lang/novosti/$slug'
+    | '/$lang/blog'
+    | '/$lang/novosti'
   id:
     | '__root__'
     | '/'
     | '/$lang'
     | '/sitemap.xml'
     | '/$lang/'
+    | '/$lang/blog/$slug'
     | '/$lang/novosti/$slug'
+    | '/$lang/blog/'
     | '/$lang/novosti/'
   fileRoutesById: FileRoutesById
 }
@@ -129,6 +157,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LangIndexRouteImport
       parentRoute: typeof LangRoute
     }
+    '/$lang/blog/': {
+      id: '/$lang/blog/'
+      path: '/blog'
+      fullPath: '/$lang/blog/'
+      preLoaderRoute: typeof LangBlogIndexRouteImport
+      parentRoute: typeof LangRoute
+    }
+    '/$lang/blog/$slug': {
+      id: '/$lang/blog/$slug'
+      path: '/blog/$slug'
+      fullPath: '/$lang/blog/$slug'
+      preLoaderRoute: typeof LangBlogSlugRouteImport
+      parentRoute: typeof LangRoute
+    }
     '/$lang/novosti/': {
       id: '/$lang/novosti/'
       path: '/novosti'
@@ -148,13 +190,17 @@ declare module '@tanstack/react-router' {
 
 interface LangRouteChildren {
   LangIndexRoute: typeof LangIndexRoute
+  LangBlogSlugRoute: typeof LangBlogSlugRoute
   LangNovostiSlugRoute: typeof LangNovostiSlugRoute
+  LangBlogIndexRoute: typeof LangBlogIndexRoute
   LangNovostiIndexRoute: typeof LangNovostiIndexRoute
 }
 
 const LangRouteChildren: LangRouteChildren = {
   LangIndexRoute: LangIndexRoute,
+  LangBlogSlugRoute: LangBlogSlugRoute,
   LangNovostiSlugRoute: LangNovostiSlugRoute,
+  LangBlogIndexRoute: LangBlogIndexRoute,
   LangNovostiIndexRoute: LangNovostiIndexRoute,
 }
 

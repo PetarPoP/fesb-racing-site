@@ -5,7 +5,7 @@ import type { NewsCard } from '~/lib/format'
 import { Header } from './Header'
 import { Hero } from './Hero'
 import { Join } from './Join'
-import { Competitions, Footer, News, Sponsors, Stats, Story, Ticker, Vehicles } from './Sections'
+import { Blog, Competitions, Footer, News, Sponsors, Stats, Ticker, Vehicles } from './Sections'
 import { DitherCanvas, DitherProvider } from './Dither'
 import { Teams } from './CarExplode'
 
@@ -34,18 +34,18 @@ export function Shell({ lang, c, onHome, children }: { lang: Lang; c: Content; o
   )
 }
 
-export function Home({ lang, c, news, partners }: { lang: Lang; c: Content; news: NewsCard[]; partners: Partner[] }) {
+export function Home({ lang, c, news, blog, partners }: { lang: Lang; c: Content; news: NewsCard[]; blog: NewsCard[]; partners: Partner[] }) {
   return (
     <main id="top" className="overflow-x-clip">
       <Hero c={c} />
       <Ticker c={c} />
       <Stats c={c} />
-      <Story c={c} />
+      <News c={c} lang={lang} news={news} />
       <Teams c={c} lang={lang} />
       <Vehicles c={c} />
       <Competitions c={c} />
       <Sponsors c={c} partners={partners} />
-      <News c={c} lang={lang} news={news} />
+      <Blog c={c} lang={lang} posts={blog} />
       <Join c={c} lang={lang} />
     </main>
   )

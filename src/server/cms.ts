@@ -4,7 +4,8 @@
 import { createCmsClient, type Locale, type Media, type NewsPost, type Partner as CmsPartner } from '../../cms/client/cms-client'
 import type { Content, Lang } from '~/content'
 import type { Partner } from '~/lib/partners'
-import type { News } from '~/lib/format'
+import type { News, PostKind } from '~/lib/format'
+export type { PostKind }
 import { galleryHtml, lexicalToHtml, type HtmlContext } from './lexical'
 
 /** The CMS Worker sometimes needs 2–4 s on a cold start. 2 s was too short: pages were built without news and logos. */
@@ -110,16 +111,24 @@ function toNews(p: NewsPost, lang: Lang): News {
   }
 }
 
-export function getCmsNews(lang: Lang): Promise<News[] | null> {
-  return cached(`news:${lang}`, async () => {
-    const docs = nonEmpty((await client().getNews({ locale: lang, limit: 100 })).docs.filter((p) => p._status !== 'draft'))
-    return docs ? docs.map((p) => toNews(p, lang)) : null
+/**
+ * Two kinds of posts. "news" are the short club news at the top of the home page (CMS collection "announcements").
+ * "blog" are the longer stories at the bottom (CMS collection "news", which held all posts before the split).
+ */
+const POST_COLLECTION: Record<PostKind, string> = { news: 'announcements', blog: 'news' }
+
+export function getCmsPosts(kind: PostKind, lang: Lang): Promise<News[] | null> {
+  return cached(`${kind}:${lang}`, async () => {
+    const docs = await listDocs<NewsPost>(POST_COLLECTION[kind], lang, { sort: '-publishedAt', limit: '200' })
+    const live = nonEmpty(docs?.filter((p) => p._status !== 'draft'))
+    return live ? live.map((p) => toNews(p, lang)) : null
   })
 }
 
-export function getCmsNewsBySlug(slug: string, lang: Lang): Promise<News | null> {
-  return cached(`news:${lang}:${slug}`, async () => {
-    const p = await client().getNewsBySlug(slug, { locale: lang })
+export function getCmsPostBySlug(kind: PostKind, slug: string, lang: Lang): Promise<News | null> {
+  return cached(`${kind}:${lang}:${slug}`, async () => {
+    const docs = await listDocs<NewsPost>(POST_COLLECTION[kind], lang, { limit: '1', 'where[slug][equals]': slug })
+    const p = docs?.[0]
     return p && p._status !== 'draft' ? toNews(p, lang) : null
   })
 }
@@ -156,8 +165,6 @@ export async function getCmsContent(lang: Lang, base: Content): Promise<Content>
 
   if (footer) {
     if (footer.copyright) out.foot = footer.copyright
-    if (footer.teamHeading) out.footTeam = footer.teamHeading
-    if (footer.programHeading) out.footProgram = footer.programHeading
     if (footer.followHeading) out.footFollow = footer.followHeading
   }
 

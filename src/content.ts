@@ -6,7 +6,7 @@ export type Lang = (typeof LANGS)[number]
 export const isLang = (v: unknown): v is Lang => v === 'hr' || v === 'en'
 
 /** Sidrene poveznice sekcija (jezično neutralne), redom kao `nav`. */
-export const SECTION_IDS = ['prica', 'timovi', 'vozila', 'natjecanja', 'sponzori', 'novosti', 'kontakt'] as const
+export const SECTION_IDS = ['novosti', 'timovi', 'projekti', 'natjecanja', 'sponzori', 'blog', 'kontakt'] as const
 
 type Team = { code: string; name: string; d: string; tags: string[] }
 type Vehicle = { id: string; cls: string; name: string; d: string; sys: string[]; img: string; src?: string; pos?: string }
@@ -35,11 +35,6 @@ export type Content = {
   heroSub: string
   heroCta2: string
   stats: { v: string; l: string }[]
-  storyTitle: string
-  chapters: { y: string; t: string; d: string }[]
-  mission: string
-  /** Part of `mission` that gets the accent colour. */
-  missionAccent: string
   teamsTitle: string
   teams: Team[]
   carIntro: string
@@ -95,11 +90,17 @@ export type Content = {
   fSentCompany: string
   errCompany: string
   errMessage: string
+  /** Short club news: the top of the home page and /novosti. */
   newsLabel: string
   newsTitle: string
   readMore: string
   readFull: string
   allNews: string
+  /** Longer stories: the bottom of the home page and /blog. */
+  blogLabel: string
+  blogTitle: string
+  blogReadFull: string
+  allBlog: string
   noNews: string
   close: string
   notFound: string
@@ -109,10 +110,13 @@ export type Content = {
   mail: string
   foot: string
   menu: string
-  footTeam: string
-  footProgram: string
   footFollow: string
+  /** Heading above the club contacts in the footer. */
+  leadersTitle: string
+  /** Club contacts in the footer (CEO, CTO). The CMS replaces the placeholders. */
+  leaders: { role: string; name: string; email?: string; phone?: string; photo?: string }[]
   langSwitch: string
+  themeSwitch: string
   /** Ticker words from the CMS. When empty, the ticker uses the competition names. */
   ticker?: string[]
   /** Social link URLs from the CMS, by platform (instagram, facebook, linkedin). */
@@ -123,7 +127,7 @@ const hr: Content = {
   metaTitle: 'FESB Racing — Od ploče do staze',
   metaDesc:
     'Studentski inženjerski tim FESB-a iz Splita. Projektiramo, gradimo i utrkujemo Formula Student bolide i MotoStudent motocikle.',
-  nav: ['Priča', 'Timovi', 'Vozila', 'Natjecanja', 'Sponzori', 'Novosti', 'Kontakt'],
+  nav: ['Novosti', 'Timovi', 'Projekti', 'Natjecanja', 'Sponzori', 'Blog', 'Kontakt'],
   cta: 'Pridruži se',
   heroA: 'Od ploče',
   heroB: 'do staze.',
@@ -136,26 +140,6 @@ const hr: Content = {
     { v: '5', l: 'Specijaliziranih timova' },
     { v: '18+', l: 'Europskih natjecanja' },
   ],
-  storyTitle: 'Startna linija',
-  chapters: [
-    {
-      y: '2010',
-      t: 'Predavaonice FESB-a',
-      d: 'Skupina studenata odlučila je da teorijski proračuni s ploče ne smiju ostati samo na papiru. Htjeli su zvuk motora, miris spaljenih guma i inovaciju u vlastitim rukama.',
-    },
-    {
-      y: 'Radionica',
-      t: 'Drugi dom',
-      d: 'Tu se ne spava prije natjecanja. Do sitnih sati projektiraju se šasije, razvijaju vlastite PCB pločice, piše VCU algoritam, optimizira aerodinamika i testira svaki milimetar ovjesa.',
-    },
-    {
-      y: 'Danas',
-      t: '65+ članova, 5 timova',
-      d: 'Udruga specijaliziranih timova koja razvija Formula Student bolide i MotoStudent utrkačke motocikle.',
-    },
-  ],
-  mission: 'Most između akademske teorije i vrhunskog inženjerstva u stvarnom svijetu.',
-  missionAccent: 'vrhunskog inženjerstva',
   teamsTitle: 'Pet timova, jedno vozilo.',
   teams: [
     { code: 'MEH', name: 'Mehanika', d: 'Šasija, ovjes, pogonski sklop i kočnice. Od CAD modela do zavarenog okvira.', tags: ['Šasija', 'Ovjes', 'Pogon'] },
@@ -282,10 +266,14 @@ const hr: Content = {
   errCompany: 'Upišite naziv tvrtke.',
   errMessage: 'Napišite nam kratku poruku.',
   newsLabel: 'Novosti',
-  newsTitle: 'Iz radionice',
+  newsTitle: 'Novosti',
   readMore: 'Pročitaj',
   readFull: 'Pročitaj cijelu novost',
   allNews: 'Sve novosti',
+  blogLabel: 'Blog',
+  blogTitle: 'Iz radionice',
+  blogReadFull: 'Pročitaj cijeli članak',
+  allBlog: 'Svi članci',
   noNews: 'Nema objava',
   close: 'Zatvori',
   notFound: 'Ova stranica ne postoji.',
@@ -295,17 +283,21 @@ const hr: Content = {
   mail: 'info@fesbracing.hr',
   foot: '© FESB Racing — udruga studenata FESB-a',
   menu: 'Izbornik',
-  footTeam: 'Tim',
-  footProgram: 'Program',
-  footFollow: 'Pratite',
+  footFollow: 'Pratite nas',
+  leadersTitle: 'Kontakt osobe',
+  leaders: [
+    { role: 'CEO', name: 'Ime Prezime', email: 'ceo@fesbracing.hr', phone: '+385 00 000 0000' },
+    { role: 'CTO', name: 'Ime Prezime', email: 'cto@fesbracing.hr', phone: '+385 00 000 0000' },
+  ],
   langSwitch: 'Promijeni jezik',
+  themeSwitch: 'Promijeni temu (svijetla / tamna)',
 }
 
 const en: Content = {
   metaTitle: 'FESB Racing — From whiteboard to track',
   metaDesc:
     'The student engineering team of FESB in Split. We design, build and race Formula Student cars and MotoStudent motorcycles.',
-  nav: ['Story', 'Teams', 'Vehicles', 'Competitions', 'Sponsors', 'News', 'Contact'],
+  nav: ['News', 'Teams', 'Projects', 'Competitions', 'Sponsors', 'Blog', 'Contact'],
   cta: 'Join us',
   heroA: 'From whiteboard',
   heroB: 'to track.',
@@ -318,26 +310,6 @@ const en: Content = {
     { v: '5', l: 'Specialised teams' },
     { v: '18+', l: 'European competitions' },
   ],
-  storyTitle: 'The starting line',
-  chapters: [
-    {
-      y: '2010',
-      t: 'FESB lecture halls',
-      d: 'A group of students decided that calculations on the whiteboard must not stay on paper. They wanted engine sound, the smell of burnt rubber and innovation in their own hands.',
-    },
-    {
-      y: 'Workshop',
-      t: 'A second home',
-      d: 'Nobody sleeps before a competition. Late into the night we design chassis, develop our own PCBs, write the VCU control algorithm, optimise aero and test every millimetre of suspension.',
-    },
-    {
-      y: 'Today',
-      t: '65+ members, 5 teams',
-      d: 'An association of specialised teams developing Formula Student cars and MotoStudent race motorcycles.',
-    },
-  ],
-  mission: 'A bridge between academic theory and top-level real-world engineering.',
-  missionAccent: 'top-level real-world engineering',
   teamsTitle: 'Five teams, one vehicle.',
   teams: [
     { code: 'MEH', name: 'Mechanics', d: 'Chassis, suspension, powertrain and brakes. From CAD model to welded frame.', tags: ['Chassis', 'Suspension', 'Powertrain'] },
@@ -464,10 +436,14 @@ const en: Content = {
   errCompany: 'Enter your company name.',
   errMessage: 'Write us a short message.',
   newsLabel: 'News',
-  newsTitle: 'From the workshop',
+  newsTitle: 'News',
   readMore: 'Read',
   readFull: 'Read the full story',
   allNews: 'All news',
+  blogLabel: 'Blog',
+  blogTitle: 'From the workshop',
+  blogReadFull: 'Read the full article',
+  allBlog: 'All articles',
   noNews: 'No posts yet',
   close: 'Close',
   notFound: 'This page does not exist.',
@@ -477,10 +453,14 @@ const en: Content = {
   mail: 'info@fesbracing.hr',
   foot: '© FESB Racing — FESB student association',
   menu: 'Menu',
-  footTeam: 'Team',
-  footProgram: 'Program',
-  footFollow: 'Follow',
+  footFollow: 'Follow us',
+  leadersTitle: 'Contacts',
+  leaders: [
+    { role: 'CEO', name: 'Name Surname', email: 'ceo@fesbracing.hr', phone: '+385 00 000 0000' },
+    { role: 'CTO', name: 'Name Surname', email: 'cto@fesbracing.hr', phone: '+385 00 000 0000' },
+  ],
   langSwitch: 'Switch language',
+  themeSwitch: 'Switch theme (light / dark)',
 }
 
 export const content: Record<Lang, Content> = { hr, en }

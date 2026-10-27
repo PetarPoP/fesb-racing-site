@@ -1,14 +1,17 @@
-import { createFileRoute, notFound } from '@tanstack/react-router'
+import { createFileRoute, notFound, redirect } from '@tanstack/react-router'
 import { content, type Lang } from '~/content'
 import { NewsArticle, NotFound } from '~/components/Cms'
-import { getNews } from '~/lib/cms'
+import { getPost } from '~/lib/cms'
 import { pick } from '~/lib/format'
 
 export const Route = createFileRoute('/$lang/novosti/$slug')({
   loader: async ({ params }) => {
-    const n = await getNews({ data: { slug: params.slug, lang: params.lang } })
-    if (!n) throw notFound()
-    return n
+    const n = await getPost({ data: { kind: 'news', slug: params.slug, lang: params.lang } })
+    if (n) return n
+    // Before the split all posts were under /novosti. An old link to a blog post goes to its new address.
+    const old = await getPost({ data: { kind: 'blog', slug: params.slug, lang: params.lang } })
+    if (old) throw redirect({ to: '/$lang/blog/$slug', params: { lang: params.lang, slug: params.slug }, statusCode: 301 })
+    throw notFound()
   },
   head: ({ params, loaderData }) => {
     if (!loaderData) return {}
@@ -25,14 +28,14 @@ export const Route = createFileRoute('/$lang/novosti/$slug')({
       ],
     }
   },
-  component: NewsPage,
+  component: PostPage,
   notFoundComponent: () => {
     const lang = Route.useParams().lang as Lang
     return <NotFound lang={lang} c={content[lang]} />
   },
 })
 
-function NewsPage() {
+function PostPage() {
   const lang = Route.useParams().lang as Lang
-  return <NewsArticle n={Route.useLoaderData()} lang={lang} c={content[lang]} />
+  return <NewsArticle kind="news" n={Route.useLoaderData()} lang={lang} c={content[lang]} />
 }

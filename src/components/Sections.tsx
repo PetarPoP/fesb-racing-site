@@ -1,8 +1,8 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useRef, useState, type ComponentProps, type ReactNode } from 'react'
 import { Link } from '@tanstack/react-router'
-import { ArrowRight, ArrowUpRight } from 'lucide-react'
+import { ArrowRight, ArrowUpRight, Mail, Phone, UserRound } from 'lucide-react'
 import type { Content, Lang } from '~/content'
-import { formatDate, pick, type NewsCard } from '~/lib/format'
+import { formatDate, pick, type NewsCard, type PostKind } from '~/lib/format'
 import { SECTION_IDS } from '~/content'
 import { DitherCanvas, useDriveBy } from './Dither'
 import { SectionLink } from './Header'
@@ -10,8 +10,10 @@ import { PARTNERS, PARTNER_TIERS, partnerLogoSize, partnerUrl, type Partner } fr
 import { cx, tw } from './ui'
 
 // Lucide više nema ikone brendova, pa su obrisi ovdje ručno, u istom stilu linija.
-const SOCIALS = [
+// The first three always show (with the default address). The others show when the CMS has a link for them.
+const SOCIALS: { key: string; name: string; href?: string; icon: ReactNode }[] = [
   {
+    key: 'instagram',
     name: 'Instagram',
     href: 'https://www.instagram.com/fesbracing',
     icon: (
@@ -23,11 +25,13 @@ const SOCIALS = [
     ),
   },
   {
+    key: 'facebook',
     name: 'Facebook',
     href: 'https://www.facebook.com/FesbRacing/?locale=hr_HR',
     icon: <path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z" />,
   },
   {
+    key: 'linkedin',
     name: 'LinkedIn',
     href: 'https://hr.linkedin.com/company/fesb-racing',
     icon: (
@@ -37,6 +41,26 @@ const SOCIALS = [
         <circle cx="4" cy="4" r="2" />
       </>
     ),
+  },
+  {
+    key: 'youtube',
+    name: 'YouTube',
+    icon: (
+      <>
+        <path d="M2.5 17a24.12 24.12 0 0 1 0-10 2 2 0 0 1 1.4-1.4 49.56 49.56 0 0 1 16.2 0A2 2 0 0 1 21.5 7a24.12 24.12 0 0 1 0 10 2 2 0 0 1-1.4 1.4 49.55 49.55 0 0 1-16.2 0A2 2 0 0 1 2.5 17" />
+        <path d="m10 15 5-3-5-3z" />
+      </>
+    ),
+  },
+  {
+    key: 'tiktok',
+    name: 'TikTok',
+    icon: <path d="M16 3a5 5 0 0 0 5 5M16 3v12a5 5 0 1 1-5-5" />,
+  },
+  {
+    key: 'x',
+    name: 'X',
+    icon: <path d="M4 4l16 16M20 4L4 20" />,
   },
 ]
 
@@ -69,7 +93,7 @@ export function Ticker({ c }: { c: Content }) {
             <span
               key={`${copy}-${i}`}
               aria-hidden={copy > 0 || undefined}
-              className="flex items-center gap-10 pr-10 text-[clamp(16px,2.4vw,20px)] font-semibold whitespace-nowrap text-[#c9bdb9] [font-stretch:112%]"
+              className="flex items-center gap-10 pr-10 text-[clamp(16px,2.4vw,20px)] font-semibold whitespace-nowrap text-soft [font-stretch:112%]"
             >
               {w}
               <span className="size-[5px] rounded-full bg-acc" aria-hidden="true" />
@@ -96,41 +120,6 @@ export function Stats({ c }: { c: Content }) {
   )
 }
 
-export function Story({ c }: { c: Content }) {
-  // The accent part of the mission statement gets its own colour.
-  const at = c.mission.indexOf(c.missionAccent)
-  const mission =
-    at < 0 ? (
-      c.mission
-    ) : (
-      <>
-        {c.mission.slice(0, at)}
-        <span className="text-acc">{c.missionAccent}</span>
-        {c.mission.slice(at + c.missionAccent.length)}
-      </>
-    )
-  return (
-    <section id="prica" className={tw.section}>
-      <h2 className={tw.h2}>{c.storyTitle}</h2>
-      <div className="grid grid-cols-[repeat(auto-fit,minmax(min(100%,320px),1fr))] gap-4">
-        {c.chapters.map((ch, i) => (
-          <article key={ch.t} className={cx(tw.card, 'flex flex-col gap-4 p-[clamp(20px,5vw,28px)]')}>
-            <div className="flex justify-between text-sm text-mute">
-              <span className="font-semibold text-acc">S{i + 1}</span>
-              <span>{ch.y}</span>
-            </div>
-            <h3 className={cx(tw.cardTitle, 'mt-[clamp(16px,4vw,40px)]')}>{ch.t}</h3>
-            <p className={tw.bodyMute}>{ch.d}</p>
-          </article>
-        ))}
-      </div>
-      <p className="m-0 mt-[clamp(24px,5vw,56px)] max-w-[1100px] text-[clamp(26px,3.6vw,52px)] leading-[1.12] font-medium tracking-[-.02em] text-balance">
-        {mission}
-      </p>
-    </section>
-  )
-}
-
 export function Vehicles({ c }: { c: Content }) {
   return (
     <section id="vozila" className={tw.section}>
@@ -139,9 +128,9 @@ export function Vehicles({ c }: { c: Content }) {
         {c.vehicles.map((v) => (
           <article
             key={v.id}
-            className="flex flex-col overflow-hidden rounded-3xl border border-fg/10 bg-[#141112]"
+            className="flex flex-col overflow-hidden rounded-3xl border border-fg/10 bg-panel"
           >
-            <div className="relative aspect-[16/10] bg-[#0f0d0e]">
+            <div className="relative aspect-[16/10] bg-sunk">
               {v.src && (
                 <img
                   src={v.src}
@@ -161,7 +150,7 @@ export function Vehicles({ c }: { c: Content }) {
               <p className={tw.bodyMute}>{v.d}</p>
               <ul className="m-0 flex list-none flex-wrap gap-1.5 p-0">
                 {v.sys.map((s) => (
-                  <li key={s} className="rounded-full border border-fg/15 px-3 py-1.5 text-sm text-[#c9bdb9]">
+                  <li key={s} className="rounded-full border border-fg/15 px-3 py-1.5 text-sm text-soft">
                     {s}
                   </li>
                 ))}
@@ -249,7 +238,7 @@ export function Competitions({ c }: { c: Content }) {
           role="tabpanel"
           id="comp-panel"
           aria-labelledby={`comp-tab-${sel}`}
-          className="relative min-h-[clamp(300px,60vw,420px)] overflow-hidden rounded-3xl border border-fg/10 bg-[#141112]"
+          className="relative min-h-[clamp(300px,60vw,420px)] overflow-hidden rounded-3xl border border-fg/10 bg-panel"
         >
           {/* The keyed wrapper fades the new map in when the tab changes. */}
           <div key={comp.name} className="animate-fade-up absolute inset-0">
@@ -258,24 +247,24 @@ export function Competitions({ c }: { c: Content }) {
               title={`${c.trackPlan} — ${comp.name}`}
               loading="lazy"
               tabIndex={-1}
-              className="pointer-events-none absolute -inset-0.5 h-[calc(100%+4px)] w-[calc(100%+4px)] border-0 [filter:grayscale(1)_invert(1)_contrast(1.35)_brightness(.9)]"
+              className="pointer-events-none absolute -inset-0.5 h-[calc(100%+4px)] w-[calc(100%+4px)] border-0 [filter:var(--map-filter)]"
             />
           </div>
-          <div className="pointer-events-none absolute inset-0 bg-acc mix-blend-multiply" aria-hidden="true" />
+          <div className="pointer-events-none absolute inset-0 bg-acc [mix-blend-mode:var(--map-blend)]" aria-hidden="true" />
           <div
-            className="pointer-events-none absolute inset-0 [background:radial-gradient(120%_90%_at_50%_50%,transparent_55%,rgba(20,17,18,.85))]"
+            className="pointer-events-none absolute inset-0 [background:radial-gradient(120%_90%_at_50%_50%,transparent_55%,var(--scrim-strong))]"
             aria-hidden="true"
           />
           <div className="glass absolute inset-x-3 bottom-3 flex flex-wrap items-center justify-between gap-2 rounded-2xl py-2.5 pr-2.5 pl-4">
             <span key={comp.name} className="animate-fade-up flex min-w-0 flex-col gap-0.5">
               <span className="text-[15px] font-semibold">{comp.name}</span>
-              <span className="text-[13px] text-[#c9bdb9]">{comp.venue}</span>
+              <span className="text-[13px] text-soft">{comp.venue}</span>
             </span>
             <a
               href={mapLink(comp)}
               target="_blank"
               rel="noopener noreferrer"
-              className="flex items-center gap-1.5 rounded-full bg-fg px-3.5 py-[9px] text-[13px] font-semibold text-[#141112] hover:text-[#141112]"
+              className="flex items-center gap-1.5 rounded-full bg-fg px-3.5 py-[9px] text-[13px] font-semibold text-ink hover:text-ink"
             >
               {c.compMapOpen}
               <ArrowUpRight size={14} aria-hidden="true" />
@@ -312,7 +301,7 @@ export function Sponsors({ c, partners = PARTNERS }: { c: Content; partners?: Pa
   const total = partners.length
   const tiers = ([1, 2, 3, 4] as const).map((t, i) => ({ t, label: c.sponTiers[i], items: partners.filter((p) => p.tier === t) }))
 
-  const tileBase = 'grid w-full place-items-center rounded-2xl border border-fg/10 bg-[#100e0f] px-4 opacity-80'
+  const tileBase = 'grid w-full place-items-center rounded-2xl border border-fg/10 bg-sunk px-4 opacity-80'
   const linkTileClass = cx(tileBase, 'press hover:border-acc/60 hover:opacity-100 focus-visible:border-acc/60 focus-visible:opacity-100')
   const tileStyle = (t: Partner['tier']) => {
     const [minW, h] = PARTNER_TIERS[t]
@@ -327,7 +316,7 @@ export function Sponsors({ c, partners = PARTNERS }: { c: Content; partners?: Pa
         <h2 className={tw.h2}>{c.sponTitle}</h2>
         <div className="flex max-w-[400px] flex-col items-start gap-4">
           <span className="text-sm text-mute">{c.sponCount.replace('{n}', String(total))}</span>
-          <p className="m-0 text-[17px] leading-[1.55] text-[#b8aca8]">{c.sponText}</p>
+          <p className="m-0 text-[17px] leading-[1.55] text-soft">{c.sponText}</p>
           {/* data-join-mode: the Join form switches to the sponsor mode on a click here. */}
           <a href="#pridruzi-se" data-join-mode="company" data-dh="wipe" data-dh-c="#e2475b" className={tw.btnLight}>
             {c.sponCta}
@@ -350,7 +339,7 @@ export function Sponsors({ c, partners = PARTNERS }: { c: Content; partners?: Pa
                   loading="lazy"
                   decoding="async"
                   style={{ width: w, height: h }}
-                  className="block max-w-full object-contain [filter:brightness(0)_invert(1)]"
+                  className="block max-w-full object-contain [filter:var(--logo-filter)]"
                 />
               )
               const url = partnerUrl(p)
@@ -378,17 +367,46 @@ export function Sponsors({ c, partners = PARTNERS }: { c: Content; partners?: Pa
 /** A number from a text. It picks the seed of a noise canvas, so each item gets its own pattern. */
 const seedOf = (text: string) => [...text].reduce((a, ch) => (a * 31 + ch.charCodeAt(0)) % 997, 7)
 
-/** Empty state of the news list. It shows when the CMS has no posts or does not answer. */
+/** Link to one post. News and blog posts live under different paths. */
+export function PostLink({ kind, lang, slug, ...rest }: { kind: PostKind; lang: Lang; slug: string } & Omit<ComponentProps<'a'>, 'href'>) {
+  return kind === 'blog' ? (
+    <Link to="/$lang/blog/$slug" params={{ lang, slug }} {...rest} />
+  ) : (
+    <Link to="/$lang/novosti/$slug" params={{ lang, slug }} {...rest} />
+  )
+}
+
+/** Link to the list of all posts of one kind. */
+function AllPostsLink({ kind, lang, label }: { kind: PostKind; lang: Lang; label: string }) {
+  const className = 'group flex items-center gap-2 text-[15px] font-semibold whitespace-nowrap transition-colors hover:text-acc'
+  const inner = (
+    <>
+      {label}
+      <ArrowRight size={16} aria-hidden="true" className="transition-transform group-hover:translate-x-1" />
+    </>
+  )
+  return kind === 'blog' ? (
+    <Link to="/$lang/blog" params={{ lang }} className={className}>
+      {inner}
+    </Link>
+  ) : (
+    <Link to="/$lang/novosti" params={{ lang }} className={className}>
+      {inner}
+    </Link>
+  )
+}
+
+/** Empty state of a post list. It shows when the CMS has no posts or does not answer. */
 export function EmptyNews({ c }: { c: Content }) {
   return (
-    <div className="grid min-h-[200px] place-items-center rounded-3xl border border-dashed border-fg/[.14] bg-[#141112] p-8 text-center">
+    <div className="grid min-h-[200px] place-items-center rounded-3xl border border-dashed border-fg/[.14] bg-panel p-8 text-center">
       <p className="display m-0 text-[clamp(24px,4vw,36px)] leading-none [font-stretch:115%] tracking-[-.02em] text-mute">{c.noNews}</p>
     </div>
   )
 }
 
+/** The three newest news items, at the top of the home page. They took the place of the old story cards. */
 export function News({ c, lang, news }: { c: Content; lang: Lang; news: NewsCard[] }) {
-  const [first, ...rest] = news
   return (
     <section id="novosti" className={tw.section}>
       <div className="flex flex-wrap items-end justify-between gap-4">
@@ -396,18 +414,20 @@ export function News({ c, lang, news }: { c: Content; lang: Lang; news: NewsCard
         <Link
           to="/$lang/novosti"
           params={{ lang }}
-          className="group flex items-center gap-2 text-[15px] font-semibold whitespace-nowrap transition-colors hover:text-acc"
+          data-dh="wipe"
+          data-dh-c="#e2475b"
+          className={cx(tw.btnLight, 'flex items-center gap-2')}
         >
           {c.allNews}
-          <ArrowRight size={16} aria-hidden="true" className="transition-transform group-hover:translate-x-1" />
+          <ArrowRight size={16} aria-hidden="true" />
         </Link>
       </div>
-      {!first && <EmptyNews c={c} />}
-      {first && <NewsFeatured n={first} lang={lang} c={c} />}
-      {rest.length > 0 && (
-        <div className="border-t border-fg/[.14]">
-          {rest.map((n) => (
-            <NewsRow key={n.id} n={n} lang={lang} c={c} />
+      {news.length === 0 ? (
+        <EmptyNews c={c} />
+      ) : (
+        <div className="grid grid-cols-[repeat(auto-fit,minmax(min(100%,320px),1fr))] gap-4">
+          {news.map((n) => (
+            <NewsCardItem key={n.id} n={n} lang={lang} c={c} />
           ))}
         </div>
       )}
@@ -415,22 +435,83 @@ export function News({ c, lang, news }: { c: Content; lang: Lang; news: NewsCard
   )
 }
 
-/** The newest news item as one large card. It links to the article page. */
-function NewsFeatured({ n, lang, c }: { n: NewsCard; lang: Lang; c: Content }) {
+/** One news item as a card: cover, date and tag, title and the short text. */
+export function NewsCardItem({ n, lang, c }: { n: NewsCard; lang: Lang; c: Content }) {
+  const title = pick(n, 'title', lang)
+  const tag = pick(n, 'tag', lang)
+  const excerpt = pick(n, 'excerpt', lang)
+  return (
+    <PostLink
+      kind="news"
+      lang={lang}
+      slug={n.slug}
+      aria-label={`${c.readMore}: ${title}`}
+      data-dh="glow"
+      data-dh-edge="20"
+      className={cx(tw.card, 'group flex flex-col overflow-hidden press hover:border-acc/60 focus-visible:border-acc/60')}
+    >
+      <div className="relative aspect-[16/9] overflow-hidden bg-sunk">
+        {n.imageUrl ? (
+          <img src={n.imageUrl} alt="" loading="lazy" decoding="async" className="absolute inset-0 size-full object-cover" />
+        ) : (
+          <DitherCanvas mode="noise" seed={seedOf(n.slug)} className="absolute inset-0 size-full" />
+        )}
+      </div>
+      <div className="flex flex-1 flex-col gap-3 p-[clamp(18px,4vw,24px)]">
+        <div className="flex justify-between gap-3 text-sm text-mute">
+          <span>{formatDate(n.date)}</span>
+          {tag && <span className="font-semibold text-acc">{tag}</span>}
+        </div>
+        <h3 className={cx(tw.cardTitle, 'text-[clamp(24px,2.4vw,30px)]')}>{title}</h3>
+        {excerpt && <p className={cx(tw.bodyMute, 'line-clamp-3')}>{excerpt}</p>}
+        <span className="mt-auto flex items-center gap-2 pt-2 text-[15px] font-semibold text-fg transition-colors group-hover:text-acc">
+          {c.readMore}
+          <ArrowRight size={16} aria-hidden="true" className="transition-transform group-hover:translate-x-1" />
+        </span>
+      </div>
+    </PostLink>
+  )
+}
+
+/** Blog posts at the bottom of the home page: the newest as a large card, the rest as rows. */
+export function Blog({ c, lang, posts }: { c: Content; lang: Lang; posts: NewsCard[] }) {
+  const [first, ...rest] = posts
+  return (
+    <section id="blog" className={tw.section}>
+      <div className="flex flex-wrap items-end justify-between gap-4">
+        <h2 className={tw.h2}>{c.blogTitle}</h2>
+        <AllPostsLink kind="blog" lang={lang} label={c.allBlog} />
+      </div>
+      {!first && <EmptyNews c={c} />}
+      {first && <PostFeatured kind="blog" n={first} lang={lang} c={c} />}
+      {rest.length > 0 && (
+        <div className="border-t border-fg/[.14]">
+          {rest.map((n) => (
+            <NewsRow key={n.id} kind="blog" n={n} lang={lang} c={c} />
+          ))}
+        </div>
+      )}
+    </section>
+  )
+}
+
+/** The newest post as one large card. It links to the article page. */
+function PostFeatured({ kind, n, lang, c }: { kind: PostKind; n: NewsCard; lang: Lang; c: Content }) {
   const title = pick(n, 'title', lang)
   const tag = pick(n, 'tag', lang)
   return (
-    <Link
-      to="/$lang/novosti/$slug"
-      params={{ lang, slug: n.slug }}
+    <PostLink
+      kind={kind}
+      lang={lang}
+      slug={n.slug}
       aria-label={`${c.readMore}: ${title}`}
       data-dh="glow"
       data-dh-edge="24"
       className={cx(
-        'grid grid-cols-[repeat(auto-fit,minmax(min(100%,300px),1fr))] items-center gap-[clamp(12px,3vw,24px)] rounded-3xl border border-fg/10 bg-[#141112] p-[clamp(10px,3vw,16px)] press hover:border-acc/60 focus-visible:border-acc/60',
+        'grid grid-cols-[repeat(auto-fit,minmax(min(100%,300px),1fr))] items-center gap-[clamp(12px,3vw,24px)] rounded-3xl border border-fg/10 bg-panel p-[clamp(10px,3vw,16px)] press hover:border-acc/60 focus-visible:border-acc/60',
       )}
     >
-      <div className="relative aspect-[16/10] overflow-hidden rounded-[14px] bg-[#0f0d0e]">
+      <div className="relative aspect-[16/10] overflow-hidden rounded-[14px] bg-sunk">
         {n.imageUrl ? (
           <img src={n.imageUrl} alt="" loading="lazy" decoding="async" className="absolute inset-0 size-full object-cover" />
         ) : (
@@ -444,19 +525,19 @@ function NewsFeatured({ n, lang, c }: { n: NewsCard; lang: Lang; c: Content }) {
         </span>
         <span className="display text-[clamp(28px,6vw,40px)] leading-none [font-stretch:115%] tracking-[-.02em]">{title}</span>
       </div>
-    </Link>
+    </PostLink>
   )
 }
 
 const rowClass =
   'group grid grid-cols-[1fr_auto] items-center gap-x-5 gap-y-1 border-b border-fg/[.14] py-5 text-fg press hover:text-acc md:grid-cols-[210px_minmax(0,1fr)_auto] md:py-[22px]'
 
-/** One news item as a compact row. It links to the article page. */
-export function NewsRow({ n, lang, c }: { n: NewsCard; lang: Lang; c: Content }) {
+/** One post as a compact row. It links to the article page. */
+export function NewsRow({ kind, n, lang, c }: { kind: PostKind; n: NewsCard; lang: Lang; c: Content }) {
   const title = pick(n, 'title', lang)
   const tag = pick(n, 'tag', lang)
-  const inner = (
-    <>
+  return (
+    <PostLink kind={kind} lang={lang} slug={n.slug} aria-label={`${c.readMore}: ${title}`} className={rowClass}>
       <span className="text-sm whitespace-nowrap text-mute md:col-start-1">
         {formatDate(n.date)}
         {tag && <span className="text-acc"> · {tag}</span>}
@@ -469,12 +550,7 @@ export function NewsRow({ n, lang, c }: { n: NewsCard; lang: Lang; c: Content })
         aria-hidden="true"
         className="col-start-2 row-start-1 transition-transform group-hover:translate-x-1 md:col-start-3"
       />
-    </>
-  )
-  return (
-    <Link to="/$lang/novosti/$slug" params={{ lang, slug: n.slug }} aria-label={`${c.readMore}: ${title}`} className={rowClass}>
-      {inner}
-    </Link>
+    </PostLink>
   )
 }
 
@@ -501,20 +577,55 @@ function useFitWordmark() {
   return ref
 }
 
+/** Social links with an address: the CMS value, or the default address of the first three. */
+function socialLinks(c: Content) {
+  return SOCIALS.map((s) => ({ ...s, url: c.socials?.[s.key] ?? s.href })).filter((s): s is typeof s & { url: string } => Boolean(s.url))
+}
+
+/** A phone number as a tel: link (spaces and dashes removed). */
+const telHref = (phone: string) => `tel:${phone.replace(/[^\d+]/g, '')}`
+
+/** One club contact in the footer (CEO, CTO): photo, role, name, e-mail and phone. */
+function LeaderCard({ p }: { p: Content['leaders'][number] }) {
+  return (
+    <div className="flex items-center gap-4 rounded-[20px] border border-fg/10 bg-panel/80 p-3 pr-5 backdrop-blur-[6px]">
+      <div className="grid size-[72px] shrink-0 place-items-center overflow-hidden rounded-2xl bg-sunk text-mute">
+        {p.photo ? (
+          <img src={p.photo} alt={p.name} loading="lazy" decoding="async" className="size-full object-cover" />
+        ) : (
+          <UserRound size={30} strokeWidth={1.5} aria-hidden="true" />
+        )}
+      </div>
+      <div className="flex min-w-0 flex-col gap-1">
+        <span className="text-[13px] font-semibold text-acc">{p.role}</span>
+        <span className="text-[17px] leading-tight font-semibold">{p.name}</span>
+        <span className="flex flex-wrap gap-x-4 gap-y-1 text-sm text-soft">
+          {p.email && (
+            <a href={`mailto:${p.email}`} className="flex min-w-0 items-center gap-1.5 hover:text-acc">
+              <Mail size={14} aria-hidden="true" className="shrink-0" />
+              <span className="truncate">{p.email}</span>
+            </a>
+          )}
+          {p.phone && (
+            <a href={telHref(p.phone)} className="flex items-center gap-1.5 whitespace-nowrap hover:text-acc">
+              <Phone size={14} aria-hidden="true" className="shrink-0" />
+              {p.phone}
+            </a>
+          )}
+        </span>
+      </div>
+    </div>
+  )
+}
+
 export function Footer({ c, lang, onHome }: { c: Content; lang: Lang; onHome: boolean }) {
   const wordmark = useFitWordmark()
-  const link = (i: number) => (
-    <SectionLink key={SECTION_IDS[i]} id={SECTION_IDS[i]!} lang={lang} onHome={onHome}>
-      {c.nav[i]}
-    </SectionLink>
-  )
-  const colTitle = 'mb-1.5 text-[13px] text-[#c9bdb9]'
   return (
     <footer id="kontakt" className="relative scroll-mt-16 overflow-hidden bg-bg [container-type:inline-size]">
       <DitherCanvas mode="footer" className="absolute inset-0 size-full" />
       <div className="relative flex flex-col pt-[clamp(72px,12cqw,120px)] px-[clamp(20px,3.4cqw,48px)]">
-        <div className="grid grid-cols-[repeat(auto-fit,minmax(min(40%,180px),1fr))] gap-x-6 gap-y-[clamp(32px,6cqw,48px)]">
-          <div className="col-span-2 flex min-w-0 flex-col gap-5">
+        <div className="grid grid-cols-[repeat(auto-fit,minmax(min(100%,360px),1fr))] gap-x-10 gap-y-[clamp(32px,6cqw,48px)]">
+          <div className="flex min-w-0 flex-col gap-5">
             <div className="display text-[clamp(38px,9cqw,52px)] leading-[.88] tracking-[-.03em]">{c.contactTitle}</div>
             <address className="max-w-[340px] text-base leading-normal not-italic">
               {c.addr} · <a href={`mailto:${c.mail}`} className="underline">{c.mail}</a>
@@ -526,7 +637,7 @@ export function Footer({ c, lang, onHome }: { c: Content; lang: Lang; onHome: bo
                 onHome={onHome}
                 data-dh="wipe"
                 data-dh-c="#e2475b"
-                className="press rounded-full bg-fg px-5 py-3 text-[15px] font-semibold whitespace-nowrap text-[#141112] hover:text-[#141112]"
+                className="press rounded-full bg-fg px-5 py-3 text-[15px] font-semibold whitespace-nowrap text-ink hover:text-ink"
               >
                 {c.cta}
               </SectionLink>
@@ -535,35 +646,41 @@ export function Footer({ c, lang, onHome }: { c: Content; lang: Lang; onHome: bo
                 lang={lang}
                 onHome={onHome}
                 data-dh="glow"
-                className="press rounded-full border border-fg/25 bg-[rgba(20,17,18,.6)] px-5 py-3 text-[15px] font-semibold whitespace-nowrap"
+                className="press rounded-full border border-fg/25 bg-scrim px-5 py-3 text-[15px] font-semibold whitespace-nowrap"
               >
                 {c.heroCta2}
               </SectionLink>
             </div>
+            <ul className="m-0 flex list-none flex-wrap gap-2 p-0" aria-label={c.footFollow}>
+              {socialLinks(c).map((s) => (
+                <li key={s.key}>
+                  <a
+                    href={s.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    aria-label={s.name}
+                    title={s.name}
+                    className="press grid size-11 place-items-center rounded-full border border-fg/20 bg-scrim text-fg hover:border-acc hover:text-acc"
+                  >
+                    <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                      {s.icon}
+                    </svg>
+                  </a>
+                </li>
+              ))}
+            </ul>
           </div>
-          <div className="flex flex-col gap-3 text-[15px]">
-            <div className={colTitle}>{c.footTeam}</div>
-            {link(0)}
-            {link(1)}
-            {link(5)}
-          </div>
-          <div className="flex flex-col gap-3 text-[15px]">
-            <div className={colTitle}>{c.footProgram}</div>
-            {link(2)}
-            {link(3)}
-            {link(4)}
-          </div>
-          <div className="flex flex-col gap-3 text-[15px]">
-            <div className={colTitle}>{c.footFollow}</div>
-            {SOCIALS.map((s) => (
-              <a key={s.name} href={c.socials?.[s.name.toLowerCase()] ?? s.href} target="_blank" rel="noopener noreferrer" className="hover:text-acc">
-                {s.name}
-              </a>
-            ))}
-          </div>
+          {c.leaders.length > 0 && (
+            <div className="flex min-w-0 flex-col gap-3">
+              <div className="mb-1 text-[13px] text-soft">{c.leadersTitle}</div>
+              {c.leaders.map((p) => (
+                <LeaderCard key={p.role + p.name} p={p} />
+              ))}
+            </div>
+          )}
         </div>
         <div data-flag className="mt-[clamp(48px,9cqw,88px)] mb-6 h-[clamp(56px,10cqw,96px)]" aria-hidden="true" />
-        <div className="text-[13px] text-[#c9bdb9]">{c.foot}</div>
+        <div className="text-[13px] text-soft">{c.foot}</div>
         <div className="w-full overflow-hidden pt-4 pb-[3vw] text-center">
           <div
             ref={wordmark}
@@ -577,3 +694,4 @@ export function Footer({ c, lang, onHome }: { c: Content; lang: Lang; onHome: bo
     </footer>
   )
 }
+
