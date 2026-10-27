@@ -52,7 +52,6 @@ export type Content = {
   teamsCardsText: string
   teamLead: string
   teamMore: string
-  teamLess: string
   teams: Team[]
   carTitle: string
   carIntro: string
@@ -188,7 +187,6 @@ const hr: Content = {
   teamsCardsText: 'Svaki tim ima svog voditelja. Javite im se izravno ili se prijavite u tim kroz obrazac na dnu stranice.',
   teamLead: 'Voditelj tima',
   teamMore: 'Više o timu',
-  teamLess: 'Manje',
   teams: [
     {
       code: 'PWT',
@@ -424,7 +422,6 @@ const en: Content = {
   teamsCardsText: 'Every team has its own lead. Contact them directly or apply for a team with the form at the bottom of the page.',
   teamLead: 'Team lead',
   teamMore: 'More about the team',
-  teamLess: 'Less',
   teams: [
     {
       code: 'PWT',
