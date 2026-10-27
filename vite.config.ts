@@ -36,6 +36,8 @@ export default defineConfig(async ({ command, mode }) => {
   if (command === 'build' && process.env.REQUIRE_CMS === '1' && blogSlugs.length === 0) throw new Error(`REQUIRE_CMS=1 and no blog posts from ${cmsUrl}`)
   // /admin goes to the CMS admin. The build writes it to _redirects, so the redirect uses no Worker request.
   const cmsAdmin = (process.env.CMS_PUBLIC_URL || env.CMS_PUBLIC_URL || cmsUrl).replace(/\/$/, '') + '/admin'
+  // The Worker (and the local runtime that renders the prerender) reads CMS_URL from its vars.
+  const workerVars = { CMS_URL: cmsUrl, ...(process.env.CMS_PUBLIC_URL ? { CMS_PUBLIC_URL: process.env.CMS_PUBLIC_URL } : {}) }
   const pages = [
     ...LANGS.flatMap((l) => [
       `/${l}`,
@@ -81,9 +83,9 @@ export default defineConfig(async ({ command, mode }) => {
         ...(command === 'build' ? { preset: 'cloudflare-module' } : {}),
         // A fixed date. Without it Nitro takes the build day, and the local runtime of wrangler (prerender) refuses a date newer than itself.
         compatibilityDate: '2026-10-01',
-        // The Worker (and the local runtime that renders the prerender) reads CMS_URL from its vars.
         cloudflare: {
-          wrangler: { name: process.env.SITE_WORKER_NAME || 'fesb-racing-site', vars: { CMS_URL: cmsUrl, ...(process.env.CMS_PUBLIC_URL ? { CMS_PUBLIC_URL: process.env.CMS_PUBLIC_URL } : {}) } },
+          // "previews" is for the preview deploy of a pull request (wrangler preview). It reads the same public CMS.
+          wrangler: { name: process.env.SITE_WORKER_NAME || 'fesb-racing-site', vars: workerVars, previews: { vars: workerVars } },
         },
         routeRules: {
           '/assets/**': { headers: { 'cache-control': 'public, max-age=31536000, immutable' } },
