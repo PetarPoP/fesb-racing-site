@@ -1,7 +1,7 @@
 // Convert the Nitro output (.output) to the Build Output Specification v0 (.cloudflare/output/v0).
 // The command "cf deploy --prebuilt" reads that format. Nitro does not write it.
-import { cp, mkdir, readFile, readdir, readlink, rm, writeFile } from 'node:fs/promises'
-import { join } from 'node:path'
+import { cp, mkdir, readFile, readdir, readlink, rm, stat, writeFile } from 'node:fs/promises'
+import { join, relative } from 'node:path'
 
 const root = process.cwd()
 const nitroServer = join(root, '.output', 'server')
@@ -31,6 +31,23 @@ const worker = {
   ...(wrangler.assets ? { assets } : {}),
   env,
   manifest: { type: 'partial', mainModule: wrangler.main, modules: {} },
+}
+
+// A page whose render failed is an empty file. Stop here, so a broken build is not deployed (the old site stays live).
+async function emptyPages(dir) {
+  const out = []
+  for (const entry of await readdir(dir, { withFileTypes: true })) {
+    const path = join(dir, entry.name)
+    if (entry.isDirectory()) out.push(...(await emptyPages(path)))
+    else if (entry.name.endsWith('.html') && (await stat(path)).size === 0) out.push(relative(nitroPublic, path))
+  }
+  return out
+}
+const empty = await emptyPages(nitroPublic)
+if (empty.length) {
+  await stopPreviewServers()
+  console.error(`The prerender wrote ${empty.length} empty pages: ${empty.join(', ')}`)
+  process.exit(1)
 }
 
 await rm(outputRoot, { recursive: true, force: true })

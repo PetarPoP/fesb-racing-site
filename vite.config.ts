@@ -63,8 +63,9 @@ export default defineConfig(async ({ command, mode }) => {
           crawlLinks: true,
           autoStaticPathsDiscovery: false,
           failOnError: false,
-          // The admin path is a redirect and not a page.
-          filter: ({ path }) => !path.startsWith('/admin'),
+          // The admin path is a redirect and not a page. A link with a #section is the same page: crawling it again
+          // rewrote index.html while the preview served it, and the page came out empty.
+          filter: ({ path }) => !path.startsWith('/admin') && !path.includes('#'),
         },
       }),
       nitro({

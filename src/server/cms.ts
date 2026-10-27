@@ -19,7 +19,25 @@ const baseUrl = () => (process.env.CMS_URL || 'http://localhost:3100').replace(/
 /** The base URL that a browser uses for media files. It can differ from CMS_URL (for example a service binding). */
 const publicUrl = () => (process.env.CMS_PUBLIC_URL || baseUrl()).replace(/\/$/, '')
 
-const timedFetch: typeof fetch = (input, init) => fetch(input, { ...init, signal: AbortSignal.timeout(TIMEOUT_MS) })
+/**
+ * Fetch with a time limit that covers the body too. The body is read here, so a timeout or a cut connection
+ * rejects this promise (the cache then uses null). An abort while the caller was still reading a gzip body
+ * crashed the Worker request, and the prerender wrote an empty page.
+ */
+const timedFetch: typeof fetch = async (input, init) => {
+  const ctrl = new AbortController()
+  const timer = setTimeout(() => ctrl.abort(), TIMEOUT_MS)
+  try {
+    const res = await fetch(input, { ...init, signal: ctrl.signal })
+    const body = await res.arrayBuffer()
+    const headers = new Headers(res.headers)
+    headers.delete('content-encoding')
+    headers.delete('content-length')
+    return new Response(body, { status: res.status, statusText: res.statusText, headers })
+  } finally {
+    clearTimeout(timer)
+  }
+}
 const client = () => createCmsClient({ baseUrl: baseUrl(), fetcher: timedFetch })
 
 const cache = new Map<string, { at: number; ttl: number; value: Promise<unknown> }>()
