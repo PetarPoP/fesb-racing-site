@@ -26,7 +26,7 @@ The seed script is safe to run two times. Each record has a natural key (email, 
 - One admin user from `SEED_ADMIN_EMAIL` and `SEED_ADMIN_PASSWORD`.
 - 56 partners with the tier, the order and the logo (the logo files are in `seed-assets/partners`).
 - Six teams, the cars and bikes (one document each), four competitions and the home page, from the site data (hr and en).
-  The teams, vehicles and footer contacts come from `src/seed-data/site-v2.json`; the migration `20261027_210000_six_teams_data` writes the same rows.
+  The teams, vehicles and footer contacts come from `src/seed-data/site-v2.json`; the migration `20261028_174700_six_teams_data` writes the same rows.
 - Three blog posts. They come from the local database of the site, which holds only sample posts.
 - The globals: site settings, stats, ticker, footer and join call to action (hr and en).
 - Two forms, one sample submission and one sample redirect.

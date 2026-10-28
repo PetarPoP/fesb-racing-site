@@ -26,7 +26,9 @@ export async function up({ payload, req }: MigrateUpArgs): Promise<void> {
     // Keep the row ids of the assembly list, so the English update writes into the same rows.
     const carParts = data.carParts.map((x, i) => ({ id: prev.carParts?.[i]?.id ?? undefined, part: x.part as never, name: x[locale] }))
     await payload.updateGlobal({ slug: 'homepage', data: { ...data.homepage[locale], carParts }, locale, req })
-    await payload.updateGlobal({ slug: 'joinCta', data: data.join[locale], locale, req })
+    // The join form needs its title. A database without one (a fresh one) keeps the built-in texts.
+    const join = await payload.findGlobal({ slug: 'joinCta', locale, req })
+    if (join.title) await payload.updateGlobal({ slug: 'joinCta', data: data.join[locale], locale, req })
   }
 }
 
