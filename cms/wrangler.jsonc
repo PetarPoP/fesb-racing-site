@@ -4,6 +4,8 @@
   "name": "fesb-racing-cms",
   "compatibility_date": "2025-08-15",
   "compatibility_flags": ["nodejs_compat", "global_fetch_strictly_public"],
+  // Keep the variables set in the Cloudflare dashboard (FRONTEND_URL, REBUILD_WEBHOOK_URL ...) on deploy.
+  "keep_vars": true,
   "assets": { "directory": ".open-next/assets", "binding": "ASSETS" },
   "d1_databases": [
     {
