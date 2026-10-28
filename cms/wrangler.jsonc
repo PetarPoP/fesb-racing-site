@@ -8,12 +8,12 @@
   "d1_databases": [
     {
       "binding": "D1",
-      "database_id": "PLACEHOLDER_D1_DATABASE_ID",
+      "database_id": "cfb61e06-246e-43ea-946a-1a983bf777d8",
       "database_name": "fesb-racing-cms",
       "remote": true
     }
   ],
   "r2_buckets": [
-    { "binding": "R2", "bucket_name": "placeholder-fesb-racing-media" }
+    { "binding": "R2", "bucket_name": "fesb-racing-media" }
   ]
 }

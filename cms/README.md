@@ -68,9 +68,9 @@ Do not run these steps before you check the account with `cf auth whoami`.
 The template needs a paid Workers plan, because the Worker bundle is larger than the free plan limit.
 
 1. Create the D1 database: `cf d1 create --name fesb-racing-cms`
-2. Copy the database id from the output into `cloudflare.config.ts` and `wrangler.jsonc` (replace `PLACEHOLDER_D1_DATABASE_ID`).
+2. The database id is in `cloudflare.config.ts` and `wrangler.jsonc` (production: `fesb-racing-cms`, cfb61e06-…). For a new database, replace it there.
 3. Create the R2 bucket: `cf r2 buckets create --name fesb-racing-media`
-4. Put the bucket name in `cloudflare.config.ts` and `wrangler.jsonc` (replace `placeholder-fesb-racing-media`).
+4. The bucket name is in `cloudflare.config.ts` and `wrangler.jsonc` (production: `fesb-racing-media`).
 5. Set the secret: `openssl rand -hex 32 | cf workers secrets update --script-name fesb-racing-cms --name PAYLOAD_SECRET`
    Run `cf workers secrets update --help` first. The flag names can differ in your `cf` version.
 6. Set `FRONTEND_URL` as a Worker variable in the config.
