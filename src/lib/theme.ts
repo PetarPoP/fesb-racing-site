@@ -40,13 +40,20 @@ export function setTheme(t: Theme, origin?: { x: number; y: number }) {
     window.setTimeout(() => root.classList.remove('theme-fade'), 450)
     return
   }
+  // The light theme grows out of the button; going dark, the light page shrinks back into it.
+  setCircle(t === 'light' ? 'grow' : 'shrink', origin)
+  const done = vt.call(document, () => applyTheme(t))
+  done.finished.finally(() => delete root.dataset.vt)
+}
+
+/** Set up the circle of the next view transition (styles.css): its centre, its radius and the direction. */
+export function setCircle(kind: 'grow' | 'shrink', origin?: { x: number; y: number }) {
+  const root = document.documentElement
   const x = origin?.x ?? window.innerWidth - 40
   const y = origin?.y ?? 40
   const r = Math.hypot(Math.max(x, window.innerWidth - x), Math.max(y, window.innerHeight - y))
   root.style.setProperty('--vt-x', `${x}px`)
   root.style.setProperty('--vt-y', `${y}px`)
   root.style.setProperty('--vt-r', `${r}px`)
-  root.dataset.vt = 'theme'
-  const done = vt.call(document, () => applyTheme(t))
-  done.finished.finally(() => delete root.dataset.vt)
+  root.dataset.vt = kind
 }

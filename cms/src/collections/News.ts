@@ -102,10 +102,11 @@ export const newsEditor = lexicalEditor({
  */
 export const News: CollectionConfig = {
   slug: 'news',
-  labels: { singular: 'Blog post', plural: 'Blog' },
+  labels: { singular: 'Blog članak', plural: 'Blog (za sponzore)' },
   admin: {
-    group: 'Content',
+    group: 'Novosti i blog',
     useAsTitle: 'title',
+    description: 'Duži članci iz radionice, pisani za partnere i sponzore. Najnoviji se prikazuju na dnu početne stranice, a svi na stranici /blog.',
     defaultColumns: ['title', 'publishedAt', '_status', 'updatedAt'],
     livePreview: {
       url: ({ data, locale }) =>
@@ -116,40 +117,42 @@ export const News: CollectionConfig = {
   versions: { drafts: { autosave: { interval: 2000 } }, maxPerDoc: 25 },
   defaultSort: '-publishedAt',
   fields: [
-    { name: 'title', type: 'text', localized: true, required: true },
+    { name: 'title', label: 'Naslov', type: 'text', localized: true, required: true },
     {
       name: 'slug',
+      label: 'Adresa (slug)',
       type: 'text',
       required: true,
       unique: true,
       index: true,
-      admin: { position: 'sidebar', description: 'Used in the URL. It is made from the title when empty.' },
+      admin: { position: 'sidebar', description: 'Dio web adrese. Ako ostane prazno, napravi se iz naslova.' },
       hooks: { beforeValidate: [slugFromTitle] },
     },
-    { name: 'publishedAt', type: 'date', admin: { position: 'sidebar', date: { pickerAppearance: 'dayOnly' } } },
-    { name: 'tags', type: 'text', hasMany: true, localized: true, admin: { position: 'sidebar' } },
+    { name: 'publishedAt', label: 'Datum objave', type: 'date', admin: { position: 'sidebar', date: { pickerAppearance: 'dayOnly' } } },
+    { name: 'tags', label: 'Oznake', type: 'text', hasMany: true, localized: true, admin: { position: 'sidebar' } },
     {
       type: 'tabs',
       tabs: [
         {
-          label: 'Content',
+          label: 'Sadržaj',
           fields: [
-            { name: 'cover', type: 'upload', relationTo: 'media' },
-            { name: 'excerpt', type: 'textarea', localized: true },
-            { name: 'body', type: 'richText', localized: true, editor: newsEditor },
+            { name: 'cover', label: 'Naslovna slika', type: 'upload', relationTo: 'media' },
+            { name: 'excerpt', label: 'Sažetak', type: 'textarea', localized: true, admin: { description: 'Dvije do tri rečenice za karticu članka.' } },
+            { name: 'body', label: 'Tekst', type: 'richText', localized: true, editor: newsEditor },
           ],
         },
         {
-          label: 'Gallery',
-          description: 'Optional photos. The site shows them below the text of the post.',
+          label: 'Galerija',
+          description: 'Neobavezne fotografije. Prikazuju se ispod teksta članka.',
           fields: [
             {
               name: 'gallery',
               type: 'array',
-              labels: { singular: 'Photo', plural: 'Photos' },
+              label: 'Fotografije',
+              labels: { singular: 'Fotografija', plural: 'Fotografije' },
               fields: [
-                { name: 'image', type: 'upload', relationTo: 'media', required: true },
-                { name: 'caption', type: 'text', localized: true },
+                { name: 'image', label: 'Slika', type: 'upload', relationTo: 'media', required: true },
+                { name: 'caption', label: 'Opis', type: 'text', localized: true },
               ],
             },
           ],

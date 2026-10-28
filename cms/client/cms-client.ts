@@ -43,7 +43,7 @@ export type Footer = {
   followHeading?: string
   links?: { label: string; url: string }[]
 }
-export type JoinCta = { title: string; text?: string; buttonLabel?: string }
+export type JoinCta = { title: string; text?: string; companyTitle?: string; companyText?: string; buttonLabel?: string }
 export type SiteSettings = {
   name: string
   contact?: { email?: string; phone?: string; address?: string }

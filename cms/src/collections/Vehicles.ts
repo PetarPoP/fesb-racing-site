@@ -5,53 +5,77 @@ import { slugify } from '../lib/slug'
 
 export const Vehicles: CollectionConfig = {
   slug: 'vehicles',
-  labels: { singular: 'Vehicle', plural: 'Vehicles (cars and bikes)' },
+  labels: { singular: 'Vozilo', plural: 'Vozila (bolidi i motori)' },
   admin: {
-    group: 'Racing',
+    group: 'Projekti i vozila',
     useAsTitle: 'name',
     defaultColumns: ['name', 'kind', 'season', 'order', 'updatedAt'],
-    description: 'One document per car or bike. The project pages list them by order. Empty photos, data or texts use the built-in ones of the same slug.',
+    description:
+      'Jedan zapis po bolidu ili motociklu. Svako vozilo ima svoju stranicu, a stranica projekta (Formula Student ili MotoStudent) ih nabraja po redoslijedu. Prazne fotografije, podaci ili tekstovi koriste ugrađene s iste adrese.',
   },
   defaultSort: 'order',
   access: { read: anyone, ...writeAccess },
   fields: [
-    { name: 'name', type: 'text', localized: true, required: true },
+    { name: 'name', label: 'Naziv', type: 'text', localized: true, required: true },
+    {
+      name: 'kind',
+      label: 'Projekt',
+      type: 'select',
+      required: true,
+      options: [
+        { label: 'Bolid (Formula Student)', value: 'car' },
+        { label: 'Motocikl (MotoStudent)', value: 'bike' },
+      ],
+    },
+    { name: 'season', label: 'Sezona', type: 'text', admin: { description: 'Prikazuje se uz naziv, na primjer 2022/2023.' } },
+    {
+      type: 'tabs',
+      tabs: [
+        {
+          label: 'Tekst',
+          fields: [
+            { name: 'description', label: 'Uvod', type: 'textarea', localized: true, admin: { description: 'Neobavezni uvodni tekst stranice vozila.' } },
+            {
+              name: 'sections',
+              label: 'Sustavi',
+              type: 'array',
+              labels: { singular: 'Sustav', plural: 'Sustavi' },
+              admin: { description: 'Tekst po sustavu (pogon, ovjes, šasija ...).' },
+              fields: [
+                { name: 'title', label: 'Naslov', type: 'text', localized: true, required: true },
+                { name: 'text', label: 'Tekst', type: 'textarea', localized: true, required: true },
+              ],
+            },
+          ],
+        },
+        {
+          label: 'Fotografije',
+          fields: [
+            { name: 'cover', label: 'Glavna fotografija', type: 'upload', relationTo: 'media', admin: { description: 'Prikazuje se na kartici vozila i na vrhu njegove stranice.' } },
+            ...sharedRacingFields.filter((f) => 'name' in f && f.name === 'gallery'),
+          ],
+        },
+        {
+          label: 'Podaci i rezultati',
+          fields: sharedRacingFields.filter((f) => 'name' in f && (f.name === 'specs' || f.name === 'results' || f.name === 'year')),
+        },
+      ],
+    },
     {
       name: 'slug',
+      label: 'Adresa (slug)',
       type: 'text',
       required: true,
       unique: true,
       index: true,
-      admin: { position: 'sidebar' },
+      admin: { position: 'sidebar', description: 'Dio web adrese stranice vozila. Ako ostane prazno, napravi se iz naziva.' },
       hooks: {
         beforeValidate: [
           ({ value, data }) => slugify(typeof value === 'string' && value ? value : String(data?.name ?? '')),
         ],
       },
     },
-    {
-      name: 'kind',
-      type: 'select',
-      required: true,
-      options: [
-        { label: 'Car (Formula Student)', value: 'car' },
-        { label: 'Bike (MotoStudent)', value: 'bike' },
-      ],
-    },
-    { name: 'season', type: 'text', admin: { description: 'Shown next to the name, for example 2022/2023.' } },
-    { name: 'order', type: 'number', defaultValue: 0, admin: { position: 'sidebar', description: 'A lower number shows first.' } },
-    { name: 'description', type: 'textarea', localized: true, admin: { description: 'Optional intro text of the vehicle page.' } },
-    { name: 'cover', type: 'upload', relationTo: 'media' },
-    {
-      name: 'sections',
-      type: 'array',
-      labels: { singular: 'Section', plural: 'Sections' },
-      admin: { description: 'Text per system (powertrain, suspension, chassis ...).' },
-      fields: [
-        { name: 'title', type: 'text', localized: true, required: true },
-        { name: 'text', type: 'textarea', localized: true, required: true },
-      ],
-    },
-    ...sharedRacingFields,
+    { name: 'order', label: 'Redoslijed', type: 'number', defaultValue: 0, admin: { position: 'sidebar', description: 'Manji broj se prikazuje prije.' } },
+    ...sharedRacingFields.filter((f) => 'name' in f && f.name === 'link').map((f) => ({ ...f, admin: { hidden: true } }) as typeof f),
   ],
 }

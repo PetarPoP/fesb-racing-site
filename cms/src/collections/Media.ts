@@ -3,13 +3,15 @@ import { anyone, writeAccess } from '../access'
 
 export const Media: CollectionConfig = {
   slug: 'media',
+  labels: { singular: 'Datoteka', plural: 'Medijateka' },
   admin: {
-    group: 'Library',
+    group: 'Medijateka',
+    description: 'Sve slike stranice. Slike se mogu dodati i izravno iz polja za sliku u bilo kojem zapisu.',
     useAsTitle: 'filename',
     defaultColumns: ['filename', 'alt', 'mimeType', 'updatedAt'],
   },
   access: { read: anyone, ...writeAccess },
-  fields: [{ name: 'alt', type: 'text', localized: true, required: true }],
+  fields: [{ name: 'alt', label: 'Opis slike (alt)', type: 'text', localized: true, required: true }],
   upload: {
     // Crop and focal point need sharp. Workers do not support sharp.
     crop: false,

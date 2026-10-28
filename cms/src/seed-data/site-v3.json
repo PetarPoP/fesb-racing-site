@@ -1,0 +1,131 @@
+{
+  "homepage": {
+    "hr": {
+      "heroA": "Od ploče",
+      "heroB": "do staze.",
+      "heroSub": "Studentski inženjerski tim FESB-a. Projektiramo, gradimo i utrkujemo Formula Student bolide i MotoStudent motocikle.",
+      "heroCta2": "Postani partner",
+      "newsTitle": "Novosti",
+      "teamsTitle": "Šest timova, jedno vozilo.",
+      "teamsCardsText": "Svaki tim ima svog voditelja. Javite im se izravno ili se prijavite u tim kroz obrazac na dnu stranice.",
+      "carTitle": "Tko gradi koji dio?",
+      "carIntro": "Skrolaj kroz eFRT01: bolid se okreće, rastavlja na sklopove i pokazuje koji tim stoji iza kojeg dijela.",
+      "vehTitle": "Dvije klase. Jedna radionica.",
+      "compTitle": "18+ natjecanja diljem Europe.",
+      "sponTitle": "Partneri",
+      "sponText": "Vaša tehnologija na stazi, vaš brend pred europskim inženjerskim talentima. Nudimo vidljivost, zapošljavanje i suradnju na stvarnom razvoju.",
+      "sponCta": "Postani partner",
+      "blogTitle": "Iz radionice",
+      "contactTitle": "Svratite u radionicu."
+    },
+    "en": {
+      "heroA": "From whiteboard",
+      "heroB": "to track.",
+      "heroSub": "The student engineering team of FESB. We design, build and race Formula Student cars and MotoStudent motorcycles.",
+      "heroCta2": "Become a partner",
+      "newsTitle": "News",
+      "teamsTitle": "Six teams, one vehicle.",
+      "teamsCardsText": "Every team has its own lead. Contact them directly or apply for a team with the form at the bottom of the page.",
+      "carTitle": "Who builds which part?",
+      "carIntro": "Scroll through eFRT01: the car turns, comes apart into its assemblies and shows which team builds what.",
+      "vehTitle": "Two classes. One workshop.",
+      "compTitle": "18+ competitions across Europe.",
+      "sponTitle": "Partners",
+      "sponText": "Your technology on track, your brand in front of Europe’s engineering talent. We offer visibility, recruiting and collaboration on real development.",
+      "sponCta": "Become a partner",
+      "blogTitle": "From the workshop",
+      "contactTitle": "Drop by the workshop."
+    }
+  },
+  "carParts": [
+    {
+      "part": "frame",
+      "hr": "Šasija",
+      "en": "Chassis"
+    },
+    {
+      "part": "body",
+      "hr": "Karoserija",
+      "en": "Bodywork"
+    },
+    {
+      "part": "aero_front",
+      "hr": "Prednje krilo",
+      "en": "Front wing"
+    },
+    {
+      "part": "aero_rear",
+      "hr": "Stražnje krilo",
+      "en": "Rear wing"
+    },
+    {
+      "part": "aero_under",
+      "hr": "Podnica i difuzor",
+      "en": "Undertray & diffuser"
+    },
+    {
+      "part": "accu",
+      "hr": "Akumulator i VN sustav",
+      "en": "Accumulator & HV system"
+    },
+    {
+      "part": "lv",
+      "hr": "Niskonaponski sustav",
+      "en": "Low-voltage system"
+    },
+    {
+      "part": "drive",
+      "hr": "Pogonski sklop",
+      "en": "Drivetrain"
+    },
+    {
+      "part": "steer",
+      "hr": "Upravljanje",
+      "en": "Steering"
+    },
+    {
+      "part": "cockpit",
+      "hr": "Kokpit i sjedalo",
+      "en": "Cockpit & seat"
+    },
+    {
+      "part": "susp",
+      "hr": "Ovjes",
+      "en": "Suspension"
+    },
+    {
+      "part": "brakes",
+      "hr": "Kočioni sustav",
+      "en": "Brake system"
+    },
+    {
+      "part": "wheels",
+      "hr": "Kotači i gume",
+      "en": "Wheels & tyres"
+    }
+  ],
+  "join": {
+    "hr": {
+      "companyTitle": "Vozimo zajedno.",
+      "companyText": "Tražite mlade inženjere, vidljivost na europskim stazama ili partnera za razvoj? Pošaljite nam par riječi o sebi i javit ćemo se sa sponzorskim paketom."
+    },
+    "en": {
+      "companyTitle": "Let’s race together.",
+      "companyText": "Looking for young engineers, visibility on European tracks or a development partner? Tell us a little about your company and we will get back to you with our sponsorship pack."
+    }
+  },
+  "projects": [
+    {
+      "key": "formula-student",
+      "name": "Formula Student",
+      "hr": "Formula Student (FS) je najprestižnije europsko obrazovno motorsport natjecanje, podržano od strane brojnih visokoprofilnih tvrtki iz industrije, čiji je cilj razviti poduzetne i inovativne mlade inženjere, kao i potaknuti nove mlade ljude na ulazak u inženjerske vode.\n\nFormat natjecanja pruža idealnu priliku studentima da testiraju, demonstriraju i poboljšaju svoje sposobnosti pri stvaranju kompleksnog proizvoda u izrazito zahtjevnom okruženju motorsport natjecanja. Brojne svjetski poznate tvrtke iz automobilske industrije uvjetuju sudjelovanje na FS natjecanjima pri zapošljavanju mladih inženjera.\n\nFESB Racing, od svog osnutka 2010. godine, kontinuirano napreduje te aktivno razvija nova rješenja i koncepte za FS natjecanja.",
+      "en": "Formula Student (FS) is the most prestigious worldwide educational motor racing competition supported by numerous high-profile companies from the industry, whose aim is to develop enterprising and innovative young engineers, as well as to encourage young people to enter engineering world.\n\nThe competition format provides an ideal opportunity for students to test, demonstrate and improve their ability to create a complex product in an extremely demanding environment of the motorsport competition. Numerous world-renowned automotive companies are conditioning participation in FS competition for recruiting young engineers.\n\nSince its foundation in 2010, FESB Racing has been continuously developing new solutions and concepts for the FS competition."
+    },
+    {
+      "key": "motostudent",
+      "name": "MotoStudent",
+      "hr": "MotoStudent (MS) natjecanje osnovano je kao uzor na Formula Student s većim naglaskom na motorsport, a podržano je od strane Moto Engineering Foundationa (MEF) i TechnoPark MotorLanda. Natjecanje se održava svake dvije godine na MotoGP stazi „Motorland Aragón FIM“ u Španjolskoj, dok su koncepti motocikala vrlo slični onima u Moto3 kategoriji profesionalnih natjecanja.\n\nSamo natjecanje predstavlja izazov studentima da, koristeći inženjerske principe i vlastita znanja, pokažu svoje sposobnosti u dizajniranju, izradi i testiranju motocikla, koje se očituju finalnim utrkivanjem na stazi. MS se od FS primarno razlikuje po tome što, uz ostale statičke i dinamičke discipline, nudi i klasičnu motorsport utrku – vježbu, kvalifikaciju te glavnu utrku svih sudionika.\n\nFESB Racing od 2015. godine aktivno sudjeluje u MS natjecanjima, a nakon prvog nastupa s motociklom „FRTm01“ 2016. godine, nastavlja s razvojem novih projekata.",
+      "en": "The MotoStudent (MS) competition was established as a model of Formula Student with a greater emphasis on motorsport. It is supported by Moto Engineering Foundation (MEF) and TechnoPark MotorLanda. The competition is held every two years at MotoGP \"Motorland Aragón FIM\" in Spain, while the concepts of motorcycles are very similar to those in the Moto3 category of professional competitions.\n\nThis competition is a challenge for students to use engineering principles and gained knowledge to demonstrate their skills in designing, developing and testing the motorcycle, which is reflected in the final racing on the track. The MS distinguishes itself from the FS primarily because it offers, in addition to other static and dynamic disciplines, a classic motorsport race - the exercise, the qualification and the main race of all participants.\n\nSince 2015, FESB Racing has actively participated in MS competitions and after its first appearance with the motorcycle \"FRTm01\" in 2016, it continues to develop new projects."
+    }
+  ]
+}

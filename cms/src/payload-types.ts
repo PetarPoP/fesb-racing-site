@@ -67,16 +67,17 @@ export interface Config {
   };
   blocks: {};
   collections: {
-    users: User;
-    media: Media;
     announcements: Announcement;
     news: News;
-    pages: Page;
-    partners: Partner;
     teams: Team;
-    members: Member;
+    projects: Project;
     vehicles: Vehicle;
     competitions: Competition;
+    partners: Partner;
+    media: Media;
+    users: User;
+    pages: Page;
+    members: Member;
     forms: Form;
     'form-submissions': FormSubmission;
     redirects: Redirect;
@@ -87,16 +88,17 @@ export interface Config {
   };
   collectionsJoins: {};
   collectionsSelect: {
-    users: UsersSelect<false> | UsersSelect<true>;
-    media: MediaSelect<false> | MediaSelect<true>;
     announcements: AnnouncementsSelect<false> | AnnouncementsSelect<true>;
     news: NewsSelect<false> | NewsSelect<true>;
-    pages: PagesSelect<false> | PagesSelect<true>;
-    partners: PartnersSelect<false> | PartnersSelect<true>;
     teams: TeamsSelect<false> | TeamsSelect<true>;
-    members: MembersSelect<false> | MembersSelect<true>;
+    projects: ProjectsSelect<false> | ProjectsSelect<true>;
     vehicles: VehiclesSelect<false> | VehiclesSelect<true>;
     competitions: CompetitionsSelect<false> | CompetitionsSelect<true>;
+    partners: PartnersSelect<false> | PartnersSelect<true>;
+    media: MediaSelect<false> | MediaSelect<true>;
+    users: UsersSelect<false> | UsersSelect<true>;
+    pages: PagesSelect<false> | PagesSelect<true>;
+    members: MembersSelect<false> | MembersSelect<true>;
     forms: FormsSelect<false> | FormsSelect<true>;
     'form-submissions': FormSubmissionsSelect<false> | FormSubmissionsSelect<true>;
     redirects: RedirectsSelect<false> | RedirectsSelect<true>;
@@ -110,18 +112,20 @@ export interface Config {
   };
   fallbackLocale: ('false' | 'none' | 'null') | false | null | ('hr' | 'en') | ('hr' | 'en')[];
   globals: {
-    siteSettings: SiteSetting;
+    homepage: Homepage;
     stats: Stat;
     ticker: Ticker;
-    footer: Footer;
     joinCta: JoinCta;
+    siteSettings: SiteSetting;
+    footer: Footer;
   };
   globalsSelect: {
-    siteSettings: SiteSettingsSelect<false> | SiteSettingsSelect<true>;
+    homepage: HomepageSelect<false> | HomepageSelect<true>;
     stats: StatsSelect<false> | StatsSelect<true>;
     ticker: TickerSelect<false> | TickerSelect<true>;
-    footer: FooterSelect<false> | FooterSelect<true>;
     joinCta: JoinCtaSelect<false> | JoinCtaSelect<true>;
+    siteSettings: SiteSettingsSelect<false> | SiteSettingsSelect<true>;
+    footer: FooterSelect<false> | FooterSelect<true>;
   };
   locale: 'hr' | 'en';
   widgets: {
@@ -152,34 +156,55 @@ export interface UserAuthOperations {
   };
 }
 /**
+ * Kratke vijesti kluba. Tri najnovije se prikazuju na vrhu početne stranice, a sve na stranici /novosti. Novost je javna tek kad je objavljena (gumb Publish).
+ *
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "users".
+ * via the `definition` "announcements".
  */
-export interface User {
+export interface Announcement {
   id: number;
-  name?: string | null;
-  role: 'admin' | 'editor';
+  title: string;
+  /**
+   * Dio web adrese. Ako ostane prazno, napravi se iz naslova.
+   */
+  slug: string;
+  publishedAt?: string | null;
+  tags?: string[] | null;
+  cover?: (number | null) | Media;
+  /**
+   * Dvije do tri rečenice. Prikazuju se na kartici novosti.
+   */
+  excerpt?: string | null;
+  body?: {
+    root: {
+      type: string;
+      children: {
+        type: any;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  } | null;
+  meta?: {
+    title?: string | null;
+    description?: string | null;
+    /**
+     * Maximum upload file size: 12MB. Recommended file size for images is <500KB.
+     */
+    image?: (number | null) | Media;
+  };
   updatedAt: string;
   createdAt: string;
-  email: string;
-  resetPasswordToken?: string | null;
-  resetPasswordExpiration?: string | null;
-  salt?: string | null;
-  hash?: string | null;
-  resetPasswordRequestedAt?: string | null;
-  loginAttempts?: number | null;
-  lockUntil?: string | null;
-  sessions?:
-    | {
-        id: string;
-        createdAt?: string | null;
-        expiresAt: string;
-      }[]
-    | null;
-  password?: string | null;
-  collection: 'users';
+  _status?: ('draft' | 'published') | null;
 }
 /**
+ * Sve slike stranice. Slike se mogu dodati i izravno iz polja za sliku u bilo kojem zapisu.
+ *
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "media".
  */
@@ -226,53 +251,8 @@ export interface Media {
   };
 }
 /**
- * Short news. The three newest show at the top of the home page. Longer stories go to Blog.
+ * Duži članci iz radionice, pisani za partnere i sponzore. Najnoviji se prikazuju na dnu početne stranice, a svi na stranici /blog.
  *
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "announcements".
- */
-export interface Announcement {
-  id: number;
-  title: string;
-  /**
-   * Used in the URL. It is made from the title when empty.
-   */
-  slug: string;
-  publishedAt?: string | null;
-  tags?: string[] | null;
-  cover?: (number | null) | Media;
-  /**
-   * Two or three sentences. The card on the home page shows them.
-   */
-  excerpt?: string | null;
-  body?: {
-    root: {
-      type: string;
-      children: {
-        type: any;
-        version: number;
-        [k: string]: unknown;
-      }[];
-      direction: ('ltr' | 'rtl') | null;
-      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
-      indent: number;
-      version: number;
-    };
-    [k: string]: unknown;
-  } | null;
-  meta?: {
-    title?: string | null;
-    description?: string | null;
-    /**
-     * Maximum upload file size: 12MB. Recommended file size for images is <500KB.
-     */
-    image?: (number | null) | Media;
-  };
-  updatedAt: string;
-  createdAt: string;
-  _status?: ('draft' | 'published') | null;
-}
-/**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "news".
  */
@@ -280,12 +260,15 @@ export interface News {
   id: number;
   title: string;
   /**
-   * Used in the URL. It is made from the title when empty.
+   * Dio web adrese. Ako ostane prazno, napravi se iz naslova.
    */
   slug: string;
   publishedAt?: string | null;
   tags?: string[] | null;
   cover?: (number | null) | Media;
+  /**
+   * Dvije do tri rečenice za karticu članka.
+   */
   excerpt?: string | null;
   body?: {
     root: {
@@ -320,6 +303,266 @@ export interface News {
   updatedAt: string;
   createdAt: string;
   _status?: ('draft' | 'published') | null;
+}
+/**
+ * Šest podtimova kluba. Na početnoj stranici svaki ima karticu (ikona i naziv); klik na karticu otvara opis, područja rada i voditelja. Kratki opis se prikazuje u 3D prikazu bolida.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "teams".
+ */
+export interface Team {
+  id: number;
+  name: string;
+  /**
+   * Jedna rečenica. Prikazuje se na kartici tima dok skrolate kroz 3D prikaz bolida.
+   */
+  description?: string | null;
+  /**
+   * Cijeli tekst o timu. Prikazuje se u prozoru koji se otvori klikom na karticu tima.
+   */
+  about?: string | null;
+  tags?:
+    | {
+        tag: string;
+        id?: string | null;
+      }[]
+    | null;
+  lead?: {
+    name?: string | null;
+    photo?: (number | null) | Media;
+    email?: string | null;
+    phone?: string | null;
+  };
+  /**
+   * Neobavezno. Crni crtež na prozirnoj pozadini (PNG ili SVG). Prazno: ugrađena ikona.
+   */
+  icon?: (number | null) | Media;
+  /**
+   * PWT, ELE, DAE, DIN, KON ili B&M. Ne mijenjati: po njoj 3D bolid zna koji su dijelovi tima i koja je boja tima.
+   */
+  code: string;
+  /**
+   * Manji broj se prikazuje prije.
+   */
+  order?: number | null;
+  program?: ('formula-student' | 'motostudent' | 'both') | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * Formula Student i MotoStudent: kartica na početnoj stranici i stranica projekta. Vozila svakog projekta su u „Vozila (bolidi i motori)“. Prazna polja koriste ugrađeni tekst i slike.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "projects".
+ */
+export interface Project {
+  id: number;
+  name: string;
+  /**
+   * Odlomke odvojite praznim retkom. Prvi odlomak se prikazuje na kartici na početnoj stranici, svi na stranici projekta.
+   */
+  intro?: string | null;
+  /**
+   * Svijetli logotip.
+   */
+  logoDark?: (number | null) | Media;
+  /**
+   * Tamni logotip.
+   */
+  logoLight?: (number | null) | Media;
+  key: 'formula-student' | 'motostudent';
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * Jedan zapis po bolidu ili motociklu. Svako vozilo ima svoju stranicu, a stranica projekta (Formula Student ili MotoStudent) ih nabraja po redoslijedu. Prazne fotografije, podaci ili tekstovi koriste ugrađene s iste adrese.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "vehicles".
+ */
+export interface Vehicle {
+  id: number;
+  name: string;
+  kind: 'car' | 'bike';
+  /**
+   * Prikazuje se uz naziv, na primjer 2022/2023.
+   */
+  season?: string | null;
+  /**
+   * Neobavezni uvodni tekst stranice vozila.
+   */
+  description?: string | null;
+  /**
+   * Tekst po sustavu (pogon, ovjes, šasija ...).
+   */
+  sections?:
+    | {
+        title: string;
+        text: string;
+        id?: string | null;
+      }[]
+    | null;
+  /**
+   * Prikazuje se na kartici vozila i na vrhu njegove stranice.
+   */
+  cover?: (number | null) | Media;
+  gallery?:
+    | {
+        image: number | Media;
+        caption?: string | null;
+        id?: string | null;
+      }[]
+    | null;
+  year?: number | null;
+  /**
+   * Na primjer: Snaga motora · 68 kW (91 KS).
+   */
+  specs?:
+    | {
+        key: string;
+        value: string;
+        id?: string | null;
+      }[]
+    | null;
+  /**
+   * Jedan rezultat ili nagrada po retku.
+   */
+  results?: string | null;
+  /**
+   * Dio web adrese stranice vozila. Ako ostane prazno, napravi se iz naziva.
+   */
+  slug: string;
+  /**
+   * Manji broj se prikazuje prije.
+   */
+  order?: number | null;
+  link?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * Natjecanja u sekciji „Natjecanja“ na početnoj stranici, s kartom staze.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "competitions".
+ */
+export interface Competition {
+  id: number;
+  name: string;
+  type?: ('FS' | 'MS') | null;
+  /**
+   * Dvoslovna oznaka države, na primjer IT.
+   */
+  country?: string | null;
+  place?: string | null;
+  /**
+   * Staza i grad.
+   */
+  circuit?: string | null;
+  /**
+   * Na primjer: MotorLand Aragón · 5,35 km
+   */
+  venue?: string | null;
+  /**
+   * Karta iznad postavlja ove vrijednosti: središte i polovica veličine prikaza, u stupnjevima.
+   */
+  map?: {
+    lat?: number | null;
+    lng?: number | null;
+    spanLat?: number | null;
+    spanLng?: number | null;
+  };
+  /**
+   * Manji broj se prikazuje prije.
+   */
+  order?: number | null;
+  year?: number | null;
+  /**
+   * Na primjer: Snaga motora · 68 kW (91 KS).
+   */
+  specs?:
+    | {
+        key: string;
+        value: string;
+        id?: string | null;
+      }[]
+    | null;
+  gallery?:
+    | {
+        image: number | Media;
+        caption?: string | null;
+        id?: string | null;
+      }[]
+    | null;
+  /**
+   * Jedan rezultat ili nagrada po retku.
+   */
+  results?: string | null;
+  /**
+   * Na primjer https://www.motostudent.com
+   */
+  link?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * Logotipi u sekciji „Partneri“. Partner koji nije aktivan se ne prikazuje.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "partners".
+ */
+export interface Partner {
+  id: number;
+  name: string;
+  logo: number | Media;
+  /**
+   * Domena, na primjer firma.hr. Prazno ako partner nema stranicu.
+   */
+  url?: string | null;
+  tier: 'university' | 'main' | 'partner' | 'supporter';
+  /**
+   * Manji broj se prikazuje prije.
+   */
+  order?: number | null;
+  /**
+   * Širina logotipa podijeljena s visinom. Stranica po njemu određuje veličinu logotipa.
+   */
+  logoRatio?: number | null;
+  /**
+   * Bez bijelog filtera.
+   */
+  plainLogo?: boolean | null;
+  active?: boolean | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "users".
+ */
+export interface User {
+  id: number;
+  name?: string | null;
+  role: 'admin' | 'editor';
+  updatedAt: string;
+  createdAt: string;
+  email: string;
+  resetPasswordToken?: string | null;
+  resetPasswordExpiration?: string | null;
+  salt?: string | null;
+  hash?: string | null;
+  resetPasswordRequestedAt?: string | null;
+  loginAttempts?: number | null;
+  lockUntil?: string | null;
+  sessions?:
+    | {
+        id: string;
+        createdAt?: string | null;
+        expiresAt: string;
+      }[]
+    | null;
+  password?: string | null;
+  collection: 'users';
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -398,75 +641,6 @@ export interface Page {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "partners".
- */
-export interface Partner {
-  id: number;
-  name: string;
-  logo: number | Media;
-  /**
-   * Domain with an optional path. Empty if the partner has no site.
-   */
-  url?: string | null;
-  tier: 'university' | 'main' | 'partner' | 'supporter';
-  /**
-   * A lower number shows first.
-   */
-  order?: number | null;
-  /**
-   * Logo width divided by height. The site uses it to size the logo.
-   */
-  logoRatio?: number | null;
-  /**
-   * The logo keeps its own colours (no white filter).
-   */
-  plainLogo?: boolean | null;
-  active?: boolean | null;
-  updatedAt: string;
-  createdAt: string;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "teams".
- */
-export interface Team {
-  id: number;
-  name: string;
-  /**
-   * Short code: PWT, ELE, DAE, DIN, KON or B&M. The 3D car uses it to find the parts of the team.
-   */
-  code: string;
-  program?: ('formula-student' | 'motostudent' | 'both') | null;
-  /**
-   * One sentence. The 3D view of the car shows it.
-   */
-  description?: string | null;
-  /**
-   * Full text of the team card.
-   */
-  about?: string | null;
-  /**
-   * Optional. A black drawing on a transparent background (PNG or SVG). Empty: the built-in icon.
-   */
-  icon?: (number | null) | Media;
-  lead?: {
-    name?: string | null;
-    photo?: (number | null) | Media;
-    email?: string | null;
-    phone?: string | null;
-  };
-  tags?:
-    | {
-        tag: string;
-        id?: string | null;
-      }[]
-    | null;
-  order?: number | null;
-  updatedAt: string;
-  createdAt: string;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "members".
  */
 export interface Member {
@@ -486,126 +660,6 @@ export interface Member {
   year?: number | null;
   order?: number | null;
   active?: boolean | null;
-  updatedAt: string;
-  createdAt: string;
-}
-/**
- * One document per car or bike. The project pages list them by order. Empty photos, data or texts use the built-in ones of the same slug.
- *
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "vehicles".
- */
-export interface Vehicle {
-  id: number;
-  name: string;
-  slug: string;
-  kind: 'car' | 'bike';
-  /**
-   * Shown next to the name, for example 2022/2023.
-   */
-  season?: string | null;
-  /**
-   * A lower number shows first.
-   */
-  order?: number | null;
-  /**
-   * Optional intro text of the vehicle page.
-   */
-  description?: string | null;
-  cover?: (number | null) | Media;
-  /**
-   * Text per system (powertrain, suspension, chassis ...).
-   */
-  sections?:
-    | {
-        title: string;
-        text: string;
-        id?: string | null;
-      }[]
-    | null;
-  year?: number | null;
-  specs?:
-    | {
-        key: string;
-        value: string;
-        id?: string | null;
-      }[]
-    | null;
-  gallery?:
-    | {
-        image: number | Media;
-        caption?: string | null;
-        id?: string | null;
-      }[]
-    | null;
-  /**
-   * Awards and results, one per line.
-   */
-  results?: string | null;
-  /**
-   * Website, for example https://www.motostudent.com. The competition panel links to it.
-   */
-  link?: string | null;
-  updatedAt: string;
-  createdAt: string;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "competitions".
- */
-export interface Competition {
-  id: number;
-  name: string;
-  /**
-   * Two-letter country code, for example IT.
-   */
-  country?: string | null;
-  place?: string | null;
-  type?: ('FS' | 'MS') | null;
-  /**
-   * Circuit and town.
-   */
-  circuit?: string | null;
-  /**
-   * Venue line in the map bar.
-   */
-  venue?: string | null;
-  /**
-   * The map above sets these values. Centre and half size of the view, in degrees.
-   */
-  map?: {
-    lat?: number | null;
-    lng?: number | null;
-    /**
-     * Half size of the map view in degrees.
-     */
-    spanLat?: number | null;
-    spanLng?: number | null;
-  };
-  order?: number | null;
-  year?: number | null;
-  specs?:
-    | {
-        key: string;
-        value: string;
-        id?: string | null;
-      }[]
-    | null;
-  gallery?:
-    | {
-        image: number | Media;
-        caption?: string | null;
-        id?: string | null;
-      }[]
-    | null;
-  /**
-   * Awards and results, one per line.
-   */
-  results?: string | null;
-  /**
-   * Website, for example https://www.motostudent.com. The competition panel links to it.
-   */
-  link?: string | null;
   updatedAt: string;
   createdAt: string;
 }
@@ -848,14 +902,6 @@ export interface PayloadLockedDocument {
   id: number;
   document?:
     | ({
-        relationTo: 'users';
-        value: number | User;
-      } | null)
-    | ({
-        relationTo: 'media';
-        value: number | Media;
-      } | null)
-    | ({
         relationTo: 'announcements';
         value: number | Announcement;
       } | null)
@@ -864,20 +910,12 @@ export interface PayloadLockedDocument {
         value: number | News;
       } | null)
     | ({
-        relationTo: 'pages';
-        value: number | Page;
-      } | null)
-    | ({
-        relationTo: 'partners';
-        value: number | Partner;
-      } | null)
-    | ({
         relationTo: 'teams';
         value: number | Team;
       } | null)
     | ({
-        relationTo: 'members';
-        value: number | Member;
+        relationTo: 'projects';
+        value: number | Project;
       } | null)
     | ({
         relationTo: 'vehicles';
@@ -886,6 +924,26 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'competitions';
         value: number | Competition;
+      } | null)
+    | ({
+        relationTo: 'partners';
+        value: number | Partner;
+      } | null)
+    | ({
+        relationTo: 'media';
+        value: number | Media;
+      } | null)
+    | ({
+        relationTo: 'users';
+        value: number | User;
+      } | null)
+    | ({
+        relationTo: 'pages';
+        value: number | Page;
+      } | null)
+    | ({
+        relationTo: 'members';
+        value: number | Member;
       } | null)
     | ({
         relationTo: 'forms';
@@ -943,28 +1001,193 @@ export interface PayloadMigration {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "users_select".
+ * via the `definition` "announcements_select".
  */
-export interface UsersSelect<T extends boolean = true> {
-  name?: T;
-  role?: T;
-  updatedAt?: T;
-  createdAt?: T;
-  email?: T;
-  resetPasswordToken?: T;
-  resetPasswordExpiration?: T;
-  salt?: T;
-  hash?: T;
-  resetPasswordRequestedAt?: T;
-  loginAttempts?: T;
-  lockUntil?: T;
-  sessions?:
+export interface AnnouncementsSelect<T extends boolean = true> {
+  title?: T;
+  slug?: T;
+  publishedAt?: T;
+  tags?: T;
+  cover?: T;
+  excerpt?: T;
+  body?: T;
+  meta?:
     | T
     | {
-        id?: T;
-        createdAt?: T;
-        expiresAt?: T;
+        title?: T;
+        description?: T;
+        image?: T;
       };
+  updatedAt?: T;
+  createdAt?: T;
+  _status?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "news_select".
+ */
+export interface NewsSelect<T extends boolean = true> {
+  title?: T;
+  slug?: T;
+  publishedAt?: T;
+  tags?: T;
+  cover?: T;
+  excerpt?: T;
+  body?: T;
+  gallery?:
+    | T
+    | {
+        image?: T;
+        caption?: T;
+        id?: T;
+      };
+  meta?:
+    | T
+    | {
+        title?: T;
+        description?: T;
+        image?: T;
+      };
+  updatedAt?: T;
+  createdAt?: T;
+  _status?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "teams_select".
+ */
+export interface TeamsSelect<T extends boolean = true> {
+  name?: T;
+  description?: T;
+  about?: T;
+  tags?:
+    | T
+    | {
+        tag?: T;
+        id?: T;
+      };
+  lead?:
+    | T
+    | {
+        name?: T;
+        photo?: T;
+        email?: T;
+        phone?: T;
+      };
+  icon?: T;
+  code?: T;
+  order?: T;
+  program?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "projects_select".
+ */
+export interface ProjectsSelect<T extends boolean = true> {
+  name?: T;
+  intro?: T;
+  logoDark?: T;
+  logoLight?: T;
+  key?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "vehicles_select".
+ */
+export interface VehiclesSelect<T extends boolean = true> {
+  name?: T;
+  kind?: T;
+  season?: T;
+  description?: T;
+  sections?:
+    | T
+    | {
+        title?: T;
+        text?: T;
+        id?: T;
+      };
+  cover?: T;
+  gallery?:
+    | T
+    | {
+        image?: T;
+        caption?: T;
+        id?: T;
+      };
+  year?: T;
+  specs?:
+    | T
+    | {
+        key?: T;
+        value?: T;
+        id?: T;
+      };
+  results?: T;
+  slug?: T;
+  order?: T;
+  link?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "competitions_select".
+ */
+export interface CompetitionsSelect<T extends boolean = true> {
+  name?: T;
+  type?: T;
+  country?: T;
+  place?: T;
+  circuit?: T;
+  venue?: T;
+  map?:
+    | T
+    | {
+        lat?: T;
+        lng?: T;
+        spanLat?: T;
+        spanLng?: T;
+      };
+  order?: T;
+  year?: T;
+  specs?:
+    | T
+    | {
+        key?: T;
+        value?: T;
+        id?: T;
+      };
+  gallery?:
+    | T
+    | {
+        image?: T;
+        caption?: T;
+        id?: T;
+      };
+  results?: T;
+  link?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "partners_select".
+ */
+export interface PartnersSelect<T extends boolean = true> {
+  name?: T;
+  logo?: T;
+  url?: T;
+  tier?: T;
+  order?: T;
+  logoRatio?: T;
+  plainLogo?: T;
+  active?: T;
+  updatedAt?: T;
+  createdAt?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -1021,56 +1244,28 @@ export interface MediaSelect<T extends boolean = true> {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "announcements_select".
+ * via the `definition` "users_select".
  */
-export interface AnnouncementsSelect<T extends boolean = true> {
-  title?: T;
-  slug?: T;
-  publishedAt?: T;
-  tags?: T;
-  cover?: T;
-  excerpt?: T;
-  body?: T;
-  meta?:
-    | T
-    | {
-        title?: T;
-        description?: T;
-        image?: T;
-      };
+export interface UsersSelect<T extends boolean = true> {
+  name?: T;
+  role?: T;
   updatedAt?: T;
   createdAt?: T;
-  _status?: T;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "news_select".
- */
-export interface NewsSelect<T extends boolean = true> {
-  title?: T;
-  slug?: T;
-  publishedAt?: T;
-  tags?: T;
-  cover?: T;
-  excerpt?: T;
-  body?: T;
-  gallery?:
+  email?: T;
+  resetPasswordToken?: T;
+  resetPasswordExpiration?: T;
+  salt?: T;
+  hash?: T;
+  resetPasswordRequestedAt?: T;
+  loginAttempts?: T;
+  lockUntil?: T;
+  sessions?:
     | T
     | {
-        image?: T;
-        caption?: T;
         id?: T;
+        createdAt?: T;
+        expiresAt?: T;
       };
-  meta?:
-    | T
-    | {
-        title?: T;
-        description?: T;
-        image?: T;
-      };
-  updatedAt?: T;
-  createdAt?: T;
-  _status?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -1137,51 +1332,6 @@ export interface PagesSelect<T extends boolean = true> {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "partners_select".
- */
-export interface PartnersSelect<T extends boolean = true> {
-  name?: T;
-  logo?: T;
-  url?: T;
-  tier?: T;
-  order?: T;
-  logoRatio?: T;
-  plainLogo?: T;
-  active?: T;
-  updatedAt?: T;
-  createdAt?: T;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "teams_select".
- */
-export interface TeamsSelect<T extends boolean = true> {
-  name?: T;
-  code?: T;
-  program?: T;
-  description?: T;
-  about?: T;
-  icon?: T;
-  lead?:
-    | T
-    | {
-        name?: T;
-        photo?: T;
-        email?: T;
-        phone?: T;
-      };
-  tags?:
-    | T
-    | {
-        tag?: T;
-        id?: T;
-      };
-  order?: T;
-  updatedAt?: T;
-  createdAt?: T;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "members_select".
  */
 export interface MembersSelect<T extends boolean = true> {
@@ -1194,85 +1344,6 @@ export interface MembersSelect<T extends boolean = true> {
   year?: T;
   order?: T;
   active?: T;
-  updatedAt?: T;
-  createdAt?: T;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "vehicles_select".
- */
-export interface VehiclesSelect<T extends boolean = true> {
-  name?: T;
-  slug?: T;
-  kind?: T;
-  season?: T;
-  order?: T;
-  description?: T;
-  cover?: T;
-  sections?:
-    | T
-    | {
-        title?: T;
-        text?: T;
-        id?: T;
-      };
-  year?: T;
-  specs?:
-    | T
-    | {
-        key?: T;
-        value?: T;
-        id?: T;
-      };
-  gallery?:
-    | T
-    | {
-        image?: T;
-        caption?: T;
-        id?: T;
-      };
-  results?: T;
-  link?: T;
-  updatedAt?: T;
-  createdAt?: T;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "competitions_select".
- */
-export interface CompetitionsSelect<T extends boolean = true> {
-  name?: T;
-  country?: T;
-  place?: T;
-  type?: T;
-  circuit?: T;
-  venue?: T;
-  map?:
-    | T
-    | {
-        lat?: T;
-        lng?: T;
-        spanLat?: T;
-        spanLng?: T;
-      };
-  order?: T;
-  year?: T;
-  specs?:
-    | T
-    | {
-        key?: T;
-        value?: T;
-        id?: T;
-      };
-  gallery?:
-    | T
-    | {
-        image?: T;
-        caption?: T;
-        id?: T;
-      };
-  results?: T;
-  link?: T;
   updatedAt?: T;
   createdAt?: T;
 }
@@ -1484,6 +1555,113 @@ export interface PayloadMigrationsSelect<T extends boolean = true> {
   createdAt?: T;
 }
 /**
+ * Naslovi i tekstovi sekcija početne stranice, redom kojim se pojavljuju. Prazno polje zadržava ugrađeni tekst.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "homepage".
+ */
+export interface Homepage {
+  id: number;
+  heroA?: string | null;
+  heroB?: string | null;
+  heroSub?: string | null;
+  /**
+   * Vodi na obrazac i prebacuje ga na sponzorski.
+   */
+  heroCta2?: string | null;
+  newsTitle?: string | null;
+  teamsTitle?: string | null;
+  teamsCardsText?: string | null;
+  carTitle?: string | null;
+  carIntro?: string | null;
+  /**
+   * Natpisi dijelova na 3D modelu. Sklop koji nije na popisu zadržava ugrađeni naziv.
+   */
+  carParts?:
+    | {
+        part:
+          | 'frame'
+          | 'body'
+          | 'aero_front'
+          | 'aero_rear'
+          | 'aero_under'
+          | 'accu'
+          | 'lv'
+          | 'drive'
+          | 'steer'
+          | 'cockpit'
+          | 'susp'
+          | 'brakes'
+          | 'wheels';
+        name: string;
+        id?: string | null;
+      }[]
+    | null;
+  vehTitle?: string | null;
+  compTitle?: string | null;
+  sponTitle?: string | null;
+  sponText?: string | null;
+  sponCta?: string | null;
+  blogTitle?: string | null;
+  contactTitle?: string | null;
+  updatedAt?: string | null;
+  createdAt?: string | null;
+}
+/**
+ * Brojke ispod naslovnog dijela (godina osnutka, broj članova ...).
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "stats".
+ */
+export interface Stat {
+  id: number;
+  items?:
+    | {
+        value: string;
+        label: string;
+        id?: string | null;
+      }[]
+    | null;
+  updatedAt?: string | null;
+  createdAt?: string | null;
+}
+/**
+ * Poruke koje klize u traci ispod naslovnog dijela.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "ticker".
+ */
+export interface Ticker {
+  id: number;
+  items?:
+    | {
+        text: string;
+        id?: string | null;
+      }[]
+    | null;
+  updatedAt?: string | null;
+  createdAt?: string | null;
+}
+/**
+ * Sekcija „Pridruži se“ s obrascem, za studente i za sponzore.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "joinCta".
+ */
+export interface JoinCta {
+  id: number;
+  title: string;
+  text?: string | null;
+  companyTitle?: string | null;
+  companyText?: string | null;
+  /**
+   * Gumb „Pridruži se“ u gornjem izborniku.
+   */
+  buttonLabel?: string | null;
+  updatedAt?: string | null;
+  createdAt?: string | null;
+}
+/**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "siteSettings".
  */
@@ -1503,50 +1681,19 @@ export interface SiteSetting {
       }[]
     | null;
   /**
-   * Shopify store of the shop page (/shop). The Shop link shows in the menu when "enabled" is on.
+   * Shopify trgovina stranice /shop. Poveznica „Shop“ se prikazuje u izborniku kad je uključen.
    */
   shop?: {
     enabled?: boolean | null;
     /**
-     * For example fesb-racing.myshopify.com
+     * Na primjer fesb-racing.myshopify.com
      */
     storeDomain?: string | null;
     /**
-     * Storefront API access token (public, Shopify admin → Apps → Headless or a custom app). Not the Admin API token.
+     * Javni Storefront API token (Shopify admin → Apps → Headless). Nije Admin API token.
      */
     storefrontToken?: string | null;
   };
-  updatedAt?: string | null;
-  createdAt?: string | null;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "stats".
- */
-export interface Stat {
-  id: number;
-  items?:
-    | {
-        value: string;
-        label: string;
-        id?: string | null;
-      }[]
-    | null;
-  updatedAt?: string | null;
-  createdAt?: string | null;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "ticker".
- */
-export interface Ticker {
-  id: number;
-  items?:
-    | {
-        text: string;
-        id?: string | null;
-      }[]
-    | null;
   updatedAt?: string | null;
   createdAt?: string | null;
 }
@@ -1556,19 +1703,8 @@ export interface Ticker {
  */
 export interface Footer {
   id: number;
-  copyright?: string | null;
-  teamHeading?: string | null;
-  programHeading?: string | null;
-  followHeading?: string | null;
-  links?:
-    | {
-        label: string;
-        url: string;
-        id?: string | null;
-      }[]
-    | null;
   /**
-   * Club contacts in the footer, for example CEO and CTO.
+   * Kontakt osobe kluba u podnožju, na primjer CEO i CTO.
    */
   contacts?:
     | {
@@ -1580,48 +1716,48 @@ export interface Footer {
         id?: string | null;
       }[]
     | null;
+  followHeading?: string | null;
+  copyright?: string | null;
+  teamHeading?: string | null;
+  programHeading?: string | null;
+  links?:
+    | {
+        label: string;
+        url: string;
+        id?: string | null;
+      }[]
+    | null;
   updatedAt?: string | null;
   createdAt?: string | null;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "joinCta".
+ * via the `definition` "homepage_select".
  */
-export interface JoinCta {
-  id: number;
-  title: string;
-  text?: string | null;
-  buttonLabel?: string | null;
-  updatedAt?: string | null;
-  createdAt?: string | null;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "siteSettings_select".
- */
-export interface SiteSettingsSelect<T extends boolean = true> {
-  name?: T;
-  contact?:
+export interface HomepageSelect<T extends boolean = true> {
+  heroA?: T;
+  heroB?: T;
+  heroSub?: T;
+  heroCta2?: T;
+  newsTitle?: T;
+  teamsTitle?: T;
+  teamsCardsText?: T;
+  carTitle?: T;
+  carIntro?: T;
+  carParts?:
     | T
     | {
-        email?: T;
-        phone?: T;
-        address?: T;
-      };
-  social?:
-    | T
-    | {
-        platform?: T;
-        url?: T;
+        part?: T;
+        name?: T;
         id?: T;
       };
-  shop?:
-    | T
-    | {
-        enabled?: T;
-        storeDomain?: T;
-        storefrontToken?: T;
-      };
+  vehTitle?: T;
+  compTitle?: T;
+  sponTitle?: T;
+  sponText?: T;
+  sponCta?: T;
+  blogTitle?: T;
+  contactTitle?: T;
   updatedAt?: T;
   createdAt?: T;
   globalType?: T;
@@ -1659,20 +1795,54 @@ export interface TickerSelect<T extends boolean = true> {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "footer_select".
+ * via the `definition` "joinCta_select".
  */
-export interface FooterSelect<T extends boolean = true> {
-  copyright?: T;
-  teamHeading?: T;
-  programHeading?: T;
-  followHeading?: T;
-  links?:
+export interface JoinCtaSelect<T extends boolean = true> {
+  title?: T;
+  text?: T;
+  companyTitle?: T;
+  companyText?: T;
+  buttonLabel?: T;
+  updatedAt?: T;
+  createdAt?: T;
+  globalType?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "siteSettings_select".
+ */
+export interface SiteSettingsSelect<T extends boolean = true> {
+  name?: T;
+  contact?:
     | T
     | {
-        label?: T;
+        email?: T;
+        phone?: T;
+        address?: T;
+      };
+  social?:
+    | T
+    | {
+        platform?: T;
         url?: T;
         id?: T;
       };
+  shop?:
+    | T
+    | {
+        enabled?: T;
+        storeDomain?: T;
+        storefrontToken?: T;
+      };
+  updatedAt?: T;
+  createdAt?: T;
+  globalType?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "footer_select".
+ */
+export interface FooterSelect<T extends boolean = true> {
   contacts?:
     | T
     | {
@@ -1683,18 +1853,17 @@ export interface FooterSelect<T extends boolean = true> {
         phone?: T;
         id?: T;
       };
-  updatedAt?: T;
-  createdAt?: T;
-  globalType?: T;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "joinCta_select".
- */
-export interface JoinCtaSelect<T extends boolean = true> {
-  title?: T;
-  text?: T;
-  buttonLabel?: T;
+  followHeading?: T;
+  copyright?: T;
+  teamHeading?: T;
+  programHeading?: T;
+  links?:
+    | T
+    | {
+        label?: T;
+        url?: T;
+        id?: T;
+      };
   updatedAt?: T;
   createdAt?: T;
   globalType?: T;

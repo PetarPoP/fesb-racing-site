@@ -1,9 +1,12 @@
-import { createFileRoute, notFound } from '@tanstack/react-router'
+import { createFileRoute, getRouteApi, notFound } from '@tanstack/react-router'
 import { content, type Lang } from '~/content'
 import { NotFound } from '~/components/Cms'
 import { VehiclePage } from '~/components/Projects'
 import { getVehicle } from '~/lib/cms'
 import { isProjectId } from '~/lib/projects'
+
+// The CMS texts of the page come with the layout (/$lang).
+const layout = getRouteApi('/$lang')
 
 export const Route = createFileRoute('/$lang/projekti/$project/$vehicle')({
   loader: async ({ params }) => {
@@ -34,5 +37,5 @@ export const Route = createFileRoute('/$lang/projekti/$project/$vehicle')({
 function Page() {
   const lang = Route.useParams().lang as Lang
   const { v, others } = Route.useLoaderData()
-  return <VehiclePage v={v} others={others} lang={lang} c={content[lang]} />
+  return <VehiclePage v={v} others={others} lang={lang} c={layout.useLoaderData()} />
 }

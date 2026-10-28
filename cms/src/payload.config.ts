@@ -8,6 +8,8 @@ import { seoPlugin } from '@payloadcms/plugin-seo'
 import { formBuilderPlugin } from '@payloadcms/plugin-form-builder'
 import { redirectsPlugin } from '@payloadcms/plugin-redirects'
 import { buildConfig } from 'payload'
+import { en } from 'payload/i18n/en'
+import { hr } from 'payload/i18n/hr'
 import { getCloudflareContext, type CloudflareContext } from '@opennextjs/cloudflare'
 import type { GetPlatformProxyOptions } from 'wrangler'
 
@@ -22,7 +24,8 @@ import { Teams } from './collections/Teams'
 import { Members } from './collections/Members'
 import { Vehicles } from './collections/Vehicles'
 import { Competitions } from './collections/Competitions'
-import { Footer, JoinCta, SiteSettings, Stats, Ticker } from './globals'
+import { Projects } from './collections/Projects'
+import { Footer, Homepage, JoinCta, SiteSettings, Stats, Ticker } from './globals'
 import { migrations } from './migrations'
 import { withRebuildHooks } from './hooks/rebuild'
 
@@ -66,8 +69,9 @@ const env = (name: string): string | undefined =>
 
 const withHooks = withRebuildHooks(
   env,
-  [Users, Media, Announcements, News, Pages, Partners, Teams, Members, Vehicles, Competitions],
-  [SiteSettings, Stats, Ticker, Footer, JoinCta],
+  // The order here is the order of the admin menu (groups in order of their first entry).
+  [Announcements, News, Teams, Projects, Vehicles, Competitions, Partners, Media, Users, Pages, Members],
+  [Homepage, Stats, Ticker, JoinCta, SiteSettings, Footer],
 )
 
 export const frontendUrl = env('FRONTEND_URL') || 'http://localhost:3000'
@@ -91,6 +95,8 @@ export default buildConfig({
       ],
     },
   },
+  // The admin is in Croatian (a user can switch to English in their account).
+  i18n: { supportedLanguages: { hr, en }, fallbackLanguage: 'hr' },
   localization: {
     locales: [
       { label: 'Hrvatski', code: 'hr' },
@@ -123,11 +129,12 @@ export default buildConfig({
       fields: { payment: false },
       redirectRelationships: ['pages'],
       formOverrides: {
-        admin: { group: 'Forms' },
+        // The site sends its forms elsewhere (src/lib/apply.ts). Hidden from the menu.
+        admin: { group: 'Ostalo', hidden: true },
         access: { read: anyone, create: isLoggedIn, update: isLoggedIn, delete: isLoggedIn },
       },
       formSubmissionOverrides: {
-        admin: { group: 'Forms' },
+        admin: { group: 'Ostalo', hidden: true },
         // A visitor can send a submission. Only a logged-in user can read it.
         access: { create: anyone, read: isLoggedIn, update: isLoggedIn, delete: isLoggedIn },
       },
@@ -135,7 +142,7 @@ export default buildConfig({
     redirectsPlugin({
       collections: ['announcements', 'news', 'pages'],
       overrides: {
-        admin: { group: 'Settings' },
+        admin: { group: 'Ostalo', hidden: true },
         access: { read: anyone, create: isLoggedIn, update: isLoggedIn, delete: isLoggedIn },
       },
     }),

@@ -164,6 +164,10 @@ export type Content = {
   shop?: { enabled: boolean; domain: string; token: string }
   /** Social link URLs from the CMS, by platform (instagram, facebook, linkedin). */
   socials?: Record<string, string>
+  /** Names of the 3D car assemblies from the CMS (Home page texts), by assembly key. */
+  carParts?: Record<string, string>
+  /** Project texts and logos from the CMS (Projects). Missing fields keep the built-in ones. */
+  projects?: { id: string; name?: string; intro?: string[]; logo?: { dark?: string; light?: string } }[]
 }
 
 const hr: Content = {

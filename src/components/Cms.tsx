@@ -62,6 +62,10 @@ function Rich({ html }: { html: string }) {
 export function PostList({ kind, posts, lang, c }: { kind: PostKind; posts: NewsCard[]; lang: Lang; c: Content }) {
   return (
     <main className={cx('wrap flex flex-col gap-8', topPad)}>
+      <Link to="/$lang" params={{ lang }} hash={kind === 'blog' ? 'blog' : 'novosti'} className={tw.backPill}>
+        <ArrowLeft size={16} aria-hidden="true" className="transition-transform group-hover:-translate-x-0.5" />
+        {c.backHome}
+      </Link>
       <h1 className={tw.h2}>{kind === 'blog' ? c.blogTitle : c.newsTitle}</h1>
       {posts.length === 0 ? (
         <EmptyNews c={c} />
