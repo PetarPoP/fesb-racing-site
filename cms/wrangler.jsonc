@@ -4,16 +4,18 @@
   "name": "fesb-racing-cms",
   "compatibility_date": "2025-08-15",
   "compatibility_flags": ["nodejs_compat", "global_fetch_strictly_public"],
+  // Keep the variables set in the Cloudflare dashboard (FRONTEND_URL, REBUILD_WEBHOOK_URL ...) on deploy.
+  "keep_vars": true,
   "assets": { "directory": ".open-next/assets", "binding": "ASSETS" },
   "d1_databases": [
     {
       "binding": "D1",
-      "database_id": "PLACEHOLDER_D1_DATABASE_ID",
+      "database_id": "cfb61e06-246e-43ea-946a-1a983bf777d8",
       "database_name": "fesb-racing-cms",
       "remote": true
     }
   ],
   "r2_buckets": [
-    { "binding": "R2", "bucket_name": "placeholder-fesb-racing-media" }
+    { "binding": "R2", "bucket_name": "fesb-racing-media" }
   ]
 }

@@ -12,13 +12,13 @@ export default defineConfig({
 		env: {
 			D1: bindings.d1({
 				name: "fesb-racing-cms",
-				id: "PLACEHOLDER_D1_DATABASE_ID",
+				id: "cfb61e06-246e-43ea-946a-1a983bf777d8",
 				dev: {
 					remote: true,
 				},
 			}),
 			R2: bindings.r2({
-				name: "placeholder-fesb-racing-media",
+				name: "fesb-racing-media",
 			}),
 			ASSETS: bindings.assets(),
 		},
