@@ -3,7 +3,7 @@ import { activeOrUser, writeAccess } from '../access'
 
 export const Members: CollectionConfig = {
   slug: 'members',
-  admin: { group: 'Organisation', useAsTitle: 'name', defaultColumns: ['name', 'team', 'role', 'year', 'order', 'active'] },
+  admin: { hidden: true, group: 'Ostalo', useAsTitle: 'name', defaultColumns: ['name', 'team', 'role', 'year', 'order', 'active'] },
   access: { read: activeOrUser, ...writeAccess },
   defaultSort: 'order',
   fields: [

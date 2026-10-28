@@ -6,13 +6,13 @@ import { newsEditor } from "./News";
 /** Short club news: the three newest show at the top of the home page, all of them on /novosti. */
 export const Announcements: CollectionConfig = {
   slug: "announcements",
-  labels: { singular: "News item", plural: "News" },
+  labels: { singular: "Novost", plural: "Novosti" },
   admin: {
-    group: "Content",
+    group: "Novosti i blog",
     useAsTitle: "title",
     defaultColumns: ["title", "publishedAt", "_status", "updatedAt"],
     description:
-      "Short news. The three newest show at the top of the home page. Longer stories go to Blog.",
+      "Kratke vijesti kluba. Tri najnovije se prikazuju na vrhu početne stranice, a sve na stranici /novosti. Novost je javna tek kad je objavljena (gumb Publish).",
     livePreview: {
       url: ({ data, locale }) =>
         `${process.env.FRONTEND_URL || "http://localhost:3000"}/${locale?.code ?? "hr"}/novosti/${data?.slug ?? ""}`,
@@ -22,41 +22,45 @@ export const Announcements: CollectionConfig = {
   versions: { drafts: { autosave: { interval: 2000 } }, maxPerDoc: 25 },
   defaultSort: "-publishedAt",
   fields: [
-    { name: "title", type: "text", localized: true, required: true },
+    { name: "title", label: "Naslov", type: "text", localized: true, required: true },
     {
       name: "slug",
+      label: "Adresa (slug)",
       type: "text",
       required: true,
       unique: true,
       index: true,
       admin: {
         position: "sidebar",
-        description: "Used in the URL. It is made from the title when empty.",
+        description: "Dio web adrese. Ako ostane prazno, napravi se iz naslova.",
       },
       hooks: { beforeValidate: [slugFromTitle] },
     },
     {
       name: "publishedAt",
+      label: "Datum objave",
       type: "date",
       admin: { position: "sidebar", date: { pickerAppearance: "dayOnly" } },
     },
     {
       name: "tags",
+      label: "Oznake",
       type: "text",
       hasMany: true,
       localized: true,
       admin: { position: "sidebar" },
     },
-    { name: "cover", type: "upload", relationTo: "media" },
+    { name: "cover", label: "Naslovna slika", type: "upload", relationTo: "media" },
     {
       name: "excerpt",
+      label: "Sažetak",
       type: "textarea",
       localized: true,
       admin: {
         description:
-          "Two or three sentences. The card on the home page shows them.",
+          "Dvije do tri rečenice. Prikazuju se na kartici novosti.",
       },
     },
-    { name: "body", type: "richText", localized: true, editor: newsEditor },
+    { name: "body", label: "Tekst", type: "richText", localized: true, editor: newsEditor },
   ],
 };

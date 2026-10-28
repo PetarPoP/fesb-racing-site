@@ -428,7 +428,7 @@ export function Teams({ c, lang }: { c: Content; lang: Lang }) {
                 />
                 <circle data-key={g.key} r="3.5" fill="var(--team)" stroke="var(--bg)" strokeWidth="1.5" style={{ opacity: 0 }} />
                 <text data-key={g.key} className={labelText} fill="var(--fg)" style={{ opacity: 0 }}>
-                  {g.name[lang]}
+                  {c.carParts?.[g.key] ?? g.name[lang]}
                 </text>
               </g>
             ))}

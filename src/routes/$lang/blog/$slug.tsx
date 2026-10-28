@@ -1,8 +1,11 @@
-import { createFileRoute, notFound } from '@tanstack/react-router'
+import { createFileRoute, getRouteApi, notFound } from '@tanstack/react-router'
 import { content, type Lang } from '~/content'
 import { NewsArticle, NotFound } from '~/components/Cms'
 import { getPost } from '~/lib/cms'
 import { pick } from '~/lib/format'
+
+// The CMS texts of the page come with the layout (/$lang).
+const layout = getRouteApi('/$lang')
 
 export const Route = createFileRoute('/$lang/blog/$slug')({
   loader: async ({ params }) => {
@@ -34,5 +37,5 @@ export const Route = createFileRoute('/$lang/blog/$slug')({
 
 function PostPage() {
   const lang = Route.useParams().lang as Lang
-  return <NewsArticle kind="blog" n={Route.useLoaderData()} lang={lang} c={content[lang]} />
+  return <NewsArticle kind="blog" n={Route.useLoaderData()} lang={lang} c={layout.useLoaderData()} />
 }

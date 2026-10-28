@@ -51,7 +51,9 @@ const Cta: Block = {
 export const Pages: CollectionConfig = {
   slug: 'pages',
   admin: {
-    group: 'Content',
+    // The site does not show these pages (yet). Hidden from the menu so the admin stays clear.
+    hidden: true,
+    group: 'Ostalo',
     useAsTitle: 'title',
     defaultColumns: ['title', 'slug', '_status', 'updatedAt'],
     livePreview: {

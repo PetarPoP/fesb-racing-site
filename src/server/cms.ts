@@ -69,6 +69,16 @@ async function listDocs<T>(collection: string, locale: Locale, extra: Record<str
   return nonEmpty(((await res.json()) as { docs: T[] }).docs)
 }
 
+/** Read a global that the client has no type for. */
+async function getGlobalDoc<T>(slug: string, locale: Locale) {
+  const url = new URL(`${baseUrl()}/api/globals/${slug}`)
+  url.searchParams.set('locale', locale)
+  url.searchParams.set('depth', '1')
+  const res = await timedFetch(url.toString())
+  if (!res.ok) throw new Error(`CMS ${res.status} for ${url.pathname}`)
+  return (await res.json()) as T
+}
+
 const mediaUrl = (m: unknown) => {
   const url = m && typeof m === 'object' ? (m as Media).url : undefined
   return url ? (/^https?:/.test(url) ? url : publicUrl() + url) : null
@@ -208,6 +218,12 @@ export async function getCmsVehicles(lang: Lang): Promise<VehicleView[]> {
 
 // ---------- page content ----------
 
+/** Texts of the "homepage" global: the field names are the Content keys. */
+const HOME_TEXTS = [
+  'heroA', 'heroB', 'heroSub', 'heroCta2', 'newsTitle', 'teamsTitle', 'teamsCardsText', 'carTitle', 'carIntro',
+  'vehTitle', 'compTitle', 'sponTitle', 'sponText', 'sponCta', 'blogTitle', 'contactTitle',
+] as const satisfies readonly (keyof Content)[]
+
 type Doc = Record<string, any>
 
 /**
@@ -217,7 +233,7 @@ type Doc = Record<string, any>
  */
 export async function getCmsContent(lang: Lang, base: Content): Promise<Content> {
   const c = client()
-  const [stats, ticker, footer, join, settings, teams, comps] = await Promise.all([
+  const [stats, ticker, footer, join, settings, teams, comps, home, projects] = await Promise.all([
     cached(`g:stats:${lang}`, () => c.getGlobal('stats', { locale: lang })),
     cached(`g:ticker:${lang}`, () => c.getGlobal('ticker', { locale: lang })),
     cached(`g:footer:${lang}`, () => c.getGlobal('footer', { locale: lang })),
@@ -225,6 +241,8 @@ export async function getCmsContent(lang: Lang, base: Content): Promise<Content>
     cached(`g:siteSettings:${lang}`, () => c.getGlobal('siteSettings', { locale: lang })),
     cached(`teams:${lang}`, () => listDocs<Doc>('teams', lang, { sort: 'order' })),
     cached(`competitions:${lang}`, () => listDocs<Doc>('competitions', lang, { sort: 'order' })),
+    cached(`g:homepage:${lang}`, () => getGlobalDoc<Doc>('homepage', lang)),
+    cached(`projects:${lang}`, () => listDocs<Doc>('projects', lang)),
   ])
 
   const out: Content = { ...base }
@@ -249,9 +267,25 @@ export async function getCmsContent(lang: Lang, base: Content): Promise<Content>
     if (footer.followHeading) out.footFollow = footer.followHeading
   }
 
+  if (home) {
+    for (const k of HOME_TEXTS) if (typeof home[k] === 'string' && home[k].trim()) out[k] = home[k]
+    const parts = nonEmpty(home.carParts as { part?: string; name?: string }[] | undefined)
+    if (parts) out.carParts = Object.fromEntries(parts.filter((p) => p.part && p.name).map((p) => [p.part!, p.name!]))
+  }
+
+  if (projects)
+    out.projects = projects.map((d) => ({
+      id: d.key,
+      name: d.name || undefined,
+      intro: d.intro ? String(d.intro).split(/\n\s*\n/).map((x: string) => x.trim()).filter(Boolean) : undefined,
+      logo: { dark: mediaUrl(d.logoDark) ?? undefined, light: mediaUrl(d.logoLight) ?? undefined },
+    }))
+
   if (join) {
     if (join.title) out.joinTitle = join.title
     if (join.text) out.joinText = join.text
+    if (join.companyTitle) out.companyTitle = join.companyTitle
+    if (join.companyText) out.companyText = join.companyText
     if (join.buttonLabel) out.cta = join.buttonLabel
   }
 

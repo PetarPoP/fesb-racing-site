@@ -1,8 +1,8 @@
 import { useRef } from 'react'
 import { Link } from '@tanstack/react-router'
-import { ArrowLeft, ArrowRight, Trophy } from 'lucide-react'
+import { ArrowLeft, ArrowRight, ArrowUpRight, Trophy } from 'lucide-react'
 import type { Content, Lang } from '~/content'
-import { PROJECTS, isPhoto, type Img, type Project, type ProjectId, type VehicleView } from '~/lib/projects'
+import { isPhoto, projectViews, type Img, type ProjectView, type ProjectId, type VehicleView } from '~/lib/projects'
 import { Lightbox } from './Lightbox'
 import { cx, tw } from './ui'
 
@@ -12,7 +12,7 @@ export type VehicleChip = Pick<VehicleView, 'id' | 'project' | 'name' | 'year'> 
 const topPad = 'pt-[clamp(104px,12vw,148px)] pb-10 md:pb-16'
 
 /** Project logo: one file per theme, CSS shows the right one. */
-function ProjectLogo({ p, className }: { p: Project; className?: string }) {
+function ProjectLogo({ p, className }: { p: ProjectView; className?: string }) {
   return (
     <>
       <img src={p.logo.dark} alt={p.name} className={cx('light:hidden', className)} />
@@ -46,24 +46,20 @@ function VehicleImage({ img, alt, sizes, eager, full, className }: { img: Img; a
   )
 }
 
-function ProjectLink({ id, lang, className, children }: { id: ProjectId; lang: Lang; className?: string; children: React.ReactNode }) {
-  return (
-    <Link to="/$lang/projekti/$project" params={{ lang, project: id }} className={className}>
-      {children}
-    </Link>
-  )
-}
-
 /** Home section: one card for Formula Student and one for MotoStudent. Each leads to the project page. */
 export function ProjectsSection({ c, lang, vehicles }: { c: Content; lang: Lang; vehicles: VehicleChip[] }) {
   return (
     <section id="projekti" className={tw.section}>
       <h2 className={tw.h2}>{c.vehTitle}</h2>
       <div data-reveal="stagger" className="grid grid-cols-[repeat(auto-fit,minmax(min(100%,440px),1fr))] gap-4">
-        {PROJECTS.map((p) => {
+        {projectViews(lang, c.projects).map((p) => {
           const list = vehicles.filter((v) => v.project === p.id)
           return (
-            <article key={p.id} className="group flex flex-col overflow-hidden rounded-3xl border border-fg/10 bg-panel">
+            // The whole card is a link: the title link stretches over the card (after:inset-0). The vehicle links sit above it.
+            <article
+              key={p.id}
+              className="group relative flex flex-col overflow-hidden rounded-3xl border border-fg/10 bg-panel transition-colors duration-300 hover:border-acc/60 has-[a:focus-visible]:border-acc/60"
+            >
               {/* The logo of the program in place of a photo */}
               <div className="relative grid aspect-[16/10] place-items-center overflow-hidden bg-[radial-gradient(90%_80%_at_50%_45%,color-mix(in_oklab,var(--acc)_14%,var(--sunk)),var(--sunk))]">
                 <ProjectLogo
@@ -72,8 +68,18 @@ export function ProjectsSection({ c, lang, vehicles }: { c: Content; lang: Lang;
                 />
               </div>
               <div className="flex flex-1 flex-col gap-5 p-[clamp(18px,5vw,28px)]">
-                <h3 className="display m-0 text-[clamp(26px,6vw,34px)] leading-none [font-stretch:115%] tracking-[-.02em]">{p.name}</h3>
-                <p className={tw.bodyMute}>{p.intro[lang][0]}</p>
+                <h3 className="display m-0 text-[clamp(26px,6vw,34px)] leading-none [font-stretch:115%] tracking-[-.02em]">
+                  <Link
+                    to="/$lang/projekti/$project"
+                    params={{ lang, project: p.id }}
+                    aria-label={`${p.name}: ${c.projMore}`}
+                    className="flex items-center justify-between gap-4 outline-none after:absolute after:inset-0 after:content-[''] group-hover:text-acc"
+                  >
+                    {p.name}
+                    <ArrowUpRight size={28} aria-hidden="true" className="shrink-0 transition-transform duration-300 group-hover:translate-x-1 group-hover:-translate-y-1" />
+                  </Link>
+                </h3>
+                <p className={tw.bodyMute}>{p.intro[0]}</p>
                 {list.length > 0 && (
                   <div className="flex flex-col gap-2">
                     <span className="text-sm text-mute">{c.projGenerations}</span>
@@ -83,7 +89,7 @@ export function ProjectsSection({ c, lang, vehicles }: { c: Content; lang: Lang;
                           <Link
                             to="/$lang/projekti/$project/$vehicle"
                             params={{ lang, project: p.id, vehicle: v.id }}
-                            className="press block rounded-full border border-fg/15 px-3 py-1.5 text-sm text-soft hover:border-acc hover:text-acc"
+                            className="press relative z-10 block rounded-full border border-fg/15 bg-panel px-3 py-1.5 text-sm text-soft hover:border-acc hover:text-acc"
                           >
                             {v.name}
                             {v.year && <span className="text-mute"> · {v.year}</span>}
@@ -93,10 +99,6 @@ export function ProjectsSection({ c, lang, vehicles }: { c: Content; lang: Lang;
                     </ul>
                   </div>
                 )}
-                <ProjectLink id={p.id} lang={lang} className={cx(tw.btnLight, 'mt-auto flex items-center gap-2 self-start')}>
-                  {c.projMore}
-                  <ArrowRight size={16} aria-hidden="true" />
-                </ProjectLink>
               </div>
             </article>
           )
@@ -156,7 +158,7 @@ function BackToProjects({ lang, label }: { lang: Lang; label: string }) {
 
 /** /projekti/<project>: logo, the text from the old site and the vehicles, newest first. */
 export function ProjectPage({ project, vehicles, lang, c }: { project: ProjectId; vehicles: VehicleView[]; lang: Lang; c: Content }) {
-  const p = PROJECTS.find((x) => x.id === project)!
+  const p = projectViews(lang, c.projects).find((x) => x.id === project)!
   return (
     <main className={cx('wrap flex flex-col gap-10', topPad)}>
       <BackToProjects lang={lang} label={c.projAll} />
@@ -164,7 +166,7 @@ export function ProjectPage({ project, vehicles, lang, c }: { project: ProjectId
       <div className="grid grid-cols-[repeat(auto-fit,minmax(min(100%,420px),1fr))] items-center gap-[clamp(24px,5vw,64px)]">
         <ProjectLogo p={p} className="max-h-[200px] w-full max-w-[520px] object-contain object-left" />
         <div className="flex flex-col gap-4">
-          {p.intro[lang].map((t) => (
+          {p.intro.map((t) => (
             <p key={t.slice(0, 24)} className="m-0 text-[17px] leading-[1.65] text-pretty text-soft">
               {t}
             </p>
@@ -185,7 +187,7 @@ const h3Class = 'display m-0 text-[clamp(22px,2.4vw,28px)] leading-none [font-st
 
 /** /projekti/<project>/<vehicle>: cover, technical data, awards, the text of each system and the gallery. */
 export function VehiclePage({ v, others, lang, c }: { v: VehicleView; others: VehicleView[]; lang: Lang; c: Content }) {
-  const p = PROJECTS.find((x) => x.id === v.project)!
+  const p = projectViews(lang, c.projects).find((x) => x.id === v.project)!
   const gallery = useRef<HTMLElement>(null)
   const [cover, ...rest] = v.images
   return (

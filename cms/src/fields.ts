@@ -2,24 +2,28 @@ import type { Field } from 'payload'
 
 /** Fields that vehicles and competitions share. */
 export const sharedRacingFields: Field[] = [
-  { name: 'year', type: 'number' },
+  { name: 'year', label: 'Godina', type: 'number' },
   {
     name: 'specs',
+    label: 'Tehnički podaci',
     type: 'array',
-    labels: { singular: 'Spec', plural: 'Specs' },
+    labels: { singular: 'Podatak', plural: 'Podaci' },
+    admin: { description: 'Na primjer: Snaga motora · 68 kW (91 KS).' },
     fields: [
-      { name: 'key', type: 'text', localized: true, required: true },
-      { name: 'value', type: 'text', localized: true, required: true },
+      { name: 'key', label: 'Naziv', type: 'text', localized: true, required: true },
+      { name: 'value', label: 'Vrijednost', type: 'text', localized: true, required: true },
     ],
   },
   {
     name: 'gallery',
+    label: 'Galerija',
     type: 'array',
+    labels: { singular: 'Fotografija', plural: 'Fotografije' },
     fields: [
-      { name: 'image', type: 'upload', relationTo: 'media', required: true },
-      { name: 'caption', type: 'text', localized: true },
+      { name: 'image', label: 'Slika', type: 'upload', relationTo: 'media', required: true },
+      { name: 'caption', label: 'Opis', type: 'text', localized: true },
     ],
   },
-  { name: 'results', type: 'textarea', localized: true, admin: { description: 'Awards and results, one per line.' } },
-  { name: 'link', type: 'text', admin: { description: 'Website, for example https://www.motostudent.com. The competition panel links to it.' } },
+  { name: 'results', label: 'Rezultati i nagrade', type: 'textarea', localized: true, admin: { description: 'Jedan rezultat ili nagrada po retku.' } },
+  { name: 'link', label: 'Web stranica', type: 'text', admin: { description: 'Na primjer https://www.motostudent.com' } },
 ]

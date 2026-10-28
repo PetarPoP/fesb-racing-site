@@ -19,8 +19,8 @@ function TeamIcon({ src, className }: { src: string; className?: string }) {
 }
 
 /**
- * A team card shows the icon, the name and one sentence. A click or tap opens a window
- * with the full text, the tags and the team lead (no hover, so the page never moves under the mouse).
+ * A small team card: the icon and the name. A click or tap opens a window with the full text,
+ * the tags and the team lead (no hover, so the page never moves under the mouse).
  */
 function TeamCard({ t, c }: { t: Content['teams'][number]; c: Content }) {
   const [open, setOpen] = useState(false)
@@ -30,25 +30,23 @@ function TeamCard({ t, c }: { t: Content['teams'][number]; c: Content }) {
         type="button"
         onClick={() => setOpen(true)}
         aria-haspopup="dialog"
+        aria-label={`${t.name}: ${c.teamMore}`}
         className={cx(
           tw.card,
-          'group press flex cursor-pointer flex-col p-[clamp(20px,4vw,28px)] text-left transition-colors duration-300 hover:border-(--team)/40',
+          'group press relative flex cursor-pointer flex-col items-start gap-4 p-[clamp(16px,2.4vw,22px)] text-left transition-colors duration-300 hover:border-(--team)/50',
         )}
         style={{ '--team': teamColor(t.code) } as React.CSSProperties}
       >
-        <span className="flex w-full items-start justify-between gap-4">
-          <TeamIcon
-            src={t.icon}
-            className="h-14 w-24 text-fg transition-colors duration-500 [mask-position:left_center] group-hover:text-(--team) light:group-hover:text-fg"
-          />
-          <TeamCode code={t.code} />
-        </span>
-        <span className={cx(tw.cardTitle, 'mt-5 block text-[clamp(26px,2.6vw,32px)]')}>{t.name}</span>
-        <span className={cx(tw.bodyMute, 'mt-2 block')}>{t.d}</span>
-        <span className="mt-4 flex items-center gap-1.5 text-sm font-semibold text-fg group-hover:text-acc">
-          {c.teamMore}
-          <ArrowUpRight size={15} aria-hidden="true" className="transition-transform duration-300 group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
-        </span>
+        <TeamIcon
+          src={t.icon}
+          className="h-11 w-20 text-fg transition-colors duration-300 [mask-position:left_center] group-hover:text-(--team) light:group-hover:text-fg"
+        />
+        <span className="display block text-[15px] leading-[1.1] [font-stretch:100%] [overflow-wrap:anywhere] text-balance min-[1400px]:text-[17px]">{t.name}</span>
+        <ArrowUpRight
+          size={16}
+          aria-hidden="true"
+          className="absolute top-[clamp(16px,2.4vw,22px)] right-[clamp(16px,2.4vw,22px)] text-mute transition-[color,translate] duration-300 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 group-hover:text-(--team) light:group-hover:text-fg"
+        />
       </button>
       {open && <TeamDialog t={t} c={c} onClose={() => setOpen(false)} />}
     </>
@@ -142,7 +140,7 @@ export function TeamCards({ c }: { c: Content }) {
         <h2 className={tw.h2}>{c.teamsTitle}</h2>
         <p className="m-0 max-w-[380px] text-[17px] leading-[1.55] text-soft">{c.teamsCardsText}</p>
       </div>
-      <div data-reveal="stagger" className="grid grid-cols-[repeat(auto-fill,minmax(min(100%,340px),1fr))] gap-4">
+      <div data-reveal="stagger" className="grid grid-cols-2 gap-3 min-[700px]:grid-cols-3 min-[1100px]:grid-cols-6">
         {c.teams.map((t) => (
           <TeamCard key={t.code} t={t} c={c} />
         ))}

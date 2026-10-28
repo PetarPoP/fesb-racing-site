@@ -2,7 +2,7 @@ import { useEffect, useRef, useState, type ComponentProps, type CSSProperties } 
 import { Link } from '@tanstack/react-router'
 import { Moon, Sun } from 'lucide-react'
 import { SECTION_IDS, type Content, type Lang } from '~/content'
-import { currentTheme, setTheme } from '~/lib/theme'
+import { currentTheme, setCircle, setTheme } from '~/lib/theme'
 import { cx } from './ui'
 
 // Na početnoj običan #sidro (skrola bez unosa u povijest), na podstranicama povratak na početnu na tu sekciju.
@@ -53,11 +53,18 @@ export function Header({ lang, c, onHome }: { lang: Lang; c: Content; onHome: bo
   const active = useActiveSection()
   const other: Lang = lang === 'hr' ? 'en' : 'hr'
 
-  // Language switch in a browser without View Transitions: the page fades out on the click and back in
-  // when the new language is on screen. With View Transitions the router animates it (styles.css).
-  const fadeLang = () => {
-    if (typeof (document as { startViewTransition?: unknown }).startViewTransition === 'function') return
+  // Language switch. With View Transitions (the router starts one) the new language grows as a circle
+  // from the clicked button, like the theme. Without them the page fades out and back in.
+  const fadeLang = (e: React.MouseEvent<HTMLElement>) => {
     if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return
+    if (typeof (document as { startViewTransition?: unknown }).startViewTransition === 'function') {
+      const r = e.currentTarget.getBoundingClientRect()
+      setCircle('grow', { x: r.left + r.width / 2, y: r.top + r.height / 2 })
+      window.setTimeout(() => {
+        if (document.documentElement.dataset.vt === 'grow') delete document.documentElement.dataset.vt
+      }, 1200)
+      return
+    }
     document.documentElement.classList.add('lang-anim', 'lang-out')
   }
   useEffect(() => {

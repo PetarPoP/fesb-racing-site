@@ -3,11 +3,12 @@ import { isAdmin, isAdminField } from '../access'
 
 export const Users: CollectionConfig = {
   slug: 'users',
+  labels: { singular: 'Korisnik', plural: 'Korisnici' },
   auth: true,
   admin: {
     useAsTitle: 'email',
     defaultColumns: ['email', 'name', 'role', 'updatedAt'],
-    group: 'Settings',
+    group: 'Postavke',
     // Only an admin sees the user list in the menu.
     hidden: ({ user }) => (user as { role?: string } | null)?.role !== 'admin',
   },
@@ -35,9 +36,10 @@ export const Users: CollectionConfig = {
     ],
   },
   fields: [
-    { name: 'name', type: 'text' },
+    { name: 'name', label: 'Ime', type: 'text' },
     {
       name: 'role',
+      label: 'Uloga',
       type: 'select',
       required: true,
       defaultValue: 'editor',

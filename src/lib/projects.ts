@@ -1,7 +1,7 @@
 // Projects (Formula Student, MotoStudent) and their vehicles.
 // Source: the old site ups-fesb.hr (pages /projekti/, /formula-student/, /projekti/motostudent-2/ and one page per vehicle).
 // The CMS (collection "vehicles") replaces or adds vehicles; this file is the fallback. Generated once, then edited by hand.
-import type { Lang } from '~/content'
+import type { Content, Lang } from '~/content'
 
 export type ProjectId = 'formula-student' | 'motostudent'
 export const PROJECT_IDS: ProjectId[] = ['formula-student', 'motostudent']
@@ -88,6 +88,21 @@ export const PROJECTS: Project[] = [
     },
   },
 ]
+
+/** A project in one language: the built-in data with the CMS texts and logos over it. */
+export type ProjectView = { id: ProjectId; name: string; logo: { dark: string; light: string }; intro: string[] }
+
+export function projectViews(lang: Lang, cms?: Content['projects']): ProjectView[] {
+  return PROJECTS.map((p) => {
+    const o = cms?.find((x) => x.id === p.id)
+    return {
+      id: p.id,
+      name: o?.name || p.name,
+      logo: { dark: o?.logo?.dark || p.logo.dark, light: o?.logo?.light || p.logo.light },
+      intro: o?.intro?.length ? o.intro : p.intro[lang],
+    }
+  })
+}
 
 export const VEHICLES: Vehicle[] = [
   {
