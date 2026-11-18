@@ -150,18 +150,45 @@ export type Content = {
   shopText: string
   shopSoon: string
   shopSoonText: string
-  shopError: string
   shopCart: string
   shopEmpty: string
+  shopBrowse: string
+  shopAll: string
+  shopBack: string
   shopAdd: string
+  shopAdded: string
+  shopViewCart: string
   shopSoldOut: string
-  shopVariant: string
-  shopSubtotal: string
-  shopCheckout: string
+  shopSize: string
+  shopPickSize: string
+  shopQty: string
+  /** {n} is the number of pieces. */
+  shopInStock: string
+  shopLow: string
   shopMore: string
   shopLess: string
-  /** Shopify store from the CMS (Site settings → Shop). The nav link shows when it is switched on. */
-  shop?: { enabled: boolean; domain: string; token: string }
+  shopRemove: string
+  shopSubtotal: string
+  shopShipping: string
+  shopFree: string
+  shopTotal: string
+  shopFormTitle: string
+  shopDelivery: string
+  shopPickup: string
+  shopPost: string
+  shopPhone: string
+  shopAddress: string
+  shopNote: string
+  shopOrder: string
+  shopDone: string
+  /** {n} is the order number. */
+  shopDoneText: string
+  shopShort: string
+  shopClosed: string
+  errPhone: string
+  errAddress: string
+  /** The shop from the CMS (Site settings → Shop). The nav link shows when it is switched on. */
+  shop?: { enabled: boolean }
   /** Social link URLs from the CMS, by platform (instagram, facebook, linkedin). */
   socials?: Record<string, string>
   /** Names of the 3D car assemblies from the CMS (Home page texts), by assembly key. */
@@ -390,19 +417,44 @@ const hr: Content = {
   themeSwitch: 'Promijeni temu (svijetla / tamna)',
   shopNav: 'Shop',
   shopTitle: 'Shop',
-  shopText: 'Majice, kape i ostala oprema FESB Racinga. Svaka kupnja ide izravno u razvoj sljedećeg bolida i motocikla.',
+  shopText: 'Majice, hoodiji i ostala oprema FESB Racinga. Svaka kupnja ide izravno u razvoj sljedećeg bolida i motocikla.',
   shopSoon: 'Shop uskoro',
   shopSoonText: 'Trgovina se upravo slaže. Pratite nas na Instagramu da saznate kad krene prodaja.',
-  shopError: 'Shop trenutačno nije dostupan',
   shopCart: 'Košarica',
   shopEmpty: 'Košarica je prazna.',
+  shopBrowse: 'Pogledaj proizvode',
+  shopAll: 'Sve',
+  shopBack: 'Natrag na shop',
   shopAdd: 'Dodaj u košaricu',
+  shopAdded: 'Dodano u košaricu.',
+  shopViewCart: 'Otvori košaricu',
   shopSoldOut: 'Rasprodano',
-  shopVariant: 'Odaberi',
-  shopSubtotal: 'Ukupno',
-  shopCheckout: 'Na plaćanje',
+  shopSize: 'Veličina',
+  shopPickSize: 'Odaberi veličinu.',
+  shopQty: 'Količina',
+  shopInStock: 'Na zalihi: {n} kom',
+  shopLow: 'Još samo {n} kom',
   shopMore: 'Povećaj količinu',
   shopLess: 'Smanji količinu',
+  shopRemove: 'Ukloni iz košarice',
+  shopSubtotal: 'Proizvodi',
+  shopShipping: 'Dostava',
+  shopFree: 'Besplatno',
+  shopTotal: 'Ukupno',
+  shopFormTitle: 'Podaci za narudžbu',
+  shopDelivery: 'Preuzimanje',
+  shopPickup: 'Osobno preuzimanje',
+  shopPost: 'Dostava poštom',
+  shopPhone: 'Telefon',
+  shopAddress: 'Adresa za dostavu (ulica, broj, poštanski broj, grad)',
+  shopNote: 'Napomena (neobavezno)',
+  shopOrder: 'Pošalji narudžbu',
+  shopDone: 'Narudžba je zaprimljena',
+  shopDoneText: 'Broj tvoje narudžbe je {n}. Javit ćemo ti se e-mailom kad bude spremna.',
+  shopShort: 'Nekih proizvoda više nema dovoljno na zalihi. Košarica je ažurirana, provjeri je i pošalji ponovno.',
+  shopClosed: 'Shop trenutačno ne prima narudžbe.',
+  errPhone: 'Upiši broj telefona.',
+  errAddress: 'Upiši adresu za dostavu.',
 }
 
 const en: Content = {
@@ -625,19 +677,44 @@ const en: Content = {
   themeSwitch: 'Switch theme (light / dark)',
   shopNav: 'Shop',
   shopTitle: 'Shop',
-  shopText: 'T-shirts, caps and more FESB Racing gear. Every purchase goes straight into the development of the next car and bike.',
+  shopText: 'T-shirts, hoodies and more FESB Racing gear. Every purchase goes straight into the development of the next car and bike.',
   shopSoon: 'Shop coming soon',
   shopSoonText: 'The store is being set up. Follow us on Instagram to find out when it opens.',
-  shopError: 'The shop is not available right now',
   shopCart: 'Cart',
   shopEmpty: 'Your cart is empty.',
+  shopBrowse: 'Browse products',
+  shopAll: 'All',
+  shopBack: 'Back to the shop',
   shopAdd: 'Add to cart',
+  shopAdded: 'Added to the cart.',
+  shopViewCart: 'View cart',
   shopSoldOut: 'Sold out',
-  shopVariant: 'Choose',
-  shopSubtotal: 'Subtotal',
-  shopCheckout: 'Checkout',
+  shopSize: 'Size',
+  shopPickSize: 'Choose a size.',
+  shopQty: 'Quantity',
+  shopInStock: 'In stock: {n}',
+  shopLow: 'Only {n} left',
   shopMore: 'Increase quantity',
   shopLess: 'Decrease quantity',
+  shopRemove: 'Remove from cart',
+  shopSubtotal: 'Products',
+  shopShipping: 'Shipping',
+  shopFree: 'Free',
+  shopTotal: 'Total',
+  shopFormTitle: 'Your details',
+  shopDelivery: 'Delivery',
+  shopPickup: 'Pick up in person',
+  shopPost: 'Shipping by post',
+  shopPhone: 'Phone',
+  shopAddress: 'Shipping address (street, number, postcode, city)',
+  shopNote: 'Note (optional)',
+  shopOrder: 'Place order',
+  shopDone: 'Order received',
+  shopDoneText: 'Your order number is {n}. We will email you when it is ready.',
+  shopShort: 'Some products are no longer in stock in that quantity. The cart has been updated, check it and send again.',
+  shopClosed: 'The shop is not taking orders right now.',
+  errPhone: 'Enter your phone number.',
+  errAddress: 'Enter the shipping address.',
 }
 
 export const content: Record<Lang, Content> = { hr, en }

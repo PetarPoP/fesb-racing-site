@@ -15,7 +15,7 @@ import { getCloudflareContext } from '@opennextjs/cloudflare'
 const DEBOUNCE_MS = Number(process.env.REBUILD_DEBOUNCE_MS) || 25_000
 
 /** The collections and globals that the public site shows. */
-export const REBUILD_COLLECTIONS = ['partners', 'announcements', 'news', 'teams', 'vehicles', 'competitions', 'projects', 'pages']
+export const REBUILD_COLLECTIONS = ['partners', 'announcements', 'news', 'teams', 'vehicles', 'competitions', 'projects', 'pages', 'products']
 export const REBUILD_GLOBALS = ['siteSettings', 'stats', 'ticker', 'footer', 'joinCta', 'homepage']
 
 type EnvReader = (name: string) => string | undefined
@@ -72,7 +72,9 @@ const isPublished = (doc: unknown) => (doc as { _status?: string } | null)?._sta
 const isDraftSave = (req: { query?: Record<string, unknown> }) => Boolean(req.query?.draft || req.query?.autosave)
 
 export function rebuildHooks(env: EnvReader) {
-  const afterChange: CollectionAfterChangeHook = ({ collection, doc, previousDoc, req }) => {
+  const afterChange: CollectionAfterChangeHook = ({ collection, doc, previousDoc, req, context }) => {
+    // A stock change from an order does not change the built pages: the site reads the stock live.
+    if (context?.skipRebuild) return doc
     const versioned = Boolean(collection.versions)
     if (versioned) {
       // A draft save does not change the public site. A publish or an unpublish does.

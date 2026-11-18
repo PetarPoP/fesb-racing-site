@@ -12,7 +12,7 @@ const LANGS = ['hr', 'en']
  * Read the post slugs of one CMS collection at build time. Return an empty list when the CMS is down.
  * "news" holds the blog posts (/blog), "announcements" the short news (/novosti).
  */
-async function cmsSlugs(base: string, collection: 'news' | 'announcements'): Promise<string[]> {
+async function cmsSlugs(base: string, collection: 'news' | 'announcements' | 'products'): Promise<string[]> {
   try {
     const url = `${base.replace(/\/$/, '')}/api/${collection}?limit=1000&depth=0&select[slug]=true`
     const res = await fetch(url, { signal: AbortSignal.timeout(5000) })
@@ -30,7 +30,8 @@ export default defineConfig(async ({ command, mode }) => {
   process.env.CMS_URL ||= cmsUrl
   // The slug list is only needed for the build. It adds the detail pages to the crawl.
   // If the CMS is down, the news list is empty and no detail page exists.
-  const [blogSlugs, newsSlugs] = command === 'build' ? await Promise.all([cmsSlugs(cmsUrl, 'news'), cmsSlugs(cmsUrl, 'announcements')]) : [[], []]
+  const [blogSlugs, newsSlugs, productSlugs] =
+    command === 'build' ? await Promise.all([cmsSlugs(cmsUrl, 'news'), cmsSlugs(cmsUrl, 'announcements'), cmsSlugs(cmsUrl, 'products')]) : [[], [], []]
   // In CI set REQUIRE_CMS=1. A build with the CMS down then fails and the old site stays live.
   // The blog is the check: it has posts since the start, the news collection can still be empty.
   if (command === 'build' && process.env.REQUIRE_CMS === '1' && blogSlugs.length === 0) throw new Error(`REQUIRE_CMS=1 and no blog posts from ${cmsUrl}`)
@@ -48,6 +49,8 @@ export default defineConfig(async ({ command, mode }) => {
       `/${l}/projekti/formula-student`,
       `/${l}/projekti/motostudent`,
       `/${l}/shop`,
+      `/${l}/shop/kosarica`,
+      ...productSlugs.map((s) => `/${l}/shop/${s}`),
     ]),
   ].map((path) => ({ path }))
 

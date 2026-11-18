@@ -8,6 +8,7 @@ import type { News, PostKind } from '~/lib/format'
 export type { PostKind }
 import { galleryHtml, lexicalToHtml, type HtmlContext } from './lexical'
 import { VEHICLES, vehicleView, type Img, type VehicleView } from '~/lib/projects'
+import type { OrderInput, OrderResult, ShopData, ShopProduct, ShortLine } from '~/lib/shop'
 
 /** The CMS Worker sometimes needs 2–4 s on a cold start. 2 s was too short: pages were built without news and logos. */
 const TIMEOUT_MS = 5000
@@ -294,9 +295,7 @@ export async function getCmsContent(lang: Lang, base: Content): Promise<Content>
     if (settings.contact?.address) out.addr = settings.contact.address
     const soc = nonEmpty(settings.social)
     if (soc) out.socials = Object.fromEntries(soc.map((s) => [s.platform, s.url]))
-    const shop = (settings as { shop?: { enabled?: boolean; storeDomain?: string; storefrontToken?: string } }).shop
-    if (shop?.storeDomain && shop.storefrontToken)
-      out.shop = { enabled: Boolean(shop.enabled), domain: shop.storeDomain, token: shop.storefrontToken }
+    if ((settings as { shop?: { enabled?: boolean } }).shop?.enabled) out.shop = { enabled: true }
   }
 
   // The CMS team list (in its order) replaces the static one once it holds the current team codes.
@@ -350,4 +349,55 @@ export async function getCmsContent(lang: Lang, base: Content): Promise<Content>
   }
 
   return out
+}
+
+// ---------- shop ----------
+
+/** The shop is live data: a shorter cache, so the stock on the page follows the orders. */
+const SHOP_TTL_MS = 15_000
+
+export function getCmsShop(lang: Lang): Promise<ShopData | null> {
+  const key = `shop:${lang}`
+  const hit = cache.get(key)
+  if (hit && Date.now() - hit.at > SHOP_TTL_MS) cache.delete(key)
+  return cached(key, async () => {
+    const [docs, settings] = await Promise.all([
+      listDocs<Record<string, unknown>>('products', lang, { sort: 'order', 'where[active][equals]': 'true' }),
+      getGlobalDoc<{ shop?: { enabled?: boolean; pickup?: string; delivery?: boolean; deliveryPrice?: number } }>('siteSettings', lang),
+    ])
+    const products = (docs ?? []).map((d): ShopProduct => {
+      const sizes = ((d.sizes as { size: string; stock: number }[] | undefined) ?? []).map((s) => ({ size: s.size, stock: Math.max(0, s.stock ?? 0) }))
+      return {
+        id: Number(d.id),
+        slug: String(d.slug),
+        name: String(d.name ?? ''),
+        category: String(d.category ?? 'ostalo'),
+        price: Number(d.price ?? 0),
+        description: d.description ? String(d.description) : '',
+        images: ((d.images as unknown[] | undefined) ?? []).map(mediaImg).filter((x): x is Img => x !== null),
+        sizes,
+        stock: sizes.length ? sizes.reduce((s, x) => s + x.stock, 0) : Math.max(0, Number(d.stock ?? 0)),
+      }
+    })
+    const s = settings?.shop ?? {}
+    return {
+      products,
+      settings: { enabled: Boolean(s.enabled), pickup: s.pickup ?? '', delivery: Boolean(s.delivery), deliveryPrice: Math.max(0, s.deliveryPrice ?? 0) },
+    }
+  })
+}
+
+/** Send an order to the CMS. The CMS takes the prices from the products and checks the stock. */
+export async function postCmsOrder(order: OrderInput): Promise<OrderResult> {
+  const res = await timedFetch(`${baseUrl()}/api/orders/place`, {
+    method: 'POST',
+    headers: { 'content-type': 'application/json' },
+    body: JSON.stringify(order),
+  })
+  const body = (await res.json().catch(() => ({}))) as Partial<OrderResult> & { error?: string }
+  // A new order changes the stock: the next page load reads the products again.
+  for (const key of [...cache.keys()]) if (key.startsWith('shop:')) cache.delete(key)
+  if (res.ok && body.ok) return body as OrderResult
+  if (body.error === 'stock' || body.error === 'invalid' || body.error === 'closed') return { ok: false, error: body.error, short: (body as { short?: ShortLine[] }).short }
+  throw new Error(`CMS ${res.status} for /api/orders/place`)
 }
