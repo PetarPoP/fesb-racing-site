@@ -139,16 +139,26 @@ export const SiteSettings: GlobalConfig = {
       name: 'shop',
       label: 'Shop',
       type: 'group',
-      admin: { description: 'Shopify trgovina stranice /shop. Poveznica „Shop“ se prikazuje u izborniku kad je uključen.' },
+      admin: { description: 'Shop stranice (/shop). Proizvodi i narudžbe su u grupi „Shop“. Poveznica „Shop“ se prikazuje u izborniku kad je uključen.' },
       fields: [
         { name: 'enabled', label: 'Uključen', type: 'checkbox', defaultValue: false },
-        { name: 'storeDomain', label: 'Domena trgovine', type: 'text', admin: { description: 'Na primjer fesb-racing.myshopify.com' } },
         {
-          name: 'storefrontToken',
-          label: 'Storefront token',
-          type: 'text',
-          admin: { description: 'Javni Storefront API token (Shopify admin → Apps → Headless). Nije Admin API token.' },
+          name: 'pickup',
+          label: 'Preuzimanje i plaćanje',
+          type: 'textarea',
+          localized: true,
+          admin: { description: 'Prikazuje se u košarici, na primjer gdje i kada se narudžba preuzima i kako se plaća.' },
         },
+        {
+          type: 'row',
+          fields: [
+            { name: 'delivery', label: 'Dostava poštom', type: 'checkbox', defaultValue: false, admin: { width: '50%', description: 'Kupac može odabrati dostavu na adresu.' } },
+            { name: 'deliveryPrice', label: 'Cijena dostave (€)', type: 'number', min: 0, defaultValue: 0, admin: { width: '50%', condition: (_, s) => Boolean(s?.delivery) } },
+          ],
+        },
+        // The site used a Shopify store before. These fields stay hidden, so the database keeps its columns.
+        { name: 'storeDomain', type: 'text', admin: { hidden: true } },
+        { name: 'storefrontToken', type: 'text', admin: { hidden: true } },
       ],
     },
   ],
