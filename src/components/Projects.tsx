@@ -122,7 +122,6 @@ function VehicleCard({ v, lang, c }: { v: VehicleView; lang: Lang; c: Content })
     <Link
       to="/$lang/projekti/$project/$vehicle"
       params={{ lang, project: v.project, vehicle: v.id }}
-      aria-label={`${v.name} — ${c.vehOpen}`}
       data-dh="glow"
       data-dh-edge="20"
       className={cx(tw.card, 'group flex flex-col overflow-hidden press hover:border-acc/60 focus-visible:border-acc/60')}
