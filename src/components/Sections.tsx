@@ -403,7 +403,7 @@ export function NewsCardItem({ n, lang, c }: { n: NewsCard; lang: Lang; c: Conte
       kind="news"
       lang={lang}
       slug={n.slug}
-      aria-label={`${c.readMore}: ${title}`}
+      aria-label={`${title} — ${c.readMore}`}
       data-dh="glow"
       data-dh-edge="20"
       className={cx(tw.card, 'group flex flex-col overflow-hidden press hover:border-acc/60 focus-visible:border-acc/60')}
@@ -462,7 +462,7 @@ function PostFeatured({ kind, n, lang, c }: { kind: PostKind; n: NewsCard; lang:
       kind={kind}
       lang={lang}
       slug={n.slug}
-      aria-label={`${c.readMore}: ${title}`}
+      aria-label={`${title} — ${c.readMore}`}
       data-dh="glow"
       data-dh-edge="24"
       className={cx(
@@ -495,7 +495,7 @@ export function NewsRow({ kind, n, lang, c }: { kind: PostKind; n: NewsCard; lan
   const title = pick(n, 'title', lang)
   const tag = pick(n, 'tag', lang)
   return (
-    <PostLink kind={kind} lang={lang} slug={n.slug} aria-label={`${c.readMore}: ${title}`} className={rowClass}>
+    <PostLink kind={kind} lang={lang} slug={n.slug} aria-label={`${title} — ${c.readMore}`} className={rowClass}>
       <span className="text-sm whitespace-nowrap text-mute md:col-start-1">
         {formatDate(n.date)}
         {tag && <span className="text-acc"> · {tag}</span>}

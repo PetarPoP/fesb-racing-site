@@ -25,6 +25,8 @@ import { Members } from './collections/Members'
 import { Vehicles } from './collections/Vehicles'
 import { Competitions } from './collections/Competitions'
 import { Projects } from './collections/Projects'
+import { Products } from './collections/Products'
+import { Orders } from './collections/Orders'
 import { Footer, Homepage, JoinCta, SiteSettings, Stats, Ticker } from './globals'
 import { migrations } from './migrations'
 import { withRebuildHooks } from './hooks/rebuild'
@@ -70,7 +72,7 @@ const env = (name: string): string | undefined =>
 const withHooks = withRebuildHooks(
   env,
   // The order here is the order of the admin menu (groups in order of their first entry).
-  [Announcements, News, Teams, Projects, Vehicles, Competitions, Partners, Media, Users, Pages, Members],
+  [Announcements, News, Teams, Projects, Vehicles, Competitions, Partners, Products, Orders, Media, Users, Pages, Members],
   [Homepage, Stats, Ticker, JoinCta, SiteSettings, Footer],
 )
 

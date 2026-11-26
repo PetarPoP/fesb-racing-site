@@ -12,11 +12,18 @@ export type VehicleChip = Pick<VehicleView, 'id' | 'project' | 'name' | 'year'> 
 const topPad = 'pt-[clamp(104px,12vw,148px)] pb-10 md:pb-16'
 
 /** Project logo: one file per theme, CSS shows the right one. */
+// The size of the built-in logos, so the browser keeps their place before they load. A CMS logo keeps the same ratio.
+const LOGO_SIZE: Record<ProjectId, { width: number; height: number }> = {
+  'formula-student': { width: 900, height: 167 },
+  motostudent: { width: 900, height: 490 },
+}
+
 function ProjectLogo({ p, className }: { p: ProjectView; className?: string }) {
+  const size = LOGO_SIZE[p.id]
   return (
     <>
-      <img src={p.logo.dark} alt={p.name} className={cx('light:hidden', className)} />
-      <img src={p.logo.light} alt="" aria-hidden="true" className={cx('hidden light:block', className)} />
+      <img src={p.logo.dark} alt={p.name} {...size} decoding="async" className={cx('light:hidden', className)} />
+      <img src={p.logo.light} alt="" aria-hidden="true" {...size} loading="lazy" decoding="async" className={cx('hidden light:block', className)} />
     </>
   )
 }
@@ -115,7 +122,6 @@ function VehicleCard({ v, lang, c }: { v: VehicleView; lang: Lang; c: Content })
     <Link
       to="/$lang/projekti/$project/$vehicle"
       params={{ lang, project: v.project, vehicle: v.id }}
-      aria-label={`${c.vehOpen}: ${v.name}`}
       data-dh="glow"
       data-dh-edge="20"
       className={cx(tw.card, 'group flex flex-col overflow-hidden press hover:border-acc/60 focus-visible:border-acc/60')}

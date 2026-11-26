@@ -12,7 +12,7 @@ const LANGS = ['hr', 'en']
  * Read the post slugs of one CMS collection at build time. Return an empty list when the CMS is down.
  * "news" holds the blog posts (/blog), "announcements" the short news (/novosti).
  */
-async function cmsSlugs(base: string, collection: 'news' | 'announcements'): Promise<string[]> {
+async function cmsSlugs(base: string, collection: 'news' | 'announcements' | 'products'): Promise<string[]> {
   try {
     const url = `${base.replace(/\/$/, '')}/api/${collection}?limit=1000&depth=0&select[slug]=true`
     const res = await fetch(url, { signal: AbortSignal.timeout(5000) })
@@ -27,10 +27,13 @@ async function cmsSlugs(base: string, collection: 'news' | 'announcements'): Pro
 export default defineConfig(async ({ command, mode }) => {
   const env = loadEnv(mode, process.cwd(), '')
   const cmsUrl = process.env.CMS_URL || env.CMS_URL || 'http://localhost:3100'
+  // The public address of the site, for canonical links, the sitemap and the share images (src/lib/seo.ts).
+  const siteUrl = (process.env.SITE_URL || env.SITE_URL || 'https://fesb-racing-site.pop-sites.workers.dev').replace(/\/$/, '')
   process.env.CMS_URL ||= cmsUrl
   // The slug list is only needed for the build. It adds the detail pages to the crawl.
   // If the CMS is down, the news list is empty and no detail page exists.
-  const [blogSlugs, newsSlugs] = command === 'build' ? await Promise.all([cmsSlugs(cmsUrl, 'news'), cmsSlugs(cmsUrl, 'announcements')]) : [[], []]
+  const [blogSlugs, newsSlugs, productSlugs] =
+    command === 'build' ? await Promise.all([cmsSlugs(cmsUrl, 'news'), cmsSlugs(cmsUrl, 'announcements'), cmsSlugs(cmsUrl, 'products')]) : [[], [], []]
   // In CI set REQUIRE_CMS=1. A build with the CMS down then fails and the old site stays live.
   // The blog is the check: it has posts since the start, the news collection can still be empty.
   if (command === 'build' && process.env.REQUIRE_CMS === '1' && blogSlugs.length === 0) throw new Error(`REQUIRE_CMS=1 and no blog posts from ${cmsUrl}`)
@@ -48,10 +51,13 @@ export default defineConfig(async ({ command, mode }) => {
       `/${l}/projekti/formula-student`,
       `/${l}/projekti/motostudent`,
       `/${l}/shop`,
+      `/${l}/shop/kosarica`,
+      ...productSlugs.map((s) => `/${l}/shop/${s}`),
     ]),
   ].map((path) => ({ path }))
 
   return {
+    define: { __SITE_URL__: JSON.stringify(siteUrl) },
     server: { port: 3000 },
     resolve: { tsconfigPaths: true },
     plugins: [
@@ -88,9 +94,30 @@ export default defineConfig(async ({ command, mode }) => {
         compatibilityDate: '2026-10-01',
         cloudflare: {
           // "previews" is for the preview deploy of a pull request (wrangler preview). It reads the same public CMS.
-          wrangler: { name: process.env.SITE_WORKER_NAME || 'fesb-racing-site', vars: workerVars, previews: { vars: workerVars } },
+          wrangler: {
+            name: process.env.SITE_WORKER_NAME || 'fesb-racing-site',
+            vars: workerVars,
+            previews: { vars: workerVars },
+            // A page is served at its address without a slash (/hr/blog), the same address as the links, the canonical
+            // tag and the sitemap. The default sent every page through a redirect to /hr/blog/.
+            assets: { html_handling: 'drop-trailing-slash' },
+            // The run-time calls to the CMS (sitemap, shop stock and orders). A fetch of the public workers.dev address
+            // from this Worker fails on Cloudflare (error 1042). src/server/cms.ts falls back to CMS_URL without it.
+            services: [{ binding: 'CMS', service: process.env.CMS_WORKER_NAME || 'fesb-racing-cms' }],
+          },
         },
         routeRules: {
+          // Security headers of every page. No full CSP: the 3D model, the map and the CMS images come from other hosts.
+          '/**': {
+            headers: {
+              'strict-transport-security': 'max-age=31536000; includeSubDomains',
+              'x-content-type-options': 'nosniff',
+              'x-frame-options': 'SAMEORIGIN',
+              'referrer-policy': 'strict-origin-when-cross-origin',
+              'permissions-policy': 'camera=(), microphone=(), geolocation=()',
+              'content-security-policy': "frame-ancestors 'self'; base-uri 'self'; object-src 'none'; upgrade-insecure-requests",
+            },
+          },
           '/assets/**': { headers: { 'cache-control': 'public, max-age=31536000, immutable' } },
           '/models/**': { headers: { 'cache-control': 'public, max-age=31536000, immutable' } },
           '/draco/**': { headers: { 'cache-control': 'public, max-age=31536000, immutable' } },

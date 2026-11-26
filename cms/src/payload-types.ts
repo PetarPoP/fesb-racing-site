@@ -74,6 +74,8 @@ export interface Config {
     vehicles: Vehicle;
     competitions: Competition;
     partners: Partner;
+    products: Product;
+    orders: Order;
     media: Media;
     users: User;
     pages: Page;
@@ -95,6 +97,8 @@ export interface Config {
     vehicles: VehiclesSelect<false> | VehiclesSelect<true>;
     competitions: CompetitionsSelect<false> | CompetitionsSelect<true>;
     partners: PartnersSelect<false> | PartnersSelect<true>;
+    products: ProductsSelect<false> | ProductsSelect<true>;
+    orders: OrdersSelect<false> | OrdersSelect<true>;
     media: MediaSelect<false> | MediaSelect<true>;
     users: UsersSelect<false> | UsersSelect<true>;
     pages: PagesSelect<false> | PagesSelect<true>;
@@ -537,6 +541,86 @@ export interface Partner {
   createdAt: string;
 }
 /**
+ * Ponuda shopa na stranici. Proizvod koji nije aktivan se ne prikazuje. Zaliha se smanjuje sa svakom narudžbom.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "products".
+ */
+export interface Product {
+  id: number;
+  name: string;
+  category: 'majice' | 'hoodie' | 'jakne' | 'kape' | 'ostalo';
+  price: number;
+  description?: string | null;
+  /**
+   * Prva fotografija je glavna i prikazuje se na kartici proizvoda.
+   */
+  images?: (number | Media)[] | null;
+  /**
+   * Jedan redak po veličini, s brojem komada na zalihi. Proizvod bez veličina (na primjer šalica) ostavlja popis prazan i koristi polje „Zaliha“ ispod.
+   */
+  sizes?:
+    | {
+        size: string;
+        stock: number;
+        id?: string | null;
+      }[]
+    | null;
+  /**
+   * Samo za proizvod bez veličina.
+   */
+  stock?: number | null;
+  active?: boolean | null;
+  /**
+   * Dio web adrese stranice proizvoda. Ako ostane prazno, napravi se iz naziva.
+   */
+  slug: string;
+  /**
+   * Manji broj se prikazuje prije.
+   */
+  order?: number | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * Narudžbe sa stranice. Promijeni status kad narudžbu potvrdiš, pošalješ ili kupac preuzme. Otkazana narudžba vraća komade na zalihu.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "orders".
+ */
+export interface Order {
+  id: number;
+  number: string;
+  status: 'new' | 'confirmed' | 'shipped' | 'done' | 'cancelled';
+  customer: {
+    name: string;
+    email: string;
+    phone?: string | null;
+  };
+  delivery: 'pickup' | 'post';
+  address?: string | null;
+  note?: string | null;
+  items?:
+    | {
+        product?: (number | null) | Product;
+        name?: string | null;
+        size?: string | null;
+        qty?: number | null;
+        price?: number | null;
+        id?: string | null;
+      }[]
+    | null;
+  shipping?: number | null;
+  total?: number | null;
+  lang?: ('hr' | 'en') | null;
+  /**
+   * Vidi samo tim.
+   */
+  internalNote?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "users".
  */
@@ -930,6 +1014,14 @@ export interface PayloadLockedDocument {
         value: number | Partner;
       } | null)
     | ({
+        relationTo: 'products';
+        value: number | Product;
+      } | null)
+    | ({
+        relationTo: 'orders';
+        value: number | Order;
+      } | null)
+    | ({
         relationTo: 'media';
         value: number | Media;
       } | null)
@@ -1186,6 +1278,64 @@ export interface PartnersSelect<T extends boolean = true> {
   logoRatio?: T;
   plainLogo?: T;
   active?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "products_select".
+ */
+export interface ProductsSelect<T extends boolean = true> {
+  name?: T;
+  category?: T;
+  price?: T;
+  description?: T;
+  images?: T;
+  sizes?:
+    | T
+    | {
+        size?: T;
+        stock?: T;
+        id?: T;
+      };
+  stock?: T;
+  active?: T;
+  slug?: T;
+  order?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "orders_select".
+ */
+export interface OrdersSelect<T extends boolean = true> {
+  number?: T;
+  status?: T;
+  customer?:
+    | T
+    | {
+        name?: T;
+        email?: T;
+        phone?: T;
+      };
+  delivery?: T;
+  address?: T;
+  note?: T;
+  items?:
+    | T
+    | {
+        product?: T;
+        name?: T;
+        size?: T;
+        qty?: T;
+        price?: T;
+        id?: T;
+      };
+  shipping?: T;
+  total?: T;
+  lang?: T;
+  internalNote?: T;
   updatedAt?: T;
   createdAt?: T;
 }
@@ -1681,18 +1831,28 @@ export interface SiteSetting {
       }[]
     | null;
   /**
-   * Shopify trgovina stranice /shop. Poveznica „Shop“ se prikazuje u izborniku kad je uključen.
+   * Shop stranice (/shop). Proizvodi i narudžbe su u grupi „Shop“. Poveznica „Shop“ se prikazuje u izborniku kad je uključen.
    */
   shop?: {
     enabled?: boolean | null;
     /**
-     * Na primjer fesb-racing.myshopify.com
+     * Prikazuje se u košarici, na primjer gdje i kada se narudžba preuzima i kako se plaća.
      */
-    storeDomain?: string | null;
+    pickup?: string | null;
     /**
-     * Javni Storefront API token (Shopify admin → Apps → Headless). Nije Admin API token.
+     * Kupac može odabrati dostavu na adresu.
      */
+    delivery?: boolean | null;
+    deliveryPrice?: number | null;
+    storeDomain?: string | null;
     storefrontToken?: string | null;
+  };
+  /**
+   * Kodovi za potvrdu vlasništva stranice. Google Search Console: dodaj stranicu kao „URL prefix“, odaberi potvrdu „HTML tag“ i ovdje zalijepi samo vrijednost content="…". Bing Webmaster Tools: isto, metoda „HTML Meta Tag“. Sitemap za obje tražilice je /sitemap.xml.
+   */
+  seo?: {
+    googleVerification?: string | null;
+    bingVerification?: string | null;
   };
   updatedAt?: string | null;
   createdAt?: string | null;
@@ -1831,8 +1991,17 @@ export interface SiteSettingsSelect<T extends boolean = true> {
     | T
     | {
         enabled?: T;
+        pickup?: T;
+        delivery?: T;
+        deliveryPrice?: T;
         storeDomain?: T;
         storefrontToken?: T;
+      };
+  seo?:
+    | T
+    | {
+        googleVerification?: T;
+        bingVerification?: T;
       };
   updatedAt?: T;
   createdAt?: T;

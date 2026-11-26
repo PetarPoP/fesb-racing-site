@@ -3,6 +3,7 @@ import { content, type Lang } from '~/content'
 import { NewsArticle, NotFound } from '~/components/Cms'
 import { getPost } from '~/lib/cms'
 import { pick } from '~/lib/format'
+import { articleLd, pageHead } from '~/lib/seo'
 
 // The CMS texts of the page come with the layout (/$lang).
 const layout = getRouteApi('/$lang')
@@ -16,17 +17,21 @@ export const Route = createFileRoute('/$lang/blog/$slug')({
   head: ({ params, loaderData }) => {
     if (!loaderData) return {}
     const lang = params.lang as Lang
+    const c = content[lang] ?? content.hr
     const title = pick(loaderData, 'title', lang)
     const desc = pick(loaderData, 'excerpt', lang)
-    return {
-      meta: [
-        { title: `${title} — FESB Racing` },
-        { name: 'description', content: desc },
-        { property: 'og:title', content: title },
-        { property: 'og:description', content: desc },
-        ...(loaderData.imageUrl ? [{ property: 'og:image', content: loaderData.imageUrl }] : []),
-      ],
-    }
+    const rest = `/blog/${loaderData.slug}`
+    return pageHead({
+      lang,
+      rest,
+      title,
+      description: desc,
+      image: loaderData.imageUrl,
+      type: 'article',
+      published: loaderData.date,
+      crumbs: [{ name: c.blogLabel, rest: '/blog' }],
+      jsonLd: [articleLd({ lang, rest, title, description: desc, image: loaderData.imageUrl, date: loaderData.date, kind: 'blog' })],
+    })
   },
   component: PostPage,
   notFoundComponent: () => {

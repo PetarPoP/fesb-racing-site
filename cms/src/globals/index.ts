@@ -139,15 +139,43 @@ export const SiteSettings: GlobalConfig = {
       name: 'shop',
       label: 'Shop',
       type: 'group',
-      admin: { description: 'Shopify trgovina stranice /shop. Poveznica „Shop“ se prikazuje u izborniku kad je uključen.' },
+      admin: { description: 'Shop stranice (/shop). Proizvodi i narudžbe su u grupi „Shop“. Poveznica „Shop“ se prikazuje u izborniku kad je uključen.' },
       fields: [
         { name: 'enabled', label: 'Uključen', type: 'checkbox', defaultValue: false },
-        { name: 'storeDomain', label: 'Domena trgovine', type: 'text', admin: { description: 'Na primjer fesb-racing.myshopify.com' } },
         {
-          name: 'storefrontToken',
-          label: 'Storefront token',
-          type: 'text',
-          admin: { description: 'Javni Storefront API token (Shopify admin → Apps → Headless). Nije Admin API token.' },
+          name: 'pickup',
+          label: 'Preuzimanje i plaćanje',
+          type: 'textarea',
+          localized: true,
+          admin: { description: 'Prikazuje se u košarici, na primjer gdje i kada se narudžba preuzima i kako se plaća.' },
+        },
+        {
+          type: 'row',
+          fields: [
+            { name: 'delivery', label: 'Dostava poštom', type: 'checkbox', defaultValue: false, admin: { width: '50%', description: 'Kupac može odabrati dostavu na adresu.' } },
+            { name: 'deliveryPrice', label: 'Cijena dostave (€)', type: 'number', min: 0, defaultValue: 0, admin: { width: '50%', condition: (_, s) => Boolean(s?.delivery) } },
+          ],
+        },
+        // The site used a Shopify store before. These fields stay hidden, so the database keeps its columns.
+        { name: 'storeDomain', type: 'text', admin: { hidden: true } },
+        { name: 'storefrontToken', type: 'text', admin: { hidden: true } },
+      ],
+    },
+    {
+      name: 'seo',
+      label: 'SEO i tražilice',
+      type: 'group',
+      admin: {
+        description:
+          'Kodovi za potvrdu vlasništva stranice. Google Search Console: dodaj stranicu kao „URL prefix“, odaberi potvrdu „HTML tag“ i ovdje zalijepi samo vrijednost content="…". Bing Webmaster Tools: isto, metoda „HTML Meta Tag“. Sitemap za obje tražilice je /sitemap.xml.',
+      },
+      fields: [
+        {
+          type: 'row',
+          fields: [
+            { name: 'googleVerification', label: 'Google Search Console kod', type: 'text', admin: { width: '50%', placeholder: 'na primjer abc123…' } },
+            { name: 'bingVerification', label: 'Bing Webmaster kod', type: 'text', admin: { width: '50%', placeholder: 'na primjer 1A2B3C…' } },
+          ],
         },
       ],
     },

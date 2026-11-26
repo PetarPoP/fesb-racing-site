@@ -41,6 +41,20 @@ type Comp = {
 export type Content = {
   metaTitle: string
   metaDesc: string
+  /** Search titles and texts of the pages (src/lib/seo.ts). The site name is added after each title. */
+  seo: {
+    home: string
+    news: string
+    blog: string
+    shop: string
+    projects: Record<'formula-student' | 'motostudent', string>
+    /** The word after a vehicle name in its title: "studentski bolid", "student race car". */
+    car: string
+    bike: string
+    product: string
+    /** Added to a description that is too short for search results. */
+    tail: string
+  }
   nav: string[]
   cta: string
   heroA: string
@@ -124,6 +138,9 @@ export type Content = {
   allNews: string
   /** Longer stories: the bottom of the home page and /blog. */
   blogLabel: string
+  /** Meta descriptions of the news and blog lists. */
+  newsMeta: string
+  blogMeta: string
   blogTitle: string
   blogReadFull: string
   allBlog: string
@@ -150,18 +167,47 @@ export type Content = {
   shopText: string
   shopSoon: string
   shopSoonText: string
-  shopError: string
   shopCart: string
   shopEmpty: string
+  shopBrowse: string
+  shopAll: string
+  shopBack: string
   shopAdd: string
+  shopAdded: string
+  shopViewCart: string
   shopSoldOut: string
-  shopVariant: string
-  shopSubtotal: string
-  shopCheckout: string
+  shopSize: string
+  shopPickSize: string
+  shopQty: string
+  /** {n} is the number of pieces. */
+  shopInStock: string
+  shopLow: string
   shopMore: string
   shopLess: string
-  /** Shopify store from the CMS (Site settings → Shop). The nav link shows when it is switched on. */
-  shop?: { enabled: boolean; domain: string; token: string }
+  shopRemove: string
+  shopSubtotal: string
+  shopShipping: string
+  shopFree: string
+  shopTotal: string
+  shopFormTitle: string
+  shopDelivery: string
+  shopPickup: string
+  shopPost: string
+  shopPhone: string
+  shopAddress: string
+  shopNote: string
+  shopOrder: string
+  shopDone: string
+  /** {n} is the order number. */
+  shopDoneText: string
+  shopShort: string
+  shopClosed: string
+  errPhone: string
+  errAddress: string
+  /** The shop from the CMS (Site settings → Shop). The nav link shows when it is switched on. */
+  shop?: { enabled: boolean }
+  /** Verification codes of Google Search Console and Bing Webmaster Tools from the CMS (Site settings → SEO). */
+  verify?: { google?: string; bing?: string }
   /** Social link URLs from the CMS, by platform (instagram, facebook, linkedin). */
   socials?: Record<string, string>
   /** Names of the 3D car assemblies from the CMS (Home page texts), by assembly key. */
@@ -174,6 +220,17 @@ const hr: Content = {
   metaTitle: 'FESB Racing — Od ploče do staze',
   metaDesc:
     'Studentski inženjerski tim FESB-a iz Splita. Projektiramo, gradimo i utrkujemo Formula Student bolide i MotoStudent motocikle.',
+  seo: {
+    home: 'Studentski trkaći tim FESB-a iz Splita',
+    news: 'Novosti iz radionice i s natjecanja',
+    blog: 'Blog o gradnji bolida i suradnji s industrijom',
+    shop: 'Shop — majice, hoodiji i oprema tima',
+    projects: { 'formula-student': 'Formula Student — studentski trkaći bolidi', motostudent: 'MotoStudent — studentski trkaći motocikli' },
+    car: 'Formula Student bolid',
+    bike: 'MotoStudent motocikl',
+    product: 'shop FESB Racinga',
+    tail: 'FESB Racing je studentski trkaći tim FESB-a iz Splita koji gradi Formula Student bolide i MotoStudent motocikle.',
+  },
   nav: ['Novosti', 'Timovi', 'Projekti', 'Natjecanja', 'Sponzori', 'Blog', 'Kontakt'],
   cta: 'Pridruži se',
   heroA: 'Od ploče',
@@ -368,6 +425,8 @@ const hr: Content = {
   readFull: 'Pročitaj cijelu novost',
   allNews: 'Sve novosti',
   blogLabel: 'Blog',
+  newsMeta: 'Novosti FESB Racinga: radionica, testiranja, natjecanja Formula Student i MotoStudent te život studentskog trkaćeg tima iz Splita.',
+  blogMeta: 'Blog FESB Racinga za partnere i sponzore: kako gradimo bolide i motocikle, rezultati s natjecanja i suradnje s industrijom.',
   blogTitle: 'Iz radionice',
   blogReadFull: 'Pročitaj cijeli članak',
   allBlog: 'Svi članci',
@@ -390,25 +449,61 @@ const hr: Content = {
   themeSwitch: 'Promijeni temu (svijetla / tamna)',
   shopNav: 'Shop',
   shopTitle: 'Shop',
-  shopText: 'Majice, kape i ostala oprema FESB Racinga. Svaka kupnja ide izravno u razvoj sljedećeg bolida i motocikla.',
+  shopText: 'Majice, hoodiji i ostala oprema FESB Racinga. Svaka kupnja ide izravno u razvoj sljedećeg bolida i motocikla.',
   shopSoon: 'Shop uskoro',
   shopSoonText: 'Trgovina se upravo slaže. Pratite nas na Instagramu da saznate kad krene prodaja.',
-  shopError: 'Shop trenutačno nije dostupan',
   shopCart: 'Košarica',
   shopEmpty: 'Košarica je prazna.',
+  shopBrowse: 'Pogledaj proizvode',
+  shopAll: 'Sve',
+  shopBack: 'Natrag na shop',
   shopAdd: 'Dodaj u košaricu',
+  shopAdded: 'Dodano u košaricu.',
+  shopViewCart: 'Otvori košaricu',
   shopSoldOut: 'Rasprodano',
-  shopVariant: 'Odaberi',
-  shopSubtotal: 'Ukupno',
-  shopCheckout: 'Na plaćanje',
+  shopSize: 'Veličina',
+  shopPickSize: 'Odaberi veličinu.',
+  shopQty: 'Količina',
+  shopInStock: 'Na zalihi: {n} kom',
+  shopLow: 'Još samo {n} kom',
   shopMore: 'Povećaj količinu',
   shopLess: 'Smanji količinu',
+  shopRemove: 'Ukloni iz košarice',
+  shopSubtotal: 'Proizvodi',
+  shopShipping: 'Dostava',
+  shopFree: 'Besplatno',
+  shopTotal: 'Ukupno',
+  shopFormTitle: 'Podaci za narudžbu',
+  shopDelivery: 'Preuzimanje',
+  shopPickup: 'Osobno preuzimanje',
+  shopPost: 'Dostava poštom',
+  shopPhone: 'Telefon',
+  shopAddress: 'Adresa za dostavu (ulica, broj, poštanski broj, grad)',
+  shopNote: 'Napomena (neobavezno)',
+  shopOrder: 'Pošalji narudžbu',
+  shopDone: 'Narudžba je zaprimljena',
+  shopDoneText: 'Broj tvoje narudžbe je {n}. Javit ćemo ti se e-mailom kad bude spremna.',
+  shopShort: 'Nekih proizvoda više nema dovoljno na zalihi. Košarica je ažurirana, provjeri je i pošalji ponovno.',
+  shopClosed: 'Shop trenutačno ne prima narudžbe.',
+  errPhone: 'Upiši broj telefona.',
+  errAddress: 'Upiši adresu za dostavu.',
 }
 
 const en: Content = {
   metaTitle: 'FESB Racing — From whiteboard to track',
   metaDesc:
     'The student engineering team of FESB in Split. We design, build and race Formula Student cars and MotoStudent motorcycles.',
+  seo: {
+    home: 'Student racing team of FESB in Split',
+    news: 'News from the workshop and the track',
+    blog: 'Blog on building race cars and working with industry',
+    shop: 'Shop — T-shirts, hoodies and team gear',
+    projects: { 'formula-student': 'Formula Student — student race cars', motostudent: 'MotoStudent — student racing motorcycles' },
+    car: 'Formula Student car',
+    bike: 'MotoStudent motorcycle',
+    product: 'FESB Racing shop',
+    tail: 'FESB Racing is the student racing team of FESB in Split, building Formula Student cars and MotoStudent motorcycles.',
+  },
   nav: ['News', 'Teams', 'Projects', 'Competitions', 'Sponsors', 'Blog', 'Contact'],
   cta: 'Join us',
   heroA: 'From whiteboard',
@@ -603,6 +698,8 @@ const en: Content = {
   readFull: 'Read the full story',
   allNews: 'All news',
   blogLabel: 'Blog',
+  newsMeta: 'News from FESB Racing: the workshop, testing, Formula Student and MotoStudent competitions and life in a student racing team from Split.',
+  blogMeta: 'The FESB Racing blog for partners and sponsors: how we build our cars and bikes, competition results and work with industry.',
   blogTitle: 'From the workshop',
   blogReadFull: 'Read the full article',
   allBlog: 'All articles',
@@ -625,19 +722,44 @@ const en: Content = {
   themeSwitch: 'Switch theme (light / dark)',
   shopNav: 'Shop',
   shopTitle: 'Shop',
-  shopText: 'T-shirts, caps and more FESB Racing gear. Every purchase goes straight into the development of the next car and bike.',
+  shopText: 'T-shirts, hoodies and more FESB Racing gear. Every purchase goes straight into the development of the next car and bike.',
   shopSoon: 'Shop coming soon',
   shopSoonText: 'The store is being set up. Follow us on Instagram to find out when it opens.',
-  shopError: 'The shop is not available right now',
   shopCart: 'Cart',
   shopEmpty: 'Your cart is empty.',
+  shopBrowse: 'Browse products',
+  shopAll: 'All',
+  shopBack: 'Back to the shop',
   shopAdd: 'Add to cart',
+  shopAdded: 'Added to the cart.',
+  shopViewCart: 'View cart',
   shopSoldOut: 'Sold out',
-  shopVariant: 'Choose',
-  shopSubtotal: 'Subtotal',
-  shopCheckout: 'Checkout',
+  shopSize: 'Size',
+  shopPickSize: 'Choose a size.',
+  shopQty: 'Quantity',
+  shopInStock: 'In stock: {n}',
+  shopLow: 'Only {n} left',
   shopMore: 'Increase quantity',
   shopLess: 'Decrease quantity',
+  shopRemove: 'Remove from cart',
+  shopSubtotal: 'Products',
+  shopShipping: 'Shipping',
+  shopFree: 'Free',
+  shopTotal: 'Total',
+  shopFormTitle: 'Your details',
+  shopDelivery: 'Delivery',
+  shopPickup: 'Pick up in person',
+  shopPost: 'Shipping by post',
+  shopPhone: 'Phone',
+  shopAddress: 'Shipping address (street, number, postcode, city)',
+  shopNote: 'Note (optional)',
+  shopOrder: 'Place order',
+  shopDone: 'Order received',
+  shopDoneText: 'Your order number is {n}. We will email you when it is ready.',
+  shopShort: 'Some products are no longer in stock in that quantity. The cart has been updated, check it and send again.',
+  shopClosed: 'The shop is not taking orders right now.',
+  errPhone: 'Enter your phone number.',
+  errAddress: 'Enter the shipping address.',
 }
 
 export const content: Record<Lang, Content> = { hr, en }

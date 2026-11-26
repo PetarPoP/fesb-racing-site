@@ -8,6 +8,7 @@ import type { News, PostKind } from '~/lib/format'
 export type { PostKind }
 import { galleryHtml, lexicalToHtml, type HtmlContext } from './lexical'
 import { VEHICLES, vehicleView, type Img, type VehicleView } from '~/lib/projects'
+import type { OrderInput, OrderResult, ShopData, ShopProduct, ShortLine } from '~/lib/shop'
 
 /** The CMS Worker sometimes needs 2–4 s on a cold start. 2 s was too short: pages were built without news and logos. */
 const TIMEOUT_MS = 5000
@@ -19,6 +20,30 @@ const baseUrl = () => (process.env.CMS_URL || 'http://localhost:3100').replace(/
 /** The base URL that a browser uses for media files. It can differ from CMS_URL (for example a service binding). */
 const publicUrl = () => (process.env.CMS_PUBLIC_URL || baseUrl()).replace(/\/$/, '')
 
+type Fetcher = { fetch: typeof fetch }
+/** The service binding to the CMS Worker (wrangler config: services, binding CMS), when the Worker has one. */
+const cmsBinding = () => (globalThis as { __env__?: { CMS?: Fetcher } }).__env__?.CMS
+
+/**
+ * Call the CMS. On Cloudflare a Worker cannot fetch another workers.dev Worker of the same account (error 1042),
+ * so the live site calls the CMS through the service binding. The build (prerender in the local runtime) has no CMS
+ * Worker behind the binding: an error or a 503 from the binding then falls back to the public address.
+ */
+async function cmsFetch(input: RequestInfo | URL, init: RequestInit): Promise<Response> {
+  const svc = cmsBinding()
+  if (!svc) return fetch(input, init)
+  const method = (init.method ?? 'GET').toUpperCase()
+  try {
+    const res = await svc.fetch(input, init)
+    if (res.status !== 503) return res
+    await res.body?.cancel()
+  } catch (e) {
+    // A POST may have reached the CMS before the error. Sending it again could place the order twice.
+    if (method !== 'GET' || init.signal?.aborted) throw e
+  }
+  return fetch(input, init)
+}
+
 /**
  * Fetch with a time limit that covers the body too. The body is read here, so a timeout or a cut connection
  * rejects this promise (the cache then uses null). An abort while the caller was still reading a gzip body
@@ -28,7 +53,7 @@ const timedFetch: typeof fetch = async (input, init) => {
   const ctrl = new AbortController()
   const timer = setTimeout(() => ctrl.abort(), TIMEOUT_MS)
   try {
-    const res = await fetch(input, { ...init, signal: ctrl.signal })
+    const res = await cmsFetch(input, { ...init, signal: ctrl.signal })
     const body = await res.arrayBuffer()
     const headers = new Headers(res.headers)
     headers.delete('content-encoding')
@@ -294,9 +319,9 @@ export async function getCmsContent(lang: Lang, base: Content): Promise<Content>
     if (settings.contact?.address) out.addr = settings.contact.address
     const soc = nonEmpty(settings.social)
     if (soc) out.socials = Object.fromEntries(soc.map((s) => [s.platform, s.url]))
-    const shop = (settings as { shop?: { enabled?: boolean; storeDomain?: string; storefrontToken?: string } }).shop
-    if (shop?.storeDomain && shop.storefrontToken)
-      out.shop = { enabled: Boolean(shop.enabled), domain: shop.storeDomain, token: shop.storefrontToken }
+    if ((settings as { shop?: { enabled?: boolean } }).shop?.enabled) out.shop = { enabled: true }
+    const seo = (settings as { seo?: { googleVerification?: string; bingVerification?: string } }).seo
+    if (seo?.googleVerification || seo?.bingVerification) out.verify = { google: seo.googleVerification || undefined, bing: seo.bingVerification || undefined }
   }
 
   // The CMS team list (in its order) replaces the static one once it holds the current team codes.
@@ -350,4 +375,55 @@ export async function getCmsContent(lang: Lang, base: Content): Promise<Content>
   }
 
   return out
+}
+
+// ---------- shop ----------
+
+/** The shop is live data: a shorter cache, so the stock on the page follows the orders. */
+const SHOP_TTL_MS = 15_000
+
+export function getCmsShop(lang: Lang): Promise<ShopData | null> {
+  const key = `shop:${lang}`
+  const hit = cache.get(key)
+  if (hit && Date.now() - hit.at > SHOP_TTL_MS) cache.delete(key)
+  return cached(key, async () => {
+    const [docs, settings] = await Promise.all([
+      listDocs<Record<string, unknown>>('products', lang, { sort: 'order', 'where[active][equals]': 'true' }),
+      getGlobalDoc<{ shop?: { enabled?: boolean; pickup?: string; delivery?: boolean; deliveryPrice?: number } }>('siteSettings', lang),
+    ])
+    const products = (docs ?? []).map((d): ShopProduct => {
+      const sizes = ((d.sizes as { size: string; stock: number }[] | undefined) ?? []).map((s) => ({ size: s.size, stock: Math.max(0, s.stock ?? 0) }))
+      return {
+        id: Number(d.id),
+        slug: String(d.slug),
+        name: String(d.name ?? ''),
+        category: String(d.category ?? 'ostalo'),
+        price: Number(d.price ?? 0),
+        description: d.description ? String(d.description) : '',
+        images: ((d.images as unknown[] | undefined) ?? []).map(mediaImg).filter((x): x is Img => x !== null),
+        sizes,
+        stock: sizes.length ? sizes.reduce((s, x) => s + x.stock, 0) : Math.max(0, Number(d.stock ?? 0)),
+      }
+    })
+    const s = settings?.shop ?? {}
+    return {
+      products,
+      settings: { enabled: Boolean(s.enabled), pickup: s.pickup ?? '', delivery: Boolean(s.delivery), deliveryPrice: Math.max(0, s.deliveryPrice ?? 0) },
+    }
+  })
+}
+
+/** Send an order to the CMS. The CMS takes the prices from the products and checks the stock. */
+export async function postCmsOrder(order: OrderInput): Promise<OrderResult> {
+  const res = await timedFetch(`${baseUrl()}/api/orders/place`, {
+    method: 'POST',
+    headers: { 'content-type': 'application/json' },
+    body: JSON.stringify(order),
+  })
+  const body = (await res.json().catch(() => ({}))) as Partial<OrderResult> & { error?: string }
+  // A new order changes the stock: the next page load reads the products again.
+  for (const key of [...cache.keys()]) if (key.startsWith('shop:')) cache.delete(key)
+  if (res.ok && body.ok) return body as OrderResult
+  if (body.error === 'stock' || body.error === 'invalid' || body.error === 'closed') return { ok: false, error: body.error, short: (body as { short?: ShortLine[] }).short }
+  throw new Error(`CMS ${res.status} for /api/orders/place`)
 }

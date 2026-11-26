@@ -11,13 +11,16 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as LangRouteImport } from './routes/$lang'
+import { Route as RobotsDottxtRouteImport } from './routes/robots[.]txt'
 import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
 import { Route as LangIndexRouteImport } from './routes/$lang/index'
-import { Route as LangShopRouteImport } from './routes/$lang/shop'
 import { Route as LangBlogIndexRouteImport } from './routes/$lang/blog/index'
 import { Route as LangBlogSlugRouteImport } from './routes/$lang/blog/$slug'
 import { Route as LangNovostiIndexRouteImport } from './routes/$lang/novosti/index'
 import { Route as LangNovostiSlugRouteImport } from './routes/$lang/novosti/$slug'
+import { Route as LangShopIndexRouteImport } from './routes/$lang/shop/index'
+import { Route as LangShopSlugRouteImport } from './routes/$lang/shop/$slug'
+import { Route as LangShopKosaricaRouteImport } from './routes/$lang/shop/kosarica'
 import { Route as LangProjektiProjectIndexRouteImport } from './routes/$lang/projekti/$project.index'
 import { Route as LangProjektiProjectVehicleRouteImport } from './routes/$lang/projekti/$project.$vehicle'
 
@@ -31,6 +34,11 @@ const LangRoute = LangRouteImport.update({
   path: '/$lang',
   getParentRoute: () => rootRouteImport,
 } as any)
+const RobotsDottxtRoute = RobotsDottxtRouteImport.update({
+  id: '/robots.txt',
+  path: '/robots.txt',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
   id: '/sitemap.xml',
   path: '/sitemap.xml',
@@ -39,11 +47,6 @@ const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
 const LangIndexRoute = LangIndexRouteImport.update({
   id: '/',
   path: '/',
-  getParentRoute: () => LangRoute,
-} as any)
-const LangShopRoute = LangShopRouteImport.update({
-  id: '/shop',
-  path: '/shop',
   getParentRoute: () => LangRoute,
 } as any)
 const LangBlogIndexRoute = LangBlogIndexRouteImport.update({
@@ -66,6 +69,21 @@ const LangNovostiSlugRoute = LangNovostiSlugRouteImport.update({
   path: '/novosti/$slug',
   getParentRoute: () => LangRoute,
 } as any)
+const LangShopIndexRoute = LangShopIndexRouteImport.update({
+  id: '/shop/',
+  path: '/shop/',
+  getParentRoute: () => LangRoute,
+} as any)
+const LangShopSlugRoute = LangShopSlugRouteImport.update({
+  id: '/shop/$slug',
+  path: '/shop/$slug',
+  getParentRoute: () => LangRoute,
+} as any)
+const LangShopKosaricaRoute = LangShopKosaricaRouteImport.update({
+  id: '/shop/kosarica',
+  path: '/shop/kosarica',
+  getParentRoute: () => LangRoute,
+} as any)
 const LangProjektiProjectIndexRoute =
   LangProjektiProjectIndexRouteImport.update({
     id: '/projekti/$project/',
@@ -82,25 +100,31 @@ const LangProjektiProjectVehicleRoute =
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/$lang': typeof LangRouteWithChildren
+  '/robots.txt': typeof RobotsDottxtRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
-  '/$lang/shop': typeof LangShopRoute
   '/$lang/': typeof LangIndexRoute
   '/$lang/blog/$slug': typeof LangBlogSlugRoute
   '/$lang/novosti/$slug': typeof LangNovostiSlugRoute
+  '/$lang/shop/$slug': typeof LangShopSlugRoute
+  '/$lang/shop/kosarica': typeof LangShopKosaricaRoute
   '/$lang/blog/': typeof LangBlogIndexRoute
   '/$lang/novosti/': typeof LangNovostiIndexRoute
+  '/$lang/shop/': typeof LangShopIndexRoute
   '/$lang/projekti/$project/$vehicle': typeof LangProjektiProjectVehicleRoute
   '/$lang/projekti/$project/': typeof LangProjektiProjectIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/robots.txt': typeof RobotsDottxtRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
-  '/$lang/shop': typeof LangShopRoute
   '/$lang': typeof LangIndexRoute
   '/$lang/blog/$slug': typeof LangBlogSlugRoute
   '/$lang/novosti/$slug': typeof LangNovostiSlugRoute
+  '/$lang/shop/$slug': typeof LangShopSlugRoute
+  '/$lang/shop/kosarica': typeof LangShopKosaricaRoute
   '/$lang/blog': typeof LangBlogIndexRoute
   '/$lang/novosti': typeof LangNovostiIndexRoute
+  '/$lang/shop': typeof LangShopIndexRoute
   '/$lang/projekti/$project/$vehicle': typeof LangProjektiProjectVehicleRoute
   '/$lang/projekti/$project': typeof LangProjektiProjectIndexRoute
 }
@@ -108,13 +132,16 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/$lang': typeof LangRouteWithChildren
+  '/robots.txt': typeof RobotsDottxtRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
-  '/$lang/shop': typeof LangShopRoute
   '/$lang/': typeof LangIndexRoute
   '/$lang/blog/$slug': typeof LangBlogSlugRoute
   '/$lang/novosti/$slug': typeof LangNovostiSlugRoute
+  '/$lang/shop/$slug': typeof LangShopSlugRoute
+  '/$lang/shop/kosarica': typeof LangShopKosaricaRoute
   '/$lang/blog/': typeof LangBlogIndexRoute
   '/$lang/novosti/': typeof LangNovostiIndexRoute
+  '/$lang/shop/': typeof LangShopIndexRoute
   '/$lang/projekti/$project/$vehicle': typeof LangProjektiProjectVehicleRoute
   '/$lang/projekti/$project/': typeof LangProjektiProjectIndexRoute
 }
@@ -123,38 +150,47 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/$lang'
+    | '/robots.txt'
     | '/sitemap.xml'
-    | '/$lang/shop'
     | '/$lang/'
     | '/$lang/blog/$slug'
     | '/$lang/novosti/$slug'
+    | '/$lang/shop/$slug'
+    | '/$lang/shop/kosarica'
     | '/$lang/blog/'
     | '/$lang/novosti/'
+    | '/$lang/shop/'
     | '/$lang/projekti/$project/$vehicle'
     | '/$lang/projekti/$project/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/robots.txt'
     | '/sitemap.xml'
-    | '/$lang/shop'
     | '/$lang'
     | '/$lang/blog/$slug'
     | '/$lang/novosti/$slug'
+    | '/$lang/shop/$slug'
+    | '/$lang/shop/kosarica'
     | '/$lang/blog'
     | '/$lang/novosti'
+    | '/$lang/shop'
     | '/$lang/projekti/$project/$vehicle'
     | '/$lang/projekti/$project'
   id:
     | '__root__'
     | '/'
     | '/$lang'
+    | '/robots.txt'
     | '/sitemap.xml'
-    | '/$lang/shop'
     | '/$lang/'
     | '/$lang/blog/$slug'
     | '/$lang/novosti/$slug'
+    | '/$lang/shop/$slug'
+    | '/$lang/shop/kosarica'
     | '/$lang/blog/'
     | '/$lang/novosti/'
+    | '/$lang/shop/'
     | '/$lang/projekti/$project/$vehicle'
     | '/$lang/projekti/$project/'
   fileRoutesById: FileRoutesById
@@ -162,6 +198,7 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   LangRoute: typeof LangRouteWithChildren
+  RobotsDottxtRoute: typeof RobotsDottxtRoute
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
 }
 
@@ -181,6 +218,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LangRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/robots.txt': {
+      id: '/robots.txt'
+      path: '/robots.txt'
+      fullPath: '/robots.txt'
+      preLoaderRoute: typeof RobotsDottxtRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/sitemap.xml': {
       id: '/sitemap.xml'
       path: '/sitemap.xml'
@@ -193,13 +237,6 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/$lang/'
       preLoaderRoute: typeof LangIndexRouteImport
-      parentRoute: typeof LangRoute
-    }
-    '/$lang/shop': {
-      id: '/$lang/shop'
-      path: '/shop'
-      fullPath: '/$lang/shop'
-      preLoaderRoute: typeof LangShopRouteImport
       parentRoute: typeof LangRoute
     }
     '/$lang/blog/': {
@@ -230,6 +267,27 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LangNovostiSlugRouteImport
       parentRoute: typeof LangRoute
     }
+    '/$lang/shop/': {
+      id: '/$lang/shop/'
+      path: '/shop'
+      fullPath: '/$lang/shop/'
+      preLoaderRoute: typeof LangShopIndexRouteImport
+      parentRoute: typeof LangRoute
+    }
+    '/$lang/shop/$slug': {
+      id: '/$lang/shop/$slug'
+      path: '/shop/$slug'
+      fullPath: '/$lang/shop/$slug'
+      preLoaderRoute: typeof LangShopSlugRouteImport
+      parentRoute: typeof LangRoute
+    }
+    '/$lang/shop/kosarica': {
+      id: '/$lang/shop/kosarica'
+      path: '/shop/kosarica'
+      fullPath: '/$lang/shop/kosarica'
+      preLoaderRoute: typeof LangShopKosaricaRouteImport
+      parentRoute: typeof LangRoute
+    }
     '/$lang/projekti/$project/': {
       id: '/$lang/projekti/$project/'
       path: '/projekti/$project'
@@ -248,23 +306,27 @@ declare module '@tanstack/react-router' {
 }
 
 interface LangRouteChildren {
-  LangShopRoute: typeof LangShopRoute
   LangIndexRoute: typeof LangIndexRoute
   LangBlogSlugRoute: typeof LangBlogSlugRoute
   LangNovostiSlugRoute: typeof LangNovostiSlugRoute
+  LangShopSlugRoute: typeof LangShopSlugRoute
+  LangShopKosaricaRoute: typeof LangShopKosaricaRoute
   LangBlogIndexRoute: typeof LangBlogIndexRoute
   LangNovostiIndexRoute: typeof LangNovostiIndexRoute
+  LangShopIndexRoute: typeof LangShopIndexRoute
   LangProjektiProjectVehicleRoute: typeof LangProjektiProjectVehicleRoute
   LangProjektiProjectIndexRoute: typeof LangProjektiProjectIndexRoute
 }
 
 const LangRouteChildren: LangRouteChildren = {
-  LangShopRoute: LangShopRoute,
   LangIndexRoute: LangIndexRoute,
   LangBlogSlugRoute: LangBlogSlugRoute,
   LangNovostiSlugRoute: LangNovostiSlugRoute,
+  LangShopSlugRoute: LangShopSlugRoute,
+  LangShopKosaricaRoute: LangShopKosaricaRoute,
   LangBlogIndexRoute: LangBlogIndexRoute,
   LangNovostiIndexRoute: LangNovostiIndexRoute,
+  LangShopIndexRoute: LangShopIndexRoute,
   LangProjektiProjectVehicleRoute: LangProjektiProjectVehicleRoute,
   LangProjektiProjectIndexRoute: LangProjektiProjectIndexRoute,
 }
@@ -274,6 +336,7 @@ const LangRouteWithChildren = LangRoute._addFileChildren(LangRouteChildren)
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   LangRoute: LangRouteWithChildren,
+  RobotsDottxtRoute: RobotsDottxtRoute,
   SitemapDotxmlRoute: SitemapDotxmlRoute,
 }
 export const routeTree = rootRouteImport

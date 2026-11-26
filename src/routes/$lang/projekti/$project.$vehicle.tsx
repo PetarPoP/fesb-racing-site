@@ -3,7 +3,8 @@ import { content, type Lang } from '~/content'
 import { NotFound } from '~/components/Cms'
 import { VehiclePage } from '~/components/Projects'
 import { getVehicle } from '~/lib/cms'
-import { isProjectId } from '~/lib/projects'
+import { PROJECTS, isProjectId } from '~/lib/projects'
+import { pageHead, vehicleLd } from '~/lib/seo'
 
 // The CMS texts of the page come with the layout (/$lang).
 const layout = getRouteApi('/$lang')
@@ -15,17 +16,26 @@ export const Route = createFileRoute('/$lang/projekti/$project/$vehicle')({
     if (!r) throw notFound()
     return r
   },
-  head: ({ loaderData }) => {
+  head: ({ params, loaderData }) => {
     if (!loaderData) return {}
     const { v } = loaderData
-    const desc = v.specs.map(([k, val]) => `${k}: ${val}`).join(' · ')
-    return {
-      meta: [
-        { title: `${v.name}${v.year ? ` ${v.year}` : ''} — FESB Racing` },
-        ...(desc ? [{ name: 'description', content: desc }] : []),
-        ...(v.images[0] ? [{ property: 'og:image', content: v.images[0].src }] : []),
-      ],
-    }
+    const lang = (params.lang === 'en' ? 'en' : 'hr') as Lang
+    const project = PROJECTS.find((x) => x.id === v.project)
+    const specs = v.specs.map(([k, val]) => `${k}: ${val}`).join(' · ')
+    const description = v.description || v.sections[0]?.d || specs
+    const rest = `/projekti/${v.project}/${v.id}`
+    const c = content[lang]
+    const title = `${v.name}${v.year ? ` ${v.year}` : ''}`
+    const seoTitle = `${title} — ${v.project === 'motostudent' ? c.seo.bike : c.seo.car}`
+    return pageHead({
+      lang,
+      rest,
+      title: seoTitle,
+      description,
+      image: v.images[0]?.src,
+      crumbs: project ? [{ name: project.name, rest: `/projekti/${project.id}` }] : [],
+      jsonLd: [vehicleLd({ lang, rest, name: title, kind: v.project === 'motostudent' ? 'bike' : 'car', description, image: v.images[0]?.src, year: v.year, specs: v.specs })],
+    })
   },
   component: Page,
   notFoundComponent: () => {

@@ -1,0 +1,18 @@
+# FESB Racing
+
+> FESB Racing is the student racing team of FESB (Faculty of Electrical Engineering, Mechanical Engineering and Naval Architecture), University of Split, Croatia. Since 2010 the team designs, builds and races Formula Student cars and MotoStudent motorcycles. The site is in Croatian (/hr) and English (/en).
+
+## Pages
+
+- [Home (English)](/en): the team, sub-teams, projects, competitions, sponsors and how to join
+- [Formula Student](/en/projekti/formula-student): the cars, from the first FRM to the electric eFRT01
+- [MotoStudent](/en/projekti/motostudent): the racing motorcycles
+- [News](/en/novosti): short news from the workshop and competitions
+- [Blog](/en/blog): longer posts for partners and sponsors
+- [Shop](/en/shop): team T-shirts, hoodies and gear
+- [Sitemap](/sitemap.xml)
+
+## Contact
+
+- E-mail: info@fesbracing.hr
+- Address: Ruđera Boškovića 32, 21000 Split, Croatia
