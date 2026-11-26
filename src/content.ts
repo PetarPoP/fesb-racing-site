@@ -166,6 +166,12 @@ export type Content = {
   shopTitle: string
   shopText: string
   shopSoon: string
+  shopLocked: string
+  shopLockedText: string
+  shopPass: string
+  shopEnter: string
+  shopWrongPass: string
+  shopPassChanged: string
   shopSoonText: string
   shopCart: string
   shopEmpty: string
@@ -451,6 +457,12 @@ const hr: Content = {
   shopTitle: 'Shop',
   shopText: 'Majice, hoodiji i ostala oprema FESB Racinga. Svaka kupnja ide izravno u razvoj sljedećeg bolida i motocikla.',
   shopSoon: 'Shop uskoro',
+  shopLocked: 'Shop tima',
+  shopLockedText: 'Shop je samo za članove FESB Racinga. Upiši lozinku koju si dobio od tima.',
+  shopPass: 'Lozinka',
+  shopEnter: 'Uđi u shop',
+  shopWrongPass: 'Lozinka nije točna.',
+  shopPassChanged: 'Lozinka shopa se promijenila. Upiši novu pa pošalji narudžbu ponovno, košarica je ostala.',
   shopSoonText: 'Trgovina se upravo slaže. Pratite nas na Instagramu da saznate kad krene prodaja.',
   shopCart: 'Košarica',
   shopEmpty: 'Košarica je prazna.',
@@ -724,6 +736,12 @@ const en: Content = {
   shopTitle: 'Shop',
   shopText: 'T-shirts, hoodies and more FESB Racing gear. Every purchase goes straight into the development of the next car and bike.',
   shopSoon: 'Shop coming soon',
+  shopLocked: 'Team shop',
+  shopLockedText: 'The shop is for FESB Racing members only. Enter the password you got from the team.',
+  shopPass: 'Password',
+  shopEnter: 'Enter the shop',
+  shopWrongPass: 'Wrong password.',
+  shopPassChanged: 'The shop password has changed. Enter the new one and send the order again, your cart is still here.',
   shopSoonText: 'The store is being set up. Follow us on Instagram to find out when it opens.',
   shopCart: 'Cart',
   shopEmpty: 'Your cart is empty.',

@@ -87,7 +87,12 @@ export default buildConfig({
       titleSuffix: ' - FESB Racing CMS',
       icons: [{ rel: 'icon', type: 'image/svg+xml', url: '/favicon.svg' }],
     },
-    components: { graphics: { Logo: '/components/Logo', Icon: '/components/Icon' } },
+    components: {
+      graphics: { Logo: '/components/Logo', Icon: '/components/Icon' },
+      // The ordered pieces per product and size (shop of the team).
+      views: { orderSummary: { Component: '/components/OrderSummary', path: '/zbroj-narudzbi' } },
+      afterNavLinks: ['/components/OrderSummaryLink'],
+    },
     livePreview: {
       url: frontendUrl,
       collections: ['announcements', 'news', 'pages'],

@@ -2,7 +2,8 @@ import { useSyncExternalStore } from 'react'
 import type { Lang } from '~/content'
 import type { Img } from '~/lib/projects'
 
-// The shop of the site. Products and orders live in the CMS (group "Shop"). The cart lives in the browser.
+// The shop of the team. Products and orders live in the CMS (group "Shop"). The cart lives in the browser.
+// The shop is internal: it asks for the shop password, which the browser keeps after the first right try.
 
 export type ShopSize = { size: string; stock: number }
 
@@ -21,7 +22,8 @@ export type ShopProduct = {
   stock: number
 }
 
-export type ShopSettings = { enabled: boolean; pickup: string; delivery: boolean; deliveryPrice: number }
+/** trackStock off: the orders have no limit (the team collects orders before it orders the merch). */
+export type ShopSettings = { enabled: boolean; pickup: string; delivery: boolean; deliveryPrice: number; trackStock: boolean }
 export type ShopData = { products: ShopProduct[]; settings: ShopSettings }
 
 export type CartLine = { id: number; size: string | null; qty: number }
@@ -33,9 +35,11 @@ export type OrderInput = {
   address: string
   note: string
   items: { product: number; size: string | null; qty: number }[]
+  /** The shop password. The CMS refuses an order without the right one. */
+  password: string
 }
 export type ShortLine = { product: number; size: string | null; available: number }
-export type OrderResult = { ok: true; number: string; total: number } | { ok: false; error: 'stock' | 'invalid' | 'closed'; short?: ShortLine[] }
+export type OrderResult = { ok: true; number: string; total: number } | { ok: false; error: 'stock' | 'invalid' | 'closed' | 'locked'; short?: ShortLine[] }
 
 export const CATEGORIES = ['majice', 'hoodie', 'jakne', 'kape', 'ostalo'] as const
 export const CATEGORY_LABEL: Record<Lang, Record<string, string>> = {
@@ -119,3 +123,43 @@ export const cart = {
 }
 
 export const cartCount = (l: CartLine[]) => l.reduce((s, x) => s + x.qty, 0)
+
+// ---------- password ----------
+
+const PASS_KEY = 'fesb-shop-pass'
+const passListeners = new Set<() => void>()
+let pass: string | null | undefined
+
+function readPass(): string | null {
+  if (pass !== undefined) return pass
+  try {
+    pass = localStorage.getItem(PASS_KEY)
+  } catch {
+    pass = null
+  }
+  return pass
+}
+
+const subscribePass = (fn: () => void) => {
+  passListeners.add(fn)
+  return () => {
+    passListeners.delete(fn)
+  }
+}
+
+/** The shop password of this browser, or null. The server render sees null, so it renders the login. */
+export const useShopPass = () => useSyncExternalStore(subscribePass, readPass, () => null)
+
+export const shopPass = {
+  get: readPass,
+  set(value: string | null) {
+    pass = value
+    try {
+      if (value) localStorage.setItem(PASS_KEY, value)
+      else localStorage.removeItem(PASS_KEY)
+    } catch {
+      // Private mode: the password lives until the page closes.
+    }
+    for (const l of passListeners) l()
+  },
+}

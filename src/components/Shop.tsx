@@ -1,10 +1,10 @@
 import { useEffect, useMemo, useState, type FormEvent, type ReactNode } from 'react'
 import { Link } from '@tanstack/react-router'
-import { ArrowLeft, Check, Minus, Plus, ShoppingBag, Trash2 } from 'lucide-react'
+import { ArrowLeft, Check, Lock, Minus, Plus, ShoppingBag, Trash2 } from 'lucide-react'
 import type { Content, Lang } from '~/content'
 import { EMAIL_RE } from '~/lib/apply'
-import { CATEGORIES, CATEGORY_LABEL, cart, cartCount, formatPrice, stockOf, useCart, type ShopData, type ShopProduct } from '~/lib/shop'
-import { getShop, placeOrder } from '~/lib/shopFns'
+import { CATEGORIES, CATEGORY_LABEL, cart, cartCount, formatPrice, shopPass, stockOf, useCart, useShopPass, type ShopData, type ShopProduct } from '~/lib/shop'
+import { checkShopPassword, getShop, placeOrder } from '~/lib/shopFns'
 import { cx, tw } from './ui'
 
 const topPad = 'pt-[clamp(104px,12vw,148px)] pb-10 md:pb-16'
@@ -113,7 +113,7 @@ function Stepper({ value, max, onChange, c, small }: { value: number; max: numbe
   )
 }
 
-function ProductCard({ p, lang, c }: { p: ShopProduct; lang: Lang; c: Content }) {
+function ProductCard({ p, lang, c, trackStock }: { p: ShopProduct; lang: Lang; c: Content; trackStock: boolean }) {
   return (
     <Link
       to="/$lang/shop/$slug"
@@ -124,7 +124,7 @@ function ProductCard({ p, lang, c }: { p: ShopProduct; lang: Lang; c: Content })
     >
       <div className="relative">
         <Photo p={p} className="aspect-square transition-transform duration-500 group-hover:scale-[1.03]" />
-        {p.stock === 0 && <span className="absolute top-3 left-3 rounded-full bg-fg px-3 py-1 text-[13px] font-semibold text-ink">{c.shopSoldOut}</span>}
+        {trackStock && p.stock === 0 && <span className="absolute top-3 left-3 rounded-full bg-fg px-3 py-1 text-[13px] font-semibold text-ink">{c.shopSoldOut}</span>}
       </div>
       <div className="flex flex-col gap-1.5 p-[clamp(16px,3vw,20px)]">
         <span className={cx(tw.mono, 'text-xs text-mute')}>{CATEGORY_LABEL[lang][p.category] ?? p.category}</span>
@@ -136,7 +136,7 @@ function ProductCard({ p, lang, c }: { p: ShopProduct; lang: Lang; c: Content })
 }
 
 /** /shop: the products, with a filter by category. */
-export function ShopPage({ shop: initial, c, lang }: { shop: ShopData; c: Content; lang: Lang }) {
+function ShopPageInner({ shop: initial, c, lang }: { shop: ShopData; c: Content; lang: Lang }) {
   const { shop } = useShop(initial, lang)
   const [cat, setCat] = useState<string>('all')
   const open = shop.settings.enabled && shop.products.length > 0
@@ -163,7 +163,7 @@ export function ShopPage({ shop: initial, c, lang }: { shop: ShopData; c: Conten
           )}
           <div key={cat} data-reveal="stagger" className="grid grid-cols-[repeat(auto-fill,minmax(min(100%,260px),1fr))] gap-4">
             {list.map((p) => (
-              <ProductCard key={p.id} p={p} lang={lang} c={c} />
+              <ProductCard key={p.id} p={p} lang={lang} c={c} trackStock={shop.settings.trackStock} />
             ))}
           </div>
         </>
@@ -173,7 +173,7 @@ export function ShopPage({ shop: initial, c, lang }: { shop: ShopData; c: Conten
 }
 
 /** /shop/<product>: photos, price, size and quantity, and the add button. */
-export function ProductPage({ shop: initial, slug, c, lang }: { shop: ShopData; slug: string; c: Content; lang: Lang }) {
+function ProductPageInner({ shop: initial, slug, c, lang }: { shop: ShopData; slug: string; c: Content; lang: Lang }) {
   const { shop } = useShop(initial, lang)
   const p = shop.products.find((x) => x.slug === slug)
   const lines = useCart()
@@ -258,9 +258,11 @@ export function ProductPage({ shop: initial, slug, c, lang }: { shop: ShopData; 
             </div>
           )}
 
-          <p className="m-0 text-sm text-mute" aria-live="polite">
-            {soldOut ? c.shopSoldOut : !sized || size ? (left > 0 && left <= 3 ? fill(c.shopLow, left) : fill(c.shopInStock, left)) : fill(c.shopInStock, p.stock)}
-          </p>
+          {shop.settings.trackStock && (
+            <p className="m-0 text-sm text-mute" aria-live="polite">
+              {soldOut ? c.shopSoldOut : !sized || size ? (left > 0 && left <= 3 ? fill(c.shopLow, left) : fill(c.shopInStock, left)) : fill(c.shopInStock, p.stock)}
+            </p>
+          )}
 
           <div className="flex flex-wrap items-center gap-3">
             <Stepper value={qty} max={Math.max(1, left)} onChange={(n) => setQty(Math.max(1, n))} c={c} />
@@ -299,7 +301,7 @@ const inputClass =
   'block w-full rounded-[14px] border border-fg/10 bg-bg px-[18px] py-4 text-base text-fg caret-acc outline-none transition-colors placeholder:text-mute focus:border-acc aria-[invalid=true]:border-acc'
 
 /** /shop/kosarica: the cart lines and the order form. */
-export function CartPage({ shop: initial, c, lang }: { shop: ShopData; c: Content; lang: Lang }) {
+function CartPageInner({ shop: initial, c, lang }: { shop: ShopData; c: Content; lang: Lang }) {
   const { shop, refresh } = useShop(initial, lang)
   const lines = useCart()
   const [delivery, setDelivery] = useState<'pickup' | 'post'>('pickup')
@@ -338,6 +340,7 @@ export function CartPage({ shop: initial, c, lang }: { shop: ShopData; c: Conten
           address: post ? v('address') : '',
           note: v('note'),
           items: rows.map((r) => ({ product: r.id, size: r.size, qty: r.qty })),
+          password: shopPass.get() ?? '',
         },
       })
       if (r.ok) {
@@ -351,6 +354,12 @@ export function CartPage({ shop: initial, c, lang }: { shop: ShopData; c: Conten
         // Lower each short line to what is left, so the visitor sees what can still be ordered.
         for (const s of r.short ?? []) cart.set(s.product, s.size, s.available)
         await refresh()
+      }
+      if (r.error === 'locked') {
+        // The password changed in the CMS. The login comes back with a note; the cart stays.
+        lockedNote = true
+        shopPass.set(null)
+        return
       }
       setStatus(r.error === 'stock' ? 'short' : r.error === 'closed' ? 'closed' : 'error')
     } catch {
@@ -508,5 +517,105 @@ export function CartPage({ shop: initial, c, lang }: { shop: ShopData; c: Conten
         </div>
       )}
     </main>
+  )
+}
+
+// ---------- password ----------
+
+/** Set when an order came back "locked": the login then says that the password changed. */
+let lockedNote = false
+
+/** The login of the team shop. The CMS checks the password; the browser keeps it after a right try. */
+function ShopLogin({ c, lang }: { c: Content; lang: Lang }) {
+  const [status, setStatus] = useState<'idle' | 'checking' | 'wrong' | 'error'>('idle')
+  const [note] = useState(() => lockedNote)
+  const onSubmit = async (e: FormEvent<HTMLFormElement>) => {
+    e.preventDefault()
+    const value = String(new FormData(e.currentTarget).get('password') ?? '').trim()
+    if (!value) return setStatus('wrong')
+    setStatus('checking')
+    try {
+      if (await checkShopPassword({ data: value })) {
+        lockedNote = false
+        shopPass.set(value)
+      } else setStatus('wrong')
+    } catch {
+      setStatus('error')
+    }
+  }
+  return (
+    <main className={cx('wrap flex flex-col gap-8', topPad)}>
+      <form onSubmit={onSubmit} noValidate className={cx(tw.card, 'flex w-full max-w-[460px] flex-col gap-4 p-[clamp(20px,4vw,28px)]')}>
+        <Lock size={32} strokeWidth={1.6} aria-hidden="true" className="text-acc" />
+        <h1 className="display m-0 text-[clamp(30px,5vw,44px)] leading-none [font-stretch:115%] tracking-[-.02em]">{c.shopLocked}</h1>
+        <p className={tw.bodyMute}>{note ? c.shopPassChanged : c.shopLockedText}</p>
+        <label className="block">
+          <span className="sr-only">{c.shopPass}</span>
+          <input
+            name="password"
+            type="password"
+            autoComplete="current-password"
+            placeholder={c.shopPass}
+            aria-invalid={status === 'wrong' ? true : undefined}
+            aria-describedby={status === 'wrong' || status === 'error' ? 'pass-err' : undefined}
+            onChange={() => status === 'wrong' && setStatus('idle')}
+            className={inputClass}
+          />
+        </label>
+        {(status === 'wrong' || status === 'error') && (
+          <div id="pass-err" role="alert" className="animate-fade-up pl-1 text-sm text-acc">
+            {status === 'wrong' ? c.shopWrongPass : c.errServer}
+          </div>
+        )}
+        <button type="submit" disabled={status === 'checking'} className={cx(tw.btnLight, 'self-start disabled:opacity-60')} data-dh="wipe" data-dh-c="#e2475b">
+          {c.shopEnter}
+        </button>
+      </form>
+      <Link to="/$lang" params={{ lang }} className={tw.backPill}>
+        <ArrowLeft size={16} aria-hidden="true" />
+        {c.backHome}
+      </Link>
+    </main>
+  )
+}
+
+/**
+ * The shop pages behind the password. The server render and the first render show the login, so a built page
+ * holds no shop view. A kept password is checked again once, in case it changed in the CMS.
+ */
+function Gate({ c, lang, children }: { c: Content; lang: Lang; children: ReactNode }) {
+  const pass = useShopPass()
+  useEffect(() => {
+    if (!pass) return
+    checkShopPassword({ data: pass })
+      .then((ok) => {
+        if (!ok) shopPass.set(null)
+      })
+      .catch(() => {})
+  }, [pass])
+  return pass ? <>{children}</> : <ShopLogin c={c} lang={lang} />
+}
+
+export function ShopPage(props: { shop: ShopData; c: Content; lang: Lang }) {
+  return (
+    <Gate c={props.c} lang={props.lang}>
+      <ShopPageInner {...props} />
+    </Gate>
+  )
+}
+
+export function ProductPage(props: { shop: ShopData; slug: string; c: Content; lang: Lang }) {
+  return (
+    <Gate c={props.c} lang={props.lang}>
+      <ProductPageInner {...props} />
+    </Gate>
+  )
+}
+
+export function CartPage(props: { shop: ShopData; c: Content; lang: Lang }) {
+  return (
+    <Gate c={props.c} lang={props.lang}>
+      <CartPageInner {...props} />
+    </Gate>
   )
 }

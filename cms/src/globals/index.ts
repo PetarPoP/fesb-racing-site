@@ -1,6 +1,9 @@
 import type { Field, GlobalConfig } from 'payload'
 import { anyone, isLoggedIn } from '../access'
 
+/** A field that only a logged-in user can read. The REST API leaves it out for visitors. */
+const teamOnly = { read: ({ req }: { req: { user?: unknown } }) => Boolean(req.user) }
+
 const access = { read: anyone, update: isLoggedIn }
 
 /** A localized text field with a Croatian label. */
@@ -139,9 +142,31 @@ export const SiteSettings: GlobalConfig = {
       name: 'shop',
       label: 'Shop',
       type: 'group',
-      admin: { description: 'Shop stranice (/shop). Proizvodi i narudžbe su u grupi „Shop“. Poveznica „Shop“ se prikazuje u izborniku kad je uključen.' },
+      admin: {
+        description:
+          'Interni shop tima (/hr/shop). Nije u izborniku ni na tražilicama: pošaljite ljudima poveznicu i lozinku. Proizvodi, narudžbe i zbroj narudžbi su u grupi „Shop“.',
+      },
       fields: [
         { name: 'enabled', label: 'Uključen', type: 'checkbox', defaultValue: false },
+        {
+          type: 'row',
+          fields: [
+            {
+              name: 'password',
+              label: 'Lozinka shopa',
+              type: 'text',
+              access: teamOnly,
+              admin: { width: '50%', description: 'Lozinka koju šaljete članovima. Bez nje se shop ne vidi i ne može se naručiti. Promjena lozinke odjavljuje sve.' },
+            },
+            {
+              name: 'trackStock',
+              label: 'Prati zalihu',
+              type: 'checkbox',
+              defaultValue: false,
+              admin: { width: '50%', description: 'Isključeno: narudžbe nemaju limit (skupljanje narudžbi prije naručivanja). Uključeno: narudžba smanjuje zalihu proizvoda.' },
+            },
+          ],
+        },
         {
           name: 'pickup',
           label: 'Preuzimanje i plaćanje',

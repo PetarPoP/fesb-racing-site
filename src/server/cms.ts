@@ -382,6 +382,8 @@ export async function getCmsContent(lang: Lang, base: Content): Promise<Content>
 /** The shop is live data: a shorter cache, so the stock on the page follows the orders. */
 const SHOP_TTL_MS = 15_000
 
+const UNTRACKED_STOCK = 999
+
 export function getCmsShop(lang: Lang): Promise<ShopData | null> {
   const key = `shop:${lang}`
   const hit = cache.get(key)
@@ -389,10 +391,13 @@ export function getCmsShop(lang: Lang): Promise<ShopData | null> {
   return cached(key, async () => {
     const [docs, settings] = await Promise.all([
       listDocs<Record<string, unknown>>('products', lang, { sort: 'order', 'where[active][equals]': 'true' }),
-      getGlobalDoc<{ shop?: { enabled?: boolean; pickup?: string; delivery?: boolean; deliveryPrice?: number } }>('siteSettings', lang),
+      getGlobalDoc<{ shop?: { enabled?: boolean; pickup?: string; delivery?: boolean; deliveryPrice?: number; trackStock?: boolean } }>('siteSettings', lang),
     ])
+    const track = Boolean(settings?.shop?.trackStock)
+    // Without stock tracking every size can be ordered: the stock is a number the cart never reaches.
+    const stockOf = (n: unknown) => (track ? Math.max(0, Number(n ?? 0)) : UNTRACKED_STOCK)
     const products = (docs ?? []).map((d): ShopProduct => {
-      const sizes = ((d.sizes as { size: string; stock: number }[] | undefined) ?? []).map((s) => ({ size: s.size, stock: Math.max(0, s.stock ?? 0) }))
+      const sizes = ((d.sizes as { size: string; stock: number }[] | undefined) ?? []).map((s) => ({ size: s.size, stock: stockOf(s.stock) }))
       return {
         id: Number(d.id),
         slug: String(d.slug),
@@ -402,13 +407,13 @@ export function getCmsShop(lang: Lang): Promise<ShopData | null> {
         description: d.description ? String(d.description) : '',
         images: ((d.images as unknown[] | undefined) ?? []).map(mediaImg).filter((x): x is Img => x !== null),
         sizes,
-        stock: sizes.length ? sizes.reduce((s, x) => s + x.stock, 0) : Math.max(0, Number(d.stock ?? 0)),
+        stock: sizes.length ? sizes.reduce((s, x) => s + x.stock, 0) : stockOf(d.stock),
       }
     })
     const s = settings?.shop ?? {}
     return {
       products,
-      settings: { enabled: Boolean(s.enabled), pickup: s.pickup ?? '', delivery: Boolean(s.delivery), deliveryPrice: Math.max(0, s.deliveryPrice ?? 0) },
+      settings: { enabled: Boolean(s.enabled), pickup: s.pickup ?? '', delivery: Boolean(s.delivery), deliveryPrice: Math.max(0, s.deliveryPrice ?? 0), trackStock: Boolean(s.trackStock) },
     }
   })
 }
@@ -424,6 +429,17 @@ export async function postCmsOrder(order: OrderInput): Promise<OrderResult> {
   // A new order changes the stock: the next page load reads the products again.
   for (const key of [...cache.keys()]) if (key.startsWith('shop:')) cache.delete(key)
   if (res.ok && body.ok) return body as OrderResult
-  if (body.error === 'stock' || body.error === 'invalid' || body.error === 'closed') return { ok: false, error: body.error, short: (body as { short?: ShortLine[] }).short }
+  if (body.error === 'stock' || body.error === 'invalid' || body.error === 'closed' || body.error === 'locked') return { ok: false, error: body.error, short: (body as { short?: ShortLine[] }).short }
   throw new Error(`CMS ${res.status} for /api/orders/place`)
+}
+
+/** Is this the shop password? The CMS checks it, the site never sees the real one. */
+export async function checkCmsShopPassword(password: string): Promise<boolean> {
+  const res = await timedFetch(`${baseUrl()}/api/orders/check`, {
+    method: 'POST',
+    headers: { 'content-type': 'application/json' },
+    body: JSON.stringify({ password }),
+  })
+  if (res.status !== 200 && res.status !== 401) throw new Error(`CMS ${res.status} for /api/orders/check`)
+  return res.status === 200
 }

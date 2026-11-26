@@ -4,7 +4,7 @@ import { NotFound } from '~/components/Cms'
 import { ProductPage } from '~/components/Shop'
 import { getShop } from '~/lib/shopFns'
 import { CATEGORY_LABEL } from '~/lib/shop'
-import { SITE_NAME, pageHead, productLd } from '~/lib/seo'
+import { SITE_NAME, pageHead } from '~/lib/seo'
 
 const layout = getRouteApi('/$lang')
 
@@ -30,9 +30,9 @@ export const Route = createFileRoute('/$lang/shop/$slug')({
       description,
       image: p.images[0]?.src,
       type: 'product',
-      noindex: !loaderData!.settings.enabled,
+      // The shop is internal: behind a password and out of the search engines.
+      noindex: true,
       crumbs: [{ name: c.shopTitle, rest: '/shop' }],
-      jsonLd: [productLd({ lang, rest, name: p.name, description, images: p.images.map((i) => i.src), price: p.price, inStock: p.stock > 0, category, sku: `FR-${p.id}` })],
     })
   },
   component: Page,

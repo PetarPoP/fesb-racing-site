@@ -119,11 +119,6 @@ export function Header({ lang, c, onHome }: { lang: Lang; c: Content; onHome: bo
               {label}
             </SectionLink>
           ))}
-          {c.shop?.enabled && (
-            <Link to="/$lang/shop" params={{ lang }} className={linkClass('shop')} activeProps={{ 'aria-current': 'page' }}>
-              {c.shopNav}
-            </Link>
-          )}
         </nav>
 
         {/* Wide: segmented HR/EN */}
@@ -229,17 +224,6 @@ export function Header({ lang, c, onHome }: { lang: Lang; c: Content; onHome: bo
               {label}
             </SectionLink>
           ))}
-          {c.shop?.enabled && (
-            <Link
-              to="/$lang/shop"
-              params={{ lang }}
-              onClick={() => setMenuOpen(false)}
-              style={{ '--i': c.nav.length } as CSSProperties}
-              className={cx('menu-item flex min-h-11 items-center rounded-2xl px-4 font-semibold hover:bg-fg/10 active:bg-fg/10', linkClass('shop', false))}
-            >
-              {c.shopNav}
-            </Link>
-          )}
         </div>
       </nav>
     </header>
