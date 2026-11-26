@@ -24,11 +24,13 @@ export const Route = createFileRoute('/$lang/projekti/$project/$vehicle')({
     const specs = v.specs.map(([k, val]) => `${k}: ${val}`).join(' · ')
     const description = v.description || v.sections[0]?.d || specs
     const rest = `/projekti/${v.project}/${v.id}`
+    const c = content[lang]
     const title = `${v.name}${v.year ? ` ${v.year}` : ''}`
+    const seoTitle = `${title} — ${v.project === 'motostudent' ? c.seo.bike : c.seo.car}`
     return pageHead({
       lang,
       rest,
-      title,
+      title: seoTitle,
       description,
       image: v.images[0]?.src,
       crumbs: project ? [{ name: project.name, rest: `/projekti/${project.id}` }] : [],

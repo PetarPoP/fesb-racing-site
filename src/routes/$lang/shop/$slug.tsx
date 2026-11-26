@@ -4,7 +4,7 @@ import { NotFound } from '~/components/Cms'
 import { ProductPage } from '~/components/Shop'
 import { getShop } from '~/lib/shopFns'
 import { CATEGORY_LABEL } from '~/lib/shop'
-import { pageHead, productLd } from '~/lib/seo'
+import { SITE_NAME, pageHead, productLd } from '~/lib/seo'
 
 const layout = getRouteApi('/$lang')
 
@@ -25,7 +25,8 @@ export const Route = createFileRoute('/$lang/shop/$slug')({
     return pageHead({
       lang,
       rest,
-      title: p.name,
+      // The product names often start with the club name. The shop word then carries it once.
+      title: p.name.includes(SITE_NAME) ? `${p.name} — shop` : `${p.name} — ${c.seo.product}`,
       description,
       image: p.images[0]?.src,
       type: 'product',

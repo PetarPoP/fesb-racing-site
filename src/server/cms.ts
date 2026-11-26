@@ -20,6 +20,30 @@ const baseUrl = () => (process.env.CMS_URL || 'http://localhost:3100').replace(/
 /** The base URL that a browser uses for media files. It can differ from CMS_URL (for example a service binding). */
 const publicUrl = () => (process.env.CMS_PUBLIC_URL || baseUrl()).replace(/\/$/, '')
 
+type Fetcher = { fetch: typeof fetch }
+/** The service binding to the CMS Worker (wrangler config: services, binding CMS), when the Worker has one. */
+const cmsBinding = () => (globalThis as { __env__?: { CMS?: Fetcher } }).__env__?.CMS
+
+/**
+ * Call the CMS. On Cloudflare a Worker cannot fetch another workers.dev Worker of the same account (error 1042),
+ * so the live site calls the CMS through the service binding. The build (prerender in the local runtime) has no CMS
+ * Worker behind the binding: an error or a 503 from the binding then falls back to the public address.
+ */
+async function cmsFetch(input: RequestInfo | URL, init: RequestInit): Promise<Response> {
+  const svc = cmsBinding()
+  if (!svc) return fetch(input, init)
+  const method = (init.method ?? 'GET').toUpperCase()
+  try {
+    const res = await svc.fetch(input, init)
+    if (res.status !== 503) return res
+    await res.body?.cancel()
+  } catch (e) {
+    // A POST may have reached the CMS before the error. Sending it again could place the order twice.
+    if (method !== 'GET' || init.signal?.aborted) throw e
+  }
+  return fetch(input, init)
+}
+
 /**
  * Fetch with a time limit that covers the body too. The body is read here, so a timeout or a cut connection
  * rejects this promise (the cache then uses null). An abort while the caller was still reading a gzip body
@@ -29,7 +53,7 @@ const timedFetch: typeof fetch = async (input, init) => {
   const ctrl = new AbortController()
   const timer = setTimeout(() => ctrl.abort(), TIMEOUT_MS)
   try {
-    const res = await fetch(input, { ...init, signal: ctrl.signal })
+    const res = await cmsFetch(input, { ...init, signal: ctrl.signal })
     const body = await res.arrayBuffer()
     const headers = new Headers(res.headers)
     headers.delete('content-encoding')

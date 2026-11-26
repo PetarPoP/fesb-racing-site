@@ -41,6 +41,20 @@ type Comp = {
 export type Content = {
   metaTitle: string
   metaDesc: string
+  /** Search titles and texts of the pages (src/lib/seo.ts). The site name is added after each title. */
+  seo: {
+    home: string
+    news: string
+    blog: string
+    shop: string
+    projects: Record<'formula-student' | 'motostudent', string>
+    /** The word after a vehicle name in its title: "studentski bolid", "student race car". */
+    car: string
+    bike: string
+    product: string
+    /** Added to a description that is too short for search results. */
+    tail: string
+  }
   nav: string[]
   cta: string
   heroA: string
@@ -206,6 +220,17 @@ const hr: Content = {
   metaTitle: 'FESB Racing — Od ploče do staze',
   metaDesc:
     'Studentski inženjerski tim FESB-a iz Splita. Projektiramo, gradimo i utrkujemo Formula Student bolide i MotoStudent motocikle.',
+  seo: {
+    home: 'Studentski trkaći tim FESB-a iz Splita',
+    news: 'Novosti iz radionice i s natjecanja',
+    blog: 'Blog o gradnji bolida i suradnji s industrijom',
+    shop: 'Shop — majice, hoodiji i oprema tima',
+    projects: { 'formula-student': 'Formula Student — studentski trkaći bolidi', motostudent: 'MotoStudent — studentski trkaći motocikli' },
+    car: 'Formula Student bolid',
+    bike: 'MotoStudent motocikl',
+    product: 'shop FESB Racinga',
+    tail: 'FESB Racing je studentski trkaći tim FESB-a iz Splita koji gradi Formula Student bolide i MotoStudent motocikle.',
+  },
   nav: ['Novosti', 'Timovi', 'Projekti', 'Natjecanja', 'Sponzori', 'Blog', 'Kontakt'],
   cta: 'Pridruži se',
   heroA: 'Od ploče',
@@ -468,6 +493,17 @@ const en: Content = {
   metaTitle: 'FESB Racing — From whiteboard to track',
   metaDesc:
     'The student engineering team of FESB in Split. We design, build and race Formula Student cars and MotoStudent motorcycles.',
+  seo: {
+    home: 'Student racing team of FESB in Split',
+    news: 'News from the workshop and the track',
+    blog: 'Blog on building race cars and working with industry',
+    shop: 'Shop — T-shirts, hoodies and team gear',
+    projects: { 'formula-student': 'Formula Student — student race cars', motostudent: 'MotoStudent — student racing motorcycles' },
+    car: 'Formula Student car',
+    bike: 'MotoStudent motorcycle',
+    product: 'FESB Racing shop',
+    tail: 'FESB Racing is the student racing team of FESB in Split, building Formula Student cars and MotoStudent motorcycles.',
+  },
   nav: ['News', 'Teams', 'Projects', 'Competitions', 'Sponsors', 'Blog', 'Contact'],
   cta: 'Join us',
   heroA: 'From whiteboard',

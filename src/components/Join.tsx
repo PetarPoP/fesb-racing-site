@@ -159,6 +159,7 @@ export function Join({ c, lang }: { c: Content; lang: Lang }) {
               }}
               type="button"
               role="radio"
+              aria-label={label}
               aria-checked={mode === m}
               tabIndex={mode === m ? 0 : -1}
               onClick={() => switchMode(m)}
@@ -209,6 +210,7 @@ export function Join({ c, lang }: { c: Content; lang: Lang }) {
                       key={t.code}
                       type="button"
                       role="radio"
+                      aria-label={`${t.code} — ${t.name}`}
                       aria-checked={pick === i}
                       tabIndex={pick === i ? 0 : -1}
                       title={t.name}

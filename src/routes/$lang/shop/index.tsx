@@ -15,7 +15,7 @@ export const Route = createFileRoute('/$lang/shop/')({
     return pageHead({
       lang,
       rest: '/shop',
-      title: c.shopTitle,
+      title: c.seo.shop,
       description: c.shopText,
       image: loaderData?.products[0]?.images[0]?.src,
       // A shop that is switched off shows only "coming soon".

@@ -1,4 +1,4 @@
-import { LANGS, type Lang } from '~/content'
+import { LANGS, content, type Lang } from '~/content'
 
 // Head tags of the pages: title, description, canonical and language alternates, Open Graph, Twitter and
 // JSON-LD. Each page route calls pageHead() with its own data. The layout (/$lang) sets the defaults and the
@@ -29,6 +29,14 @@ export function clip(text: string | undefined | null, max = 160) {
   return `${cut.slice(0, Math.max(cut.lastIndexOf(' '), max - 30)).replace(/[,.;:—-]+$/, '')}…`
 }
 
+/** Search results show about 120–160 characters. A shorter text gets a sentence about the club after it. */
+function fullDescription(lang: Lang, text: string | undefined) {
+  const d = clip(text)
+  const tail = content[lang].seo.tail
+  if (d.length >= 110 || d.includes(tail)) return d
+  return clip(d ? `${/[.!?…]$/.test(d) ? d : `${d}.`} ${tail}` : tail)
+}
+
 type JsonLd = Record<string, unknown>
 type Meta = { title?: string; name?: string; property?: string; content?: string; 'script:ld+json'?: JsonLd }
 type HeadLink = { rel: string; href: string; hrefLang?: string }
@@ -57,7 +65,7 @@ export type PageSeo = {
 export function pageHead(p: PageSeo): { meta: Meta[]; links: HeadLink[] } {
   const url = langUrl(p.lang, p.rest)
   const title = p.title.includes(SITE_NAME) ? p.title : `${p.title} — ${SITE_NAME}`
-  const description = clip(p.description)
+  const description = fullDescription(p.lang, p.description)
   const image = abs(p.image || OG_IMAGE)
   const langs = p.langs ?? LANGS
   const meta: Meta[] = [

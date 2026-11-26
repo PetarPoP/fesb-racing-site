@@ -157,7 +157,7 @@ export function Header({ lang, c, onHome }: { lang: Lang; c: Content; onHome: bo
           onClick={fadeLang}
           hrefLang={other}
           className="press grid h-9 min-w-9 place-items-center rounded-full border border-line px-2 text-[13px] font-semibold text-fg hover:text-acc min-[1000px]:hidden"
-          aria-label={c.langSwitch}
+          aria-label={`${other.toUpperCase()} — ${c.langSwitch}`}
         >
           {other.toUpperCase()}
         </Link>

@@ -94,9 +94,30 @@ export default defineConfig(async ({ command, mode }) => {
         compatibilityDate: '2026-10-01',
         cloudflare: {
           // "previews" is for the preview deploy of a pull request (wrangler preview). It reads the same public CMS.
-          wrangler: { name: process.env.SITE_WORKER_NAME || 'fesb-racing-site', vars: workerVars, previews: { vars: workerVars } },
+          wrangler: {
+            name: process.env.SITE_WORKER_NAME || 'fesb-racing-site',
+            vars: workerVars,
+            previews: { vars: workerVars },
+            // A page is served at its address without a slash (/hr/blog), the same address as the links, the canonical
+            // tag and the sitemap. The default sent every page through a redirect to /hr/blog/.
+            assets: { html_handling: 'drop-trailing-slash' },
+            // The run-time calls to the CMS (sitemap, shop stock and orders). A fetch of the public workers.dev address
+            // from this Worker fails on Cloudflare (error 1042). src/server/cms.ts falls back to CMS_URL without it.
+            services: [{ binding: 'CMS', service: process.env.CMS_WORKER_NAME || 'fesb-racing-cms' }],
+          },
         },
         routeRules: {
+          // Security headers of every page. No full CSP: the 3D model, the map and the CMS images come from other hosts.
+          '/**': {
+            headers: {
+              'strict-transport-security': 'max-age=31536000; includeSubDomains',
+              'x-content-type-options': 'nosniff',
+              'x-frame-options': 'SAMEORIGIN',
+              'referrer-policy': 'strict-origin-when-cross-origin',
+              'permissions-policy': 'camera=(), microphone=(), geolocation=()',
+              'content-security-policy': "frame-ancestors 'self'; base-uri 'self'; object-src 'none'; upgrade-insecure-requests",
+            },
+          },
           '/assets/**': { headers: { 'cache-control': 'public, max-age=31536000, immutable' } },
           '/models/**': { headers: { 'cache-control': 'public, max-age=31536000, immutable' } },
           '/draco/**': { headers: { 'cache-control': 'public, max-age=31536000, immutable' } },

@@ -17,7 +17,7 @@ export const Route = createFileRoute('/$lang/novosti/')({
     return pageHead({
       lang,
       rest: '/novosti',
-      title: c.newsLabel,
+      title: c.seo.news,
       description: c.newsMeta,
       crumbs: [],
       jsonLd: posts.length ? [itemListLd(lang, posts.map((n) => ({ name: pick(n, 'title', lang), rest: `/novosti/${n.slug}` })))] : [],

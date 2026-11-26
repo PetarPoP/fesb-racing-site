@@ -1,4 +1,4 @@
-import { Outlet, createFileRoute, redirect, useMatch } from '@tanstack/react-router'
+import { Outlet, createFileRoute, notFound, useMatch } from '@tanstack/react-router'
 import { content, isLang, type Lang } from '~/content'
 import { organizationLd } from '~/lib/seo'
 import { NotFound } from '~/components/Cms'
@@ -7,7 +7,8 @@ import { Shell } from '~/components/Site'
 
 export const Route = createFileRoute('/$lang')({
   beforeLoad: ({ params }) => {
-    if (!isLang(params.lang)) throw redirect({ to: '/$lang', params: { lang: 'hr' } })
+    // An unknown first part of the path (/foo, /hr-HR) is a page that does not exist: 404, not a redirect.
+    if (!isLang(params.lang)) throw notFound()
   },
   // Defaults of every page, the search engine verification codes from the CMS and the JSON-LD of the club.
   // Each page route sets its own title, description, canonical address and share image (src/lib/seo.ts).
@@ -41,6 +42,7 @@ function LangLayout() {
 }
 
 function LangNotFound() {
-  const lang = Route.useParams().lang as Lang
+  const p = Route.useParams().lang
+  const lang: Lang = isLang(p) ? p : 'hr'
   return <NotFound lang={lang} c={content[lang]} />
 }

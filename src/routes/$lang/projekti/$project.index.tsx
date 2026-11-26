@@ -23,7 +23,7 @@ export const Route = createFileRoute('/$lang/projekti/$project/')({
     return pageHead({
       lang,
       rest,
-      title: p.name,
+      title: content[lang].seo.projects[p.id],
       description: p.intro[lang][0],
       image: vehicles[0]?.images[0]?.src,
       crumbs: [],

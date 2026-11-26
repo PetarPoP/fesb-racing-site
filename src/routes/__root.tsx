@@ -1,7 +1,8 @@
 /// <reference types="vite/client" />
 import type { ReactNode } from 'react'
 import { HeadContent, Outlet, Scripts, createRootRoute, useParams } from '@tanstack/react-router'
-import { isLang } from '~/content'
+import { content, isLang } from '~/content'
+import { NotFound } from '~/components/Cms'
 import { THEME_COLOR, THEME_SCRIPT } from '~/lib/theme'
 import css from '~/styles.css?url'
 
@@ -20,6 +21,7 @@ export const Route = createRootRoute({
   }),
   shellComponent: RootShell,
   component: Outlet,
+  notFoundComponent: () => <NotFound lang="hr" c={content.hr} />,
 })
 
 function RootShell({ children }: { children: ReactNode }) {

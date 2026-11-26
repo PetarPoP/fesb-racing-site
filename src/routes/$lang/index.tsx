@@ -10,7 +10,7 @@ export const Route = createFileRoute('/$lang/')({
   head: ({ params, loaderData }) => {
     const lang = params.lang as Lang
     const c = loaderData?.c ?? content[lang] ?? content.hr
-    return pageHead({ lang, rest: '', title: c.metaTitle, description: c.metaDesc, jsonLd: [websiteLd()] })
+    return pageHead({ lang, rest: '', title: (c.seo ?? content[lang].seo).home, description: c.metaDesc, jsonLd: [websiteLd()] })
   },
   component: HomePage,
 })
