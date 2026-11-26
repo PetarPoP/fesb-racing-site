@@ -1,6 +1,6 @@
 import { createFileRoute } from '@tanstack/react-router'
 import { LANGS } from '~/content'
-import { getCmsPosts, getCmsShop, getCmsVehicles } from '~/server/cms'
+import { getCmsPosts, getCmsVehicles } from '~/server/cms'
 import { SITE_URL } from '~/lib/seo'
 
 const escapeXml = (s: string) => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;')
@@ -33,7 +33,8 @@ export const Route = createFileRoute('/sitemap.xml')({
         // The addresses are those of the public site (SITE_URL at build time), also on a preview deploy.
         const origin = SITE_URL
         // The news list is null when the CMS is down. The sitemap then has only the static pages.
-        const [news, blog, shop, vehicles] = await Promise.all([getCmsPosts('news', 'hr'), getCmsPosts('blog', 'hr'), getCmsShop('hr'), getCmsVehicles('hr')])
+        // The shop is internal (behind a password) and not in the sitemap.
+        const [news, blog, vehicles] = await Promise.all([getCmsPosts('news', 'hr'), getCmsPosts('blog', 'hr'), getCmsVehicles('hr')])
         const newest = (list: { date: string }[] | null) => list?.map((n) => n.date).sort().at(-1)
         const entries: Entry[] = [
           { path: '/hr', lastmod: newest([...(news ?? []), ...(blog ?? [])]) },
@@ -44,7 +45,6 @@ export const Route = createFileRoute('/sitemap.xml')({
           { path: '/hr/projekti/formula-student' },
           { path: '/hr/projekti/motostudent' },
           ...vehicles.map((v) => ({ path: `/hr/projekti/${v.project}/${encodeURIComponent(v.id)}` })),
-          ...(shop?.settings.enabled ? [{ path: '/hr/shop' }, ...shop.products.map((p) => ({ path: `/hr/shop/${encodeURIComponent(p.slug)}` }))] : []),
         ]
         const xml = [
           '<?xml version="1.0" encoding="UTF-8"?>',

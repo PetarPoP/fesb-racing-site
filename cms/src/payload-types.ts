@@ -583,7 +583,7 @@ export interface Product {
   createdAt: string;
 }
 /**
- * Narudžbe sa stranice. Promijeni status kad narudžbu potvrdiš, pošalješ ili kupac preuzme. Otkazana narudžba vraća komade na zalihu.
+ * Narudžbe iz shopa tima. Promijeni status kad narudžbu potvrdiš, pošalješ ili član preuzme. Koliko čega treba naručiti piše u „Zbroj narudžbi“.
  *
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "orders".
@@ -617,6 +617,7 @@ export interface Order {
    * Vidi samo tim.
    */
   internalNote?: string | null;
+  stockTaken?: boolean | null;
   updatedAt: string;
   createdAt: string;
 }
@@ -1336,6 +1337,7 @@ export interface OrdersSelect<T extends boolean = true> {
   total?: T;
   lang?: T;
   internalNote?: T;
+  stockTaken?: T;
   updatedAt?: T;
   createdAt?: T;
 }
@@ -1831,10 +1833,18 @@ export interface SiteSetting {
       }[]
     | null;
   /**
-   * Shop stranice (/shop). Proizvodi i narudžbe su u grupi „Shop“. Poveznica „Shop“ se prikazuje u izborniku kad je uključen.
+   * Interni shop tima (/hr/shop). Nije u izborniku ni na tražilicama: pošaljite ljudima poveznicu i lozinku. Proizvodi, narudžbe i zbroj narudžbi su u grupi „Shop“.
    */
   shop?: {
     enabled?: boolean | null;
+    /**
+     * Lozinka koju šaljete članovima. Bez nje se shop ne vidi i ne može se naručiti. Promjena lozinke odjavljuje sve.
+     */
+    password?: string | null;
+    /**
+     * Isključeno: narudžbe nemaju limit (skupljanje narudžbi prije naručivanja). Uključeno: narudžba smanjuje zalihu proizvoda.
+     */
+    trackStock?: boolean | null;
     /**
      * Prikazuje se u košarici, na primjer gdje i kada se narudžba preuzima i kako se plaća.
      */
@@ -1991,6 +2001,8 @@ export interface SiteSettingsSelect<T extends boolean = true> {
     | T
     | {
         enabled?: T;
+        password?: T;
+        trackStock?: T;
         pickup?: T;
         delivery?: T;
         deliveryPrice?: T;

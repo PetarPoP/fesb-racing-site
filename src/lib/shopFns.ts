@@ -1,10 +1,10 @@
 import { createServerFn } from '@tanstack/react-start'
 import { isLang, type Lang } from '~/content'
-import { getCmsShop, postCmsOrder } from '~/server/cms'
+import { checkCmsShopPassword, getCmsShop, postCmsOrder } from '~/server/cms'
 import { EMAIL_RE } from '~/lib/apply'
 import type { OrderInput, ShopData } from '~/lib/shop'
 
-const EMPTY: ShopData = { products: [], settings: { enabled: false, pickup: '', delivery: false, deliveryPrice: 0 } }
+const EMPTY: ShopData = { products: [], settings: { enabled: false, pickup: '', delivery: false, deliveryPrice: 0, trackStock: false } }
 const langInput = (lang: unknown): Lang => (isLang(lang) ? lang : 'hr')
 const str = (v: unknown, max: number) => String(v ?? '').trim().slice(0, max)
 
@@ -29,9 +29,15 @@ export const placeOrder = createServerFn({ method: 'POST' })
       address: str(d.address, 500),
       note: str(d.note, 2000),
       items: items.filter((i) => Number.isInteger(i.product) && i.qty > 0),
+      password: str(d.password, 200),
     }
     const bad = !order.customer.name || !EMAIL_RE.test(order.customer.email) || !order.customer.phone || (order.delivery === 'post' && !order.address) || !order.items.length
     if (bad) throw new Error('invalid')
     return order
   })
   .handler(({ data }) => postCmsOrder(data))
+
+/** Check the shop password. The CMS waits a little after a wrong one. */
+export const checkShopPassword = createServerFn({ method: 'POST' })
+  .validator((raw: unknown) => str(raw, 200))
+  .handler(({ data }) => (data ? checkCmsShopPassword(data) : false))
