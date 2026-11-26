@@ -3,6 +3,8 @@ import { content, type Lang } from '~/content'
 import { NotFound } from '~/components/Cms'
 import { ProductPage } from '~/components/Shop'
 import { getShop } from '~/lib/shopFns'
+import { CATEGORY_LABEL } from '~/lib/shop'
+import { pageHead, productLd } from '~/lib/seo'
 
 const layout = getRouteApi('/$lang')
 
@@ -15,13 +17,22 @@ export const Route = createFileRoute('/$lang/shop/$slug')({
   head: ({ loaderData, params }) => {
     const p = loaderData?.products.find((x) => x.slug === params.slug)
     if (!p) return {}
-    return {
-      meta: [
-        { title: `${p.name} — FESB Racing Shop` },
-        ...(p.description ? [{ name: 'description', content: p.description }] : []),
-        ...(p.images[0] ? [{ property: 'og:image', content: p.images[0].src }] : []),
-      ],
-    }
+    const lang = params.lang as Lang
+    const c = content[lang] ?? content.hr
+    const rest = `/shop/${p.slug}`
+    const category = CATEGORY_LABEL[lang][p.category]
+    const description = p.description || `${p.name} — ${category ?? c.shopTitle}. ${c.shopText}`
+    return pageHead({
+      lang,
+      rest,
+      title: p.name,
+      description,
+      image: p.images[0]?.src,
+      type: 'product',
+      noindex: !loaderData!.settings.enabled,
+      crumbs: [{ name: c.shopTitle, rest: '/shop' }],
+      jsonLd: [productLd({ lang, rest, name: p.name, description, images: p.images.map((i) => i.src), price: p.price, inStock: p.stock > 0, category, sku: `FR-${p.id}` })],
+    })
   },
   component: Page,
   notFoundComponent: () => {

@@ -27,6 +27,8 @@ async function cmsSlugs(base: string, collection: 'news' | 'announcements' | 'pr
 export default defineConfig(async ({ command, mode }) => {
   const env = loadEnv(mode, process.cwd(), '')
   const cmsUrl = process.env.CMS_URL || env.CMS_URL || 'http://localhost:3100'
+  // The public address of the site, for canonical links, the sitemap and the share images (src/lib/seo.ts).
+  const siteUrl = (process.env.SITE_URL || env.SITE_URL || 'https://fesb-racing-site.pop-sites.workers.dev').replace(/\/$/, '')
   process.env.CMS_URL ||= cmsUrl
   // The slug list is only needed for the build. It adds the detail pages to the crawl.
   // If the CMS is down, the news list is empty and no detail page exists.
@@ -55,6 +57,7 @@ export default defineConfig(async ({ command, mode }) => {
   ].map((path) => ({ path }))
 
   return {
+    define: { __SITE_URL__: JSON.stringify(siteUrl) },
     server: { port: 3000 },
     resolve: { tsconfigPaths: true },
     plugins: [

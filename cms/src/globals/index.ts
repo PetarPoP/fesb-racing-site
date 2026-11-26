@@ -161,6 +161,24 @@ export const SiteSettings: GlobalConfig = {
         { name: 'storefrontToken', type: 'text', admin: { hidden: true } },
       ],
     },
+    {
+      name: 'seo',
+      label: 'SEO i tražilice',
+      type: 'group',
+      admin: {
+        description:
+          'Kodovi za potvrdu vlasništva stranice. Google Search Console: dodaj stranicu kao „URL prefix“, odaberi potvrdu „HTML tag“ i ovdje zalijepi samo vrijednost content="…". Bing Webmaster Tools: isto, metoda „HTML Meta Tag“. Sitemap za obje tražilice je /sitemap.xml.',
+      },
+      fields: [
+        {
+          type: 'row',
+          fields: [
+            { name: 'googleVerification', label: 'Google Search Console kod', type: 'text', admin: { width: '50%', placeholder: 'na primjer abc123…' } },
+            { name: 'bingVerification', label: 'Bing Webmaster kod', type: 'text', admin: { width: '50%', placeholder: 'na primjer 1A2B3C…' } },
+          ],
+        },
+      ],
+    },
   ],
 }
 

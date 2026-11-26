@@ -296,6 +296,8 @@ export async function getCmsContent(lang: Lang, base: Content): Promise<Content>
     const soc = nonEmpty(settings.social)
     if (soc) out.socials = Object.fromEntries(soc.map((s) => [s.platform, s.url]))
     if ((settings as { shop?: { enabled?: boolean } }).shop?.enabled) out.shop = { enabled: true }
+    const seo = (settings as { seo?: { googleVerification?: string; bingVerification?: string } }).seo
+    if (seo?.googleVerification || seo?.bingVerification) out.verify = { google: seo.googleVerification || undefined, bing: seo.bingVerification || undefined }
   }
 
   // The CMS team list (in its order) replaces the static one once it holds the current team codes.

@@ -124,6 +124,9 @@ export type Content = {
   allNews: string
   /** Longer stories: the bottom of the home page and /blog. */
   blogLabel: string
+  /** Meta descriptions of the news and blog lists. */
+  newsMeta: string
+  blogMeta: string
   blogTitle: string
   blogReadFull: string
   allBlog: string
@@ -189,6 +192,8 @@ export type Content = {
   errAddress: string
   /** The shop from the CMS (Site settings → Shop). The nav link shows when it is switched on. */
   shop?: { enabled: boolean }
+  /** Verification codes of Google Search Console and Bing Webmaster Tools from the CMS (Site settings → SEO). */
+  verify?: { google?: string; bing?: string }
   /** Social link URLs from the CMS, by platform (instagram, facebook, linkedin). */
   socials?: Record<string, string>
   /** Names of the 3D car assemblies from the CMS (Home page texts), by assembly key. */
@@ -395,6 +400,8 @@ const hr: Content = {
   readFull: 'Pročitaj cijelu novost',
   allNews: 'Sve novosti',
   blogLabel: 'Blog',
+  newsMeta: 'Novosti FESB Racinga: radionica, testiranja, natjecanja Formula Student i MotoStudent te život studentskog trkaćeg tima iz Splita.',
+  blogMeta: 'Blog FESB Racinga za partnere i sponzore: kako gradimo bolide i motocikle, rezultati s natjecanja i suradnje s industrijom.',
   blogTitle: 'Iz radionice',
   blogReadFull: 'Pročitaj cijeli članak',
   allBlog: 'Svi članci',
@@ -655,6 +662,8 @@ const en: Content = {
   readFull: 'Read the full story',
   allNews: 'All news',
   blogLabel: 'Blog',
+  newsMeta: 'News from FESB Racing: the workshop, testing, Formula Student and MotoStudent competitions and life in a student racing team from Split.',
+  blogMeta: 'The FESB Racing blog for partners and sponsors: how we build our cars and bikes, competition results and work with industry.',
   blogTitle: 'From the workshop',
   blogReadFull: 'Read the full article',
   allBlog: 'All articles',

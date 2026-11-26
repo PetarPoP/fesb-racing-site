@@ -1847,6 +1847,13 @@ export interface SiteSetting {
     storeDomain?: string | null;
     storefrontToken?: string | null;
   };
+  /**
+   * Kodovi za potvrdu vlasništva stranice. Google Search Console: dodaj stranicu kao „URL prefix“, odaberi potvrdu „HTML tag“ i ovdje zalijepi samo vrijednost content="…". Bing Webmaster Tools: isto, metoda „HTML Meta Tag“. Sitemap za obje tražilice je /sitemap.xml.
+   */
+  seo?: {
+    googleVerification?: string | null;
+    bingVerification?: string | null;
+  };
   updatedAt?: string | null;
   createdAt?: string | null;
 }
@@ -1989,6 +1996,12 @@ export interface SiteSettingsSelect<T extends boolean = true> {
         deliveryPrice?: T;
         storeDomain?: T;
         storefrontToken?: T;
+      };
+  seo?:
+    | T
+    | {
+        googleVerification?: T;
+        bingVerification?: T;
       };
   updatedAt?: T;
   createdAt?: T;

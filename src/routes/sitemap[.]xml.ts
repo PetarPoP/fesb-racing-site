@@ -1,6 +1,7 @@
 import { createFileRoute } from '@tanstack/react-router'
 import { LANGS } from '~/content'
-import { getCmsPosts, getCmsShop } from '~/server/cms'
+import { getCmsPosts, getCmsShop, getCmsVehicles } from '~/server/cms'
+import { SITE_URL } from '~/lib/seo'
 
 const escapeXml = (s: string) => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;')
 
@@ -11,7 +12,7 @@ function urlElement(origin: string, entry: Entry) {
   // The path has the form /hr/... . Replace the language segment for each alternate.
   const rest = entry.path.replace(/^\/[a-z]{2}/, '')
   const loc = (l: string) => escapeXml(`${origin}/${l}${rest}`)
-  const links = LANGS.map((l) => `    <xhtml:link rel="alternate" hreflang="${l}" href="${loc(l)}"/>`).join('\n')
+  const links = [...LANGS.map((l) => `    <xhtml:link rel="alternate" hreflang="${l}" href="${loc(l)}"/>`), `    <xhtml:link rel="alternate" hreflang="x-default" href="${loc('hr')}"/>`].join('\n')
   return LANGS.map((l) =>
     [
       '  <url>',
@@ -28,11 +29,11 @@ function urlElement(origin: string, entry: Entry) {
 export const Route = createFileRoute('/sitemap.xml')({
   server: {
     handlers: {
-      GET: async ({ request }) => {
-        // SITE_URL sets the public address. Without it, the sitemap uses the address of the request.
-        const origin = (process.env.SITE_URL || new URL(request.url).origin).replace(/\/$/, '')
+      GET: async () => {
+        // The addresses are those of the public site (SITE_URL at build time), also on a preview deploy.
+        const origin = SITE_URL
         // The news list is null when the CMS is down. The sitemap then has only the static pages.
-        const [news, blog, shop] = await Promise.all([getCmsPosts('news', 'hr'), getCmsPosts('blog', 'hr'), getCmsShop('hr')])
+        const [news, blog, shop, vehicles] = await Promise.all([getCmsPosts('news', 'hr'), getCmsPosts('blog', 'hr'), getCmsShop('hr'), getCmsVehicles('hr')])
         const newest = (list: { date: string }[] | null) => list?.map((n) => n.date).sort().at(-1)
         const entries: Entry[] = [
           { path: '/hr', lastmod: newest([...(news ?? []), ...(blog ?? [])]) },
@@ -42,6 +43,7 @@ export const Route = createFileRoute('/sitemap.xml')({
           ...(blog ?? []).map((n) => ({ path: `/hr/blog/${encodeURIComponent(n.slug)}`, lastmod: n.date })),
           { path: '/hr/projekti/formula-student' },
           { path: '/hr/projekti/motostudent' },
+          ...vehicles.map((v) => ({ path: `/hr/projekti/${v.project}/${encodeURIComponent(v.id)}` })),
           ...(shop?.settings.enabled ? [{ path: '/hr/shop' }, ...shop.products.map((p) => ({ path: `/hr/shop/${encodeURIComponent(p.slug)}` }))] : []),
         ]
         const xml = [
